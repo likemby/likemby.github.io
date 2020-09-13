@@ -1,0 +1,83 @@
+.my-resume {
+  font-size: 14px; }
+  .my-resume .delimiter {
+    position: relative;
+    width: 100%;
+    font-weight: 700; }
+    .my-resume .delimiter::before {
+      content: '\2606 '; }
+    .my-resume .delimiter::after {
+      content: '';
+      position: absolute;
+      left: 0px;
+      bottom: 0px;
+      height: 2px;
+      width: 100%;
+      background-color: black; }
+  .my-resume .strong {
+    font-weight: 700; }
+  .my-resume ul, .my-resume ol {
+    padding: 0 0 0 5px;
+    list-style: none; }
+  .my-resume .ab-header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: baseline;
+    font-size: 24px;
+    margin: 0 0 20px; }
+    .my-resume .ab-header .sub-title {
+      font-size: 0.5em;
+      margin-left: 20px; }
+  .my-resume .award-detail li .time {
+    display: inline-block; }
+  .my-resume .award-detail li .award {
+    margin-left: 20px;
+    display: inline-block; }
+  .my-resume .profile {
+    overflow: hidden; }
+    .my-resume .profile ul {
+      vertical-align: baseline;
+      display: inline-block;
+      float: left;
+      margin-right: 80px;
+      padding: 0 5px; }
+    .my-resume .profile ul:last-child {
+      float: right; }
+      .my-resume .profile ul:last-child img {
+        display: block;
+        margin: 0; }
+  .my-resume .project-experience li {
+    margin-left: 20px;
+    list-style: outside decimal none; }
+    .my-resume .project-experience li .content {
+      padding: 0; }
+
+.my-video-container {
+  box-shadow: -5px 5px 5px grey;
+  border-radius: 5px; }
+  .my-video-container > .title {
+    position: relative;
+    width: 75%;
+    height: 40px;
+    border-radius-topleft: 5px;
+    background-color: orangered;
+    line-height: 40px;
+    font-style: italic; }
+    .my-video-container > .title > a {
+      padding-left: 20px;
+      text-decoration: none;
+      color: white; }
+    .my-video-container > .title::after {
+      box-sizing: border-box;
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 40px;
+      right: 0;
+      top: 0;
+      background-color: blue;
+      border: 20px solid orangered;
+      border-right: 40px solid white; }
+
+/*# sourceMappingURL=index.css.map */

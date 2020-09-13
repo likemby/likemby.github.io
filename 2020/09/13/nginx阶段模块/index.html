@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"mabingyang.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="nginx常见变量   名称 作用 限制    $proxy_add_x_forwarded_for 如果$http_x_forwarded_for不为空,等同于’$http_x_forwarded_for,$remote_addr’，否则等于$remote_addr    $remote_addr 上一个http请求的ip 有可能被realip模块修改   $realip_remote_addr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx工作得几个重要阶段">
+<meta property="og:url" content="http://mabingyang.top/2020/09/13/nginx%E9%98%B6%E6%AE%B5%E6%A8%A1%E5%9D%97/index.html">
+<meta property="og:site_name" content="马冰阳的个人博客">
+<meta property="og:description" content="nginx常见变量   名称 作用 限制    $proxy_add_x_forwarded_for 如果$http_x_forwarded_for不为空,等同于’$http_x_forwarded_for,$remote_addr’，否则等于$remote_addr    $remote_addr 上一个http请求的ip 有可能被realip模块修改   $realip_remote_addr">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-13T15:54:39.874Z">
+<meta property="article:modified_time" content="2020-09-13T15:59:22.749Z">
+<meta property="article:author" content="马冰阳">
+<meta property="article:tag" content="运维">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://mabingyang.top/2020/09/13/nginx%E9%98%B6%E6%AE%B5%E6%A8%A1%E5%9D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>nginx工作得几个重要阶段 | 马冰阳的个人博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+
+      <h1 class="site-title">Wanna fly higher</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+
+      <p class="site-subtitle" itemprop="description">如果没有光 就努力成为自己的光</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>我的信息</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>成长历程</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>全站搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/13/nginx%E9%98%B6%E6%AE%B5%E6%A8%A1%E5%9D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          nginx工作得几个重要阶段
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-13 23:54:39 / 修改时间：23:59:22" itemprop="dateCreated datePublished" datetime="2020-09-13T23:54:39+08:00">2020-09-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">服务器</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="nginx常见变量"><a href="#nginx常见变量" class="headerlink" title="nginx常见变量"></a>nginx常见变量</h3><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>作用</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$proxy_add_x_forwarded_for</td>
+<td>如果$http_x_forwarded_for不为空,等同于’$http_x_forwarded_for,$remote_addr’，否则等于$remote_addr</td>
+<td></td>
+</tr>
+<tr>
+<td>$remote_addr</td>
+<td>上一个http请求的ip</td>
+<td>有可能被realip模块修改</td>
+</tr>
+<tr>
+<td>$realip_remote_addr</td>
+<td>上一个http请求的ip</td>
+<td>realip模块提供的变量</td>
+</tr>
+<tr>
+<td>$http_x_forwarded_for</td>
+<td>http request header中的X-Forwarded-For的值</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>&lt;–! more –&gt;</p>
+<h3 id="postread阶段"><a href="#postread阶段" class="headerlink" title="postread阶段"></a>postread阶段</h3><p>对应  http-real-ip模块<br>|指令或变量| 格式|说明|<br>|—-|—-|—-|<br>|set_real_ip_from|address;CIDR;unix|定义受信地址。如CDN,内网..事先已知的反向代理。通过受信渠道的地址才会被处理，替换|<br>|real_ip_header|field;X-Real-IP;X-Forwarded-For;proxy_protocol|默认值X-Real-IP,指定用于替换$remote_addr的内容,常使用X-Forwarded-For|<br>|real_ip_recursive |可选 on;off|默认为off;off:$remote_addr将替换为real_ip_header的最后一个地址；on:$remote_addr将替换为real_ip_header最后一个非置信的ip|<br>|$realip_remote_addr||原始客户端地址|<br>|$realip_remote_port||原始客户端端口|</p>
+<h3 id="rewrite阶段"><a href="#rewrite阶段" class="headerlink" title="rewrite阶段"></a>rewrite阶段</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>return</td>
+<td>返回值格式如 code text，或者code url 或者单独的url</td>
+<td>code 200,301等；url或text中可以包含变量</td>
+</tr>
+<tr>
+<td>rewrite</td>
+<td>regex replacement flag</td>
+<td></td>
+</tr>
+</tbody></table>
+<ul>
+<li><h4 id="return"><a href="#return" class="headerlink" title="return"></a>return</h4><ul>
+<li>返回值为单独的url时，相当于返回 302 url.</li>
+<li>As a special case, a redirect URL can be specified as a URI local to this server, in which case the full redirect URL is formed according to the request scheme ($scheme) and the server_name_in_redirect and port_in_redirect directives.</li>
+</ul>
+</li>
+<li><h4 id="rewrite"><a href="#rewrite" class="headerlink" title="rewrite"></a>rewrite</h4><ul>
+<li>rewrite flag值可取last,break,redirect,permanent.</li>
+<li>last 新的uri再次进行location匹配，</li>
+<li>break ,完成当前在location中剩余操作</li>
+<li>redirect 返回302暂时重定向；如果replacement以http(s)开头也会触发</li>
+<li>permanent 永久重定向 返回301<br>  <strong>两个重定向区别</strong>：永久重定向，相当于告诉客户端下次请求直接转发到重定向；暂时重定向每次都重复这个过程。</li>
+</ul>
+</li>
+</ul>
+<h3 id="findconfig阶段"><a href="#findconfig阶段" class="headerlink" title="findconfig阶段"></a>findconfig阶段</h3><p><em>此阶段主要是对location的匹配。</em></p>
+<ul>
+<li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
+</li>
+<li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
+</li>
+<li><p>对于普通字符串的匹配规律。首先将所有普通字符串按字典序进行排序。请求uri逐一扫描，当当前字符串大于请求uri时停止，并选取最后一个匹配。<em>（精确匹配除外，且所有普通字符串不能重复。）</em></p>
+</li>
+<li><p>匹配顺序</p>
+<ol>
+<li>首先进行精确匹配，如果匹配到=修饰的location，停止匹配。</li>
+<li>然后检查普通字符串定义的其余location，记录最长匹配的location字符串。如果记录的最长匹配字符串用^~修饰,则停止匹配。</li>
+<li>接着按配置文件定义的顺序，进行正则location匹配.使用第一个匹配结果。</li>
+<li>如果没有正则匹配,使用前面记录的最长前缀字符串的location. </li>
+</ol>
+</li>
+<li><p>location @name 主要用于内部重定向.<strong>注意命名location中不能再嵌套其它的命名location</strong>。</p>
+</li>
+<li><p>location中的字符有没有<code>/</code>都没有影响。也就是说<code>/user/</code>和<code>/user</code>是一样的.可以使用精确匹配测试.</p>
+</li>
+<li><p>如果请求URL结构是<a target="_blank" rel="noopener" href="https://domain.com/%E7%9A%84%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B0%BE%E9%83%A8%E6%9C%89%E6%B2%A1%E6%9C%89/%E9%83%BD%E4%B8%8D%E4%BC%9A%E9%80%A0%E6%88%90%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%9C%A8%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E9%BB%98%E8%AE%A4%E5%8A%A0%E4%B8%8A%E4%BA%86/">https://domain.com/的形式，尾部有没有/都不会造成重定向。因为浏览器在发起请求的时候，默认加上了/</a>.</p>
+</li>
+<li><p>如果请求URL的结构是<a target="_blank" rel="noopener" href="https://domain.com/some-dir/%E3%80%82%E5%B0%BE%E9%83%A8%E5%A6%82%E6%9E%9C%E7%BC%BA%E5%B0%91/%E5%B0%86%E5%AF%BC%E8%87%B4%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%A0%B9%E6%8D%AE%E7%BA%A6%E5%AE%9A%EF%BC%8CURL%E5%B0%BE%E9%83%A8%E7%9A%84/%E8%A1%A8%E7%A4%BA%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%B2%A1%E6%9C%89/%E8%A1%A8%E7%A4%BA%E6%96%87%E4%BB%B6%E3%80%82%E6%89%80%E4%BB%A5%E8%AE%BF%E9%97%AE/some-dir/%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE/some-dir%E7%9A%84%E8%AF%9D%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E5%85%88%E5%8E%BB%E6%89%BEsome-dir%E6%96%87%E4%BB%B6%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E7%9A%84%E8%AF%9D%E4%BC%9A%E5%B0%86some-dir%E5%BD%93%E6%88%90%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0/some-dir/%EF%BC%8C%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82">https://domain.com/some-dir/。尾部如果缺少/将导致重定向。因为根据约定，URL尾部的/表示目录，没有/表示文件。所以访问/some-dir/时，服务器会自动去该目录下找对应的默认文件。如果访问/some-dir的话，服务器会先去找some-dir文件，找不到的话会将some-dir当成目录，重定向到/some-dir/，去该目录下找默认文件。</a></p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>含义</th>
+<th>其它</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>~</td>
+<td>波浪线表示执行一个正则匹配，区分大小写</td>
+<td></td>
+</tr>
+<tr>
+<td>~*</td>
+<td>表示执行一个正则匹配，不区分大小写</td>
+<td>正则匹配顺序很重要,按顺序匹配，匹配到则停止</td>
+</tr>
+<tr>
+<td>^~</td>
+<td>^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</td>
+<td></td>
+</tr>
+<tr>
+<td>=</td>
+<td>进行普通字符精确匹配</td>
+<td>使用<code>=</code>精准匹配可以加快查找的顺序，如果根域名经常被访问的话建议使用<code>=</code>。</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h3 id="preaccess阶段"><a href="#preaccess阶段" class="headerlink" title="preaccess阶段"></a>preaccess阶段</h3><p><em>限制并发连接数</em><br>|指令|格式|默认值|说明|<br>|–|–|–|–|<br>|limit_conn_zone|key zone=name:size rate=rate||在http，用于定义共享内存,处理速度rate单位为r/s或者r/m|<br>|limt_conn|zone number||限制并发连接数,用于http,server,location|<br>|limit_conn_status|code|503|限制发生时向客户端返回的错误码，用于http,server,locacion|<br>|limit_conn_log_level|info;notice;warn;eror|error|限制发生时日志级别，用于http,server,locacion|<br>|limit_req_zone|key zone=name [burst=number] [nodelay]|burst=0,nodela立刻处理||<br>|limit_req_status|code|503|限制发生时向客户端返回的错误码，用于http,server,locacion|<br>|limit_req_log_level|info;notice;warn;eror|error|限制发生时日志级别，用于http,server,locacion|</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">limit_conn_zone $binary_remote_addr zone&#x3D;addr:10m;</span><br><span class="line">#限制download目录下一个ip的并发请求数量</span><br><span class="line">: server &#123;</span><br><span class="line">: location &#x2F;download&#x2F; &#123;</span><br><span class="line">: limit_conn   addr  1;</span><br><span class="line">: &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">limit_req_zone  $binary_remote_addr  zone&#x3D;one:10m   rate&#x3D;1r&#x2F;s;</span><br><span class="line">    server &#123;</span><br><span class="line">    #允许用户平均每秒不超过1个请求，突发情况下最多有5个，5个以内响应无延迟，大于5个有延迟。</span><br><span class="line">        location &#x2F;search&#x2F; &#123;</span><br><span class="line">            limit_req   zone&#x3D;one  burst&#x3D;5 nodelay;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="access阶段"><a href="#access阶段" class="headerlink" title="access阶段"></a>access阶段</h3><p>对ip进行限制的阶段，通过顺序为access-&gt;auth_basic-&gt;auth_request<br>|指令|格式|默认值|说明|<br>|–|–|–|–|<br>|allow| address;CIDR;unix|all||用于http,server,location,limit_except中|<br>|deny| address;CIDR;unix|all||同allow，多条指令按顺序执行，直到匹配成功，用于控制访问ip|<br>|auth_basic|string;off|off，取消从上级模块继承的结果；字符串指定一个域。|用于http,server,location,limit_except中|<br>|auth_basic_user_file|file||同auth_basic属于auth_basic模块的指令，指定验证用户的文件|<br>|auth_request|uri;off|off|用于http,server,location中，向上游服务转发请求，如返回2xx，则继续执行；若401或403则被拒绝并将响应返回客户端；其它码视为一个错误|<br>|auth_request_set|$variable value||同auth_request,用于设置变量，这两个变量属于auth_request模块，默认未编译进nginx|<br>|satisfy|all;any|all|对access阶段的各个模块结果取并或者或结果|</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F;private&#x2F; &#123;</span><br><span class="line">    auth_request &#x2F;auth;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">location &#x3D; &#x2F;auth &#123;</span><br><span class="line">    proxy_pass ...</span><br><span class="line">    proxy_pass_request_body off;</span><br><span class="line">    proxy_set_header Content-Length &quot;&quot;;</span><br><span class="line">    proxy_set_header X-Original-URI $request_uri;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="precontent阶段"><a href="#precontent阶段" class="headerlink" title="precontent阶段"></a>precontent阶段</h3><ul>
+<li><p>try_files模块<br>  用于location中，根据请求uri进行逐个文件的匹配，返回第一个匹配项。末尾必须跟着一个fallback,它是一个命名location，或者存在的uri,如 =404状态码。 </p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">location &#x2F; &#123;</span><br><span class="line"></span><br><span class="line">  try_files index.html index.htm @fallback;</span><br><span class="line">&#125;</span><br><span class="line">location @fallback &#123;</span><br><span class="line"> root  &#x2F;var&#x2F;www&#x2F;error;</span><br><span class="line"> index index.html;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="content阶段"><a href="#content阶段" class="headerlink" title="content阶段"></a>content阶段</h3></li>
+<li><p>root和alias</p>
+<ul>
+<li>root: 用于http, server, location, if in location块中.默认值 html.指定请求uri的前缀.root加作为前缀加到uri上.root与rewrite搭配实现alias的效果.</li>
+<li>alias:用于location中,alias将替换 location匹配内容,形成新的uri.对于正则location,应包含捕获从而在alias中可以引用   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location  &#x2F;i&#x2F; &#123;</span><br><span class="line"> alias   &#x2F;spool&#x2F;w3&#x2F;images&#x2F;;</span><br><span class="line">&#125;</span><br><span class="line">#The request &quot;&#x2F;i&#x2F;top.gif&quot; will return the file &quot;&#x2F;spool&#x2F;w3&#x2F;images&#x2F;top.gif&quot;.</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>index<br>  指定目录时返回默认的文件，默认配置为index index.html;可以在serve,location,http中配置。** 注意**index会引起内部重定向，导致文件在不同的location中处理.</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#a “&#x2F;” request will actually be processed in the second location as “&#x2F;index.html”.</span><br><span class="line">location &#x3D; &#x2F; &#123;</span><br><span class="line">    index index.html;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">  location &#x2F; &#123;</span><br><span class="line">  ...</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag"># 运维</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/12/web%E5%AD%98%E5%82%A8/" rel="prev" title="浏览器存储机制">
+      <i class="fa fa-chevron-left"></i> 浏览器存储机制
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" rel="next" title="nginx配置信息">
+      nginx配置信息 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+    <div class="toggle sidebar-toggle">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-inner">
+
+            <ul class="sidebar-nav motion-element"  >
+                <li class="sidebar-nav-toc">
+                    文章目录
+                </li>
+                <li class="sidebar-nav-overview">
+                    站点概览
+                </li>
+            </ul>
+
+            <!--noindex-->
+            <div class="post-toc-wrap sidebar-panel">
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#nginx%E5%B8%B8%E8%A7%81%E5%8F%98%E9%87%8F"><span class="nav-text">nginx常见变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#postread%E9%98%B6%E6%AE%B5"><span class="nav-text">postread阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rewrite%E9%98%B6%E6%AE%B5"><span class="nav-text">rewrite阶段</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#return"><span class="nav-text">return</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rewrite"><span class="nav-text">rewrite</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#findconfig%E9%98%B6%E6%AE%B5"><span class="nav-text">findconfig阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#preaccess%E9%98%B6%E6%AE%B5"><span class="nav-text">preaccess阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#access%E9%98%B6%E6%AE%B5"><span class="nav-text">access阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#precontent%E9%98%B6%E6%AE%B5"><span class="nav-text">precontent阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#content%E9%98%B6%E6%AE%B5"><span class="nav-text">content阶段</span></a></li></ol></div>
+            </div>
+            <!--/noindex-->
+
+            <div class="site-overview-wrap sidebar-panel">
+                <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马冰阳"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">马冰阳</p>
+  <div class="site-description" itemprop="description">记录成长的点点滴滴</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/likemby" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;likemby" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:mabingyangh@163.com" title="E-Mail → mailto:mabingyangh@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+            </div>
+
+
+          
+          <div class="widget-wrap">
+            <h3 class="widget-title">笔记分类</h3>
+            <div class="category-all-page">
+              <div class="category-all">
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li></ul>
+              </div>
+            </div>
+          </div>
+          
+
+
+          
+            <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+            <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+            <div class="widget-wrap">
+              <h3 class="widget-title">标签云</h3>
+              <div id="myCanvasContainer" class="widget tagcloud">
+                <canvas width="250" height="100" id="resCanvas" style="width:100%">
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">2</span></li></ul>
+                </canvas>
+              </div>
+            </div>
+          
+        </div>
+    </aside>
+
+    <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马冰阳</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

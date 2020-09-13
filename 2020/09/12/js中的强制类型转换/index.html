@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"mabingyang.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="JavaScript中的类型转换1. 概述值类型转换有显式与隐式之分。  显式，发生在静态类型语言的编译阶段。 隐式，也称强制类型转换，发生在动态语言运行时。  由于JavaScript是一门动态弱类型语言，因此有人说JavaScript中均为隐式转化也不错。不过接下来，我们从其转换的明显程度去划分显式 与隐式 两种转化。 2. 准备基本数据类型  共七个：number, string, numb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript中的类型转换">
+<meta property="og:url" content="http://mabingyang.top/2020/09/12/js%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/index.html">
+<meta property="og:site_name" content="马冰阳的个人博客">
+<meta property="og:description" content="JavaScript中的类型转换1. 概述值类型转换有显式与隐式之分。  显式，发生在静态类型语言的编译阶段。 隐式，也称强制类型转换，发生在动态语言运行时。  由于JavaScript是一门动态弱类型语言，因此有人说JavaScript中均为隐式转化也不错。不过接下来，我们从其转换的明显程度去划分显式 与隐式 两种转化。 2. 准备基本数据类型  共七个：number, string, numb">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-12T10:46:21.592Z">
+<meta property="article:modified_time" content="2020-09-12T11:02:08.608Z">
+<meta property="article:author" content="马冰阳">
+<meta property="article:tag" content="兰州理工 前端工程师 算法与数据结构 计算机网络">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://mabingyang.top/2020/09/12/js%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JavaScript中的类型转换 | 马冰阳的个人博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+
+      <h1 class="site-title">Wanna fly higher</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+
+      <p class="site-subtitle" itemprop="description">如果没有光 就努力成为自己的光</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>我的信息</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>成长历程</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>全站搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/12/js%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JavaScript中的类型转换
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:02:08" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="JavaScript中的类型转换"><a href="#JavaScript中的类型转换" class="headerlink" title="JavaScript中的类型转换"></a>JavaScript中的类型转换</h2><h4 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h4><p>值类型转换有显式与隐式之分。</p>
+<ul>
+<li>显式，发生在静态类型语言的编译阶段。</li>
+<li>隐式，也称强制类型转换，发生在动态语言运行时。</li>
+</ul>
+<p>由于JavaScript是一门动态弱类型语言，因此有人说JavaScript中均为隐式转化也不错。不过接下来，我们从其转换的明显程度去划分<em>显式</em> 与<em>隐式</em> 两种转化。</p>
+<h4 id="2-准备"><a href="#2-准备" class="headerlink" title="2. 准备"></a>2. 准备</h4><p>基本数据类型</p>
+<ul>
+<li>共七个：number, string, number, null, undefined, symbol, object.</li>
+</ul>
+<p>抽象值操作</p>
+<a id="more"></a>
+<ul>
+<li><p><code>ToString()</code></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">各个值类型示例</span><br><span class="line"><span class="literal">null</span> -&gt; <span class="string">&quot;null&quot;</span></span><br><span class="line"><span class="literal">undefined</span> -&gt; <span class="string">&quot;undefined&quot;</span></span><br><span class="line"><span class="literal">true</span>, <span class="literal">false</span> -&gt; <span class="string">&quot;true&quot;</span>, <span class="string">&quot;false&quot;</span></span><br><span class="line"><span class="number">5</span>, <span class="number">1e100</span> -&gt; <span class="string">&quot;5&quot;</span>, <span class="string">&quot;1e+100&quot;</span></span><br><span class="line"></span><br><span class="line">object</span><br><span class="line">如果对象重写了toString()方法，则该使用该返回值；否则，返回[[class]]属性</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>ToNumber()</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">值类型</span><br><span class="line">null -&gt;0</span><br><span class="line">undefined -&gt; NAN</span><br><span class="line">false, true -&gt; 0, 1</span><br><span class="line">&quot;5&quot;, &quot;5Nsa&quot;, &quot;&quot; -&gt; 5, NAN, 0 &#x2F;&#x2F;空值包括，&quot;&quot;, &quot; &quot;, &quot;\n&quot;</span><br><span class="line"></span><br><span class="line">object</span><br><span class="line">调用ToPrimitive()</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>ToBoolean()</code></p>
+<ul>
+<li>需要注意，JavaScript中true与1， false与0并不完全相等</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">转化为false的值</span><br><span class="line">undefined -&gt; false</span><br><span class="line">null -&gt; false</span><br><span class="line">+0, -0, NaN -&gt; false</span><br><span class="line">&quot;&quot; -&gt; false</span><br><span class="line"></span><br><span class="line">除此外，其它的boolean转化，如对象，数组，函数等均为true</span><br><span class="line">注意*: 存在一些自定义的对象，bool转换总是false值</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>ToPrimitive()</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">此方法用于对象的拆封</span><br><span class="line">1. 首先检查对象valueOf()方法是否存在并且返回的是基本值类型</span><br><span class="line">2. 否则，检查toString()方法是否存在并且有返回值</span><br><span class="line">3. 如果不存在，则发出TypeError的错误</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="3-显示转换"><a href="#3-显示转换" class="headerlink" title="3. 显示转换"></a>3. 显示转换</h4><ul>
+<li><p>转字符串：通过String(), <code>toString()</code>, +””方法</p>
+<ol>
+<li><p>数值类型 <code>toString(radix)</code>方法可指定radix进制2， 8, 16等，radix一定在[2,36]区间</p>
+</li>
+<li><p>体会 <code>(3).toString(2) =&gt;&#39;11&#39;</code> 与<code>(“3”).toStirng(2)=&gt;&#39;3&#39;</code>的不同, </p>
+</li>
+<li><p>undefined, null 不能进行<code>toString()</code>,可以使用其它两种方法</p>
+<blockquote>
+<p><code>3.toString(2) =&gt;&#39;11&#39;</code> 报错</p>
+<p><code>3..toString(2) =&gt;&#39;11&#39;</code> 通过</p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><p>转数字：通过<code>Nmber(), parseFloat(), parseInt(), +str </code></p>
+<ol>
+<li><p><code>+str</code>、parseInt(), Number（）方法不识别8进制, parseFloat()不识别8进制和16进制。</p>
+</li>
+<li><p>Number识别别数字字符串不支持中间有空格</p>
+</li>
+<li><p><code>parseFloat()</code>从首位开始，直到遇到非数字位或第二个.停止(.，0, <code>0x</code>, +, -可以被处理)。空字符串，bool,undefined,null,都将转为NaN。</p>
+</li>
+<li><p><code>parseInt(),</code>从首位开始，直到遇到非数字位停止(0, 0x, +, -可以被处理)。空字符串，bool,undefined,null,都将转为NaN。</p>
+</li>
+</ol>
+<blockquote>
+<ul>
+<li>获得时间戳 <code>var timeStamp= +new Date()</code> </li>
+<li>截断小数 <code>~~-49.6 == -49</code></li>
+<li><del>x取得x补码  `</del>str.index(“a”)=0或1`</li>
+</ul>
+</blockquote>
+</li>
+<li><p>转布尔：Boolean(), !!</p>
+</li>
+</ul>
+<h4 id="4-隐式转换"><a href="#4-隐式转换" class="headerlink" title="4. 隐式转换"></a>4. 隐式转换</h4><ul>
+<li><p>布尔转换</p>
+<ul>
+<li>if, for, while, ?: 中的条件判断表达式</li>
+<li>&amp;&amp;, || 操作数选择器，两旁的操作数先做布尔转换用来判断返回的操作数</li>
+</ul>
+</li>
+<li><p>”+“号</p>
+<ul>
+<li>如果其两边有一个操作数是字符串或可以转为字符串的对象，则进行字符串拼接；否则进行数字相加。</li>
+<li>[]+{}=”[object Object]” 字符串拼接</li>
+<li>{}+[]=0 {}作为块级区域标志，+[]单独运算</li>
+</ul>
+</li>
+<li><p>== 与 ===</p>
+<ul>
+<li><p>前者允许进行类型转换，后者不许类型转换；两者效率并无大差异</p>
+</li>
+<li><pre><code>规定
+1. NaN 不等于 NaN
+2. +0 = -0
+3. 比较两个对象时，比较其指向的值是否相等，不发生类型转换</code></pre>
+</li>
+</ul>
+</li>
+<li><p>a == b 比较规则</p>
+<ol>
+<li>a, b中一个为<code>bool</code>类型，则转为数字</li>
+<li>a, b中一个为string类型，则转为数字</li>
+<li>若a, b中一个为对象，进行拆封操作，即<code>toPrimitive()</code><ul>
+<li>[null] -&gt; “”, 数组对象重写了<code>toString()</code>方法，null -&gt; “”</li>
+</ul>
+</li>
+<li>null == undefined, 结果为true</li>
+<li>不建议当操作数为true, false, [], “”, 0时使用==比较</li>
+</ol>
+</li>
+<li><p>a&gt;b, a&lt;b抽象比较</p>
+<ul>
+<li>a&gt;=b, a&lt;=b将被转换为!(a&lt;b), !(a&gt;b)</li>
+<li>若a,b中存在数字，则转化为数字比较，否则转为字符串进行比较</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-Symbol类型的转换"><a href="#5-Symbol类型的转换" class="headerlink" title="5. Symbol类型的转换"></a>5. Symbol类型的转换</h4><p>前面一直没有提到这个数据类型，一般很难接触到。</p>
+<ul>
+<li>可以显式、隐式的转化为布尔类型 </li>
+<li>可以显示转为字符串，但不能隐式的转换<ul>
+<li>Symbol(“hahaha”) +”” //TypeError</li>
+<li>String(Symbol(“hahaha”) ) // “Symbol(hahaha)”</li>
+</ul>
+</li>
+<li>不能转为数字类型</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/12/js%E9%A2%98%E7%9B%AE/" rel="prev" title="一些有趣的js题目">
+      <i class="fa fa-chevron-left"></i> 一些有趣的js题目
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/12/unicode%E4%B8%8Ejs/" rel="next" title="从阮一峰老师学习总结">
+      从阮一峰老师学习总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+    <div class="toggle sidebar-toggle">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-inner">
+
+            <ul class="sidebar-nav motion-element"  >
+                <li class="sidebar-nav-toc">
+                    文章目录
+                </li>
+                <li class="sidebar-nav-overview">
+                    站点概览
+                </li>
+            </ul>
+
+            <!--noindex-->
+            <div class="post-toc-wrap sidebar-panel">
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaScript%E4%B8%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2"><span class="nav-text">JavaScript中的类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="nav-text">1. 概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%87%86%E5%A4%87"><span class="nav-text">2. 准备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%98%BE%E7%A4%BA%E8%BD%AC%E6%8D%A2"><span class="nav-text">3. 显示转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%9A%90%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-text">4. 隐式转换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-Symbol%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="nav-text">5. Symbol类型的转换</span></a></li></ol></li></ol></li></ol></div>
+            </div>
+            <!--/noindex-->
+
+            <div class="site-overview-wrap sidebar-panel">
+                <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马冰阳"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">马冰阳</p>
+  <div class="site-description" itemprop="description">记录成长的点点滴滴</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/likemby" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;likemby" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:mabingyangh@163.com" title="E-Mail → mailto:mabingyangh@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+            </div>
+
+
+          
+          <div class="widget-wrap">
+            <h3 class="widget-title">笔记分类</h3>
+            <div class="category-all-page">
+              <div class="category-all">
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li></ul>
+              </div>
+            </div>
+          </div>
+          
+
+
+          
+            <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+            <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+            <div class="widget-wrap">
+              <h3 class="widget-title">标签云</h3>
+              <div id="myCanvasContainer" class="widget tagcloud">
+                <canvas width="250" height="100" id="resCanvas" style="width:100%">
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">2</span></li></ul>
+                </canvas>
+              </div>
+            </div>
+          
+        </div>
+    </aside>
+
+    <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马冰阳</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"mabingyang.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="作用域 作用域指明了如何查找和存储一个变量，是一套规则。负责收集并维护由所有声明的标识符（变量）组成的一系列查  询，并实施一套非常严格的规则，确定当前执行的代码对这些标识符的访问权限。一个js文件就是一个全局作用域  js引擎负责从头到尾负责整个 JavaScript 程序的编译及执行过程。  编译器负责语法分析及代码生成等  传统的编译   分词&#x2F;词法分析（Tokenizing&#x2F;Lexing）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="js中重点难点">
+<meta property="og:url" content="http://mabingyang.top/2020/09/12/js%E9%9A%BE%E7%82%B9/index.html">
+<meta property="og:site_name" content="马冰阳的个人博客">
+<meta property="og:description" content="作用域 作用域指明了如何查找和存储一个变量，是一套规则。负责收集并维护由所有声明的标识符（变量）组成的一系列查  询，并实施一套非常严格的规则，确定当前执行的代码对这些标识符的访问权限。一个js文件就是一个全局作用域  js引擎负责从头到尾负责整个 JavaScript 程序的编译及执行过程。  编译器负责语法分析及代码生成等  传统的编译   分词&#x2F;词法分析（Tokenizing&#x2F;Lexing）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-12T10:46:21.518Z">
+<meta property="article:modified_time" content="2020-09-12T11:20:13.399Z">
+<meta property="article:author" content="马冰阳">
+<meta property="article:tag" content="js">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://mabingyang.top/2020/09/12/js%E9%9A%BE%E7%82%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>js中重点难点 | 马冰阳的个人博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+
+      <h1 class="site-title">Wanna fly higher</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+
+      <p class="site-subtitle" itemprop="description">如果没有光 就努力成为自己的光</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>我的信息</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>成长历程</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>全站搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/12/js%E9%9A%BE%E7%82%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          js中重点难点
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:20:13" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h2><ul>
+<li><strong>作用域</strong>指明了如何查找和存储一个变量，是一套规则。负责收集并维护由所有声明的标识符（变量）组成的一系列查</li>
+</ul>
+<p>询，并实施一套非常严格的规则，确定当前执行的代码对这些标识符的访问权限。一个js文件就是一个全局作用域</p>
+<ul>
+<li><p><strong>js引擎</strong>负责从头到尾负责整个 JavaScript 程序的编译及执行过程。</p>
+</li>
+<li><p><strong>编译器</strong>负责语法分析及代码生成等</p>
+<blockquote>
+<p>传统的编译</p>
+</blockquote>
+<ul>
+<li><p><em>分词/词法分析</em>（Tokenizing/Lexing）</p>
+<p>考虑程序 var a = 2;。这段程序通常会被分解成为下面这些<strong>词法单元</strong>：var、a、=、2 、;</p>
+</li>
+<li><p><em>解析/语法分析</em>（Parsing）</p>
+<p>这个过程是将词法单元流（数组）转换成一个由元素逐级嵌套所组成的代表了程序语法结构的树。这个树被称为“抽象语法树”（Abstract Syntax Tree，AST）</p>
+</li>
+<li><p><em>代码生成</em></p>
+<p>将 AST 转换为可执行代码的过程被称为代码生成。这个过程与语言、目标平台等息息相关</p>
+</li>
+</ul>
+<blockquote>
+<p>js编译</p>
+</blockquote>
+<ol>
+<li>比起那些编译过程只有三个步骤的语言的编译器，JavaScript 引擎要复杂得多。例如，在语法分析和代码生成阶段有特定的步骤来对运行性能进行优化，包括对冗余元素进行优化等。</li>
+</ol>
+</li>
+</ul>
+<ol start="2">
+<li>JavaScript 引擎不会有大量的（像其他语言编译器那么多的）时间用来进行优化，因为与其他语言不同，JavaScript 的编译过程不是发生在构建之前的。<a id="more"></a>
+<h4 id="1-作用域内声明提升"><a href="#1-作用域内声明提升" class="headerlink" title="1.作用域内声明提升"></a>1.作用域内声明提升</h4></li>
+</ol>
+<p>针对var变量和函数类型</p>
+<ul>
+<li>包括变量和函数在内的所有声明都会在任何代码被执行前首先被处理。</li>
+<li>函数优先于变量</li>
+</ul>
+<h4 id="2-LHS-RHS"><a href="#2-LHS-RHS" class="headerlink" title="2. LHS RHS"></a>2. LHS RHS</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span> <span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">a</span>) </span>&#123; </span><br><span class="line"><span class="number">2.</span>  <span class="keyword">var</span> b = a; </span><br><span class="line"><span class="number">3.</span>  <span class="keyword">return</span> a + b; </span><br><span class="line"><span class="number">4.</span> &#125; </span><br><span class="line"><span class="number">5.</span> <span class="keyword">var</span> c = foo( <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>LHS 查找赋值操作的目标是否存在  如第2行，查找变量b是否存在。</p>
+<blockquote>
+<p>严格模式下，LHS查找不到目标将报错；非严格模式下将在顶级作用域中创建这个目标</p>
+</blockquote>
+</li>
+<li><p>RHS查找赋值操作的目标是否存在，并获取其值 如第二行对变量a的查询</p>
+<blockquote>
+<p>查找找不到将报错</p>
+</blockquote>
+</li>
+<li><p>LHS与RHS都将在其封闭作用域内嵌套向上查找</p>
+</li>
+<li><p>一般来讲变量的声明在编译阶段进行LHS，但函数声明是LHS</p>
+<blockquote>
+<p>编译器可以在代码生成的同时处理声明和值的定义，比如在引擎执行代码时，并不会有线程专门用来将一个函数值“分</p>
+<p>配给”foo。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="2-常见工作模型"><a href="#2-常见工作模型" class="headerlink" title="2. 常见工作模型"></a>2. 常见工作模型</h4><ol>
+<li>词法作用域，大多数编程语言采用；<ol start="2">
+<li>动态作用域，仍有一些编程语言在使用（比如 Bash 脚本、Perl 中的一些模式等）</li>
+</ol>
+</li>
+</ol>
+<h5 id="词法作用域"><a href="#词法作用域" class="headerlink" title="词法作用域"></a>词法作用域</h5><p>​    词法作用域就是定义在词法阶段的作用域。换句话说，词法作用域是由你在写代码时将变量和块作用域写在哪里来决定的，因此当词法分析器处理代码时会保持作用域不变（大部分情况下是这样的）。</p>
+<h5 id="查找规则"><a href="#查找规则" class="headerlink" title="查找规则"></a>查找规则</h5><p>​    1. 作用域查找会在找到第一个匹配的标识符时停止。在多层的嵌套作用域中可以定义同名的标识符，这叫作“遮蔽效应”（内部的标识符“遮蔽”了外部的标识符）。</p>
+<blockquote>
+<p>全局变量会自动成为全局对象（比如浏览器中的 window 对象）的属性，因此可以不直接通过全局对象的词法名称，而是间接地通过对全局对象属性的引用来对其进行访问。如<code>window.a</code></p>
+<p>通过这种技术可以访问那些被同名变量所遮蔽的全局变量。但非全局的变量如果被遮蔽了，无论如何都无法被访问到。</p>
+</blockquote>
+<ol start="2">
+<li>无论函数在哪里被调用，也无论它如何被调用，它的词法作用域都只由函数被声明时所处的位置决定。</li>
+</ol>
+<h5 id="欺骗词法作用域"><a href="#欺骗词法作用域" class="headerlink" title="欺骗词法作用域"></a>欺骗词法作用域</h5><p>​    <em>欺骗词法作用域会导致性能下降</em></p>
+<p>​    JavaScript 引擎会在编译阶段进行数项的性能优化。其中有些优化依赖于能够根据代码的词法进行静态分析，并预先确定所有变量和函数的定义位置，才能在执行过程中快速找到标识符。但如果引擎在代码中发现了 <code>eval(..)</code> 或 <code>with</code>,词法作用域可能遭到破坏，因此可能完全不做任何优化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">function foo(str, a) &#123; </span><br><span class="line"> eval( str ); &#x2F;&#x2F; 欺骗！</span><br><span class="line"> console.log( a, b ); </span><br><span class="line">&#125; </span><br><span class="line">var b &#x3D; 2; </span><br><span class="line">foo( &quot;var b &#x3D; 3;&quot;, 1 ); &#x2F;&#x2F; 1, 3</span><br></pre></td></tr></table></figure>
+
+<p>​    ES6中with功能被禁用， eval拥有自己的词法作用域，意味着其中的声明无法修改所在的作用域。</p>
+<p>​    <strong>使用这其中任何一个机制都将导致代码运行变慢</strong></p>
+<h2 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h2><h4 id="1-概念"><a href="#1-概念" class="headerlink" title="1.概念"></a>1.概念</h4><p>​    函数可以记住并访问所在的词法作用域，即使函数在当前词法作用域之外执行，这时就产生了闭包。</p>
+<p>​    闭包发生在函数定义时。</p>
+<h4 id="2-闭包应用——模块"><a href="#2-闭包应用——模块" class="headerlink" title="2. 闭包应用——模块"></a>2. 闭包应用——模块</h4><p>闭包的一个应用。实现模块模式必须具备两个条件：</p>
+<ol>
+<li><p>必须有外部的封闭函数，且至少被调用一次</p>
+</li>
+<li><p>必须返回一个内部函数，并且可以访问或者修改私有的状态。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">var foo &#x3D; (function CoolModule() &#123; </span><br><span class="line"> var something &#x3D; &quot;cool&quot;; </span><br><span class="line"> var another &#x3D; [1, 2, 3]; </span><br><span class="line"> function doSomething() &#123; </span><br><span class="line"> console.log( something ); </span><br><span class="line"> &#125; </span><br><span class="line"> function doAnother() &#123; </span><br><span class="line"> console.log( another.join( &quot; ! &quot; ) ); </span><br><span class="line"> &#125; </span><br><span class="line"> return &#123; </span><br><span class="line"> doSomething: doSomething, </span><br><span class="line"> doAnother: doAnother </span><br><span class="line"> &#125;; </span><br><span class="line">&#125;)(); </span><br><span class="line">foo.doSomething(); &#x2F;&#x2F; cool </span><br><span class="line">foo.doAnother(); &#x2F;&#x2F; 1 ! 2 ! 3</span><br></pre></td></tr></table></figure>
+
+<p>立即调用这个函数并将返回值直接赋值给单例的模块实例标识符 foo</p>
+</li>
+</ol>
+<h4 id="3-闭包应用——封闭作用域"><a href="#3-闭包应用——封闭作用域" class="headerlink" title="3. 闭包应用——封闭作用域"></a>3. 闭包应用——封闭作用域</h4><p>下面的语句想要依次输出1,2,3,4,5 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">for (var i&#x3D;1; i&lt;&#x3D;5; i++) &#123; </span><br><span class="line"> setTimeout( function timer() &#123; </span><br><span class="line"> console.log( i ); </span><br><span class="line"> &#125;, 0 ); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际输出5,5,5,5,5 原因在于 5个循环的timer具有涵盖for循环作用域的闭包，持有对i相同的引用。</p>
+<p><strong>解决方法</strong></p>
+   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for (var i&#x3D;1; i&lt;&#x3D;5; i++) &#123; </span><br><span class="line"> (function(j) &#123; </span><br><span class="line"> setTimeout( function timer() &#123; </span><br><span class="line"> console.log( j ); </span><br><span class="line"> &#125;, 0 ); </span><br><span class="line"> &#125;)( i ); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每个延迟函数都会将 IIFE 在每次迭代中创建的作用域封闭起来, 并且每个作用域拥有自己的j</p>
+<p><strong><em>警惕！</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for (var i&#x3D;1; i&lt;&#x3D;5; i++) &#123; </span><br><span class="line"> (function() &#123; </span><br><span class="line"> setTimeout( function timer() &#123; </span><br><span class="line"> console.log( i );</span><br><span class="line"> &#125;, 0 ); </span><br><span class="line"> &#125;)(); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每个延迟函数都会将 IIFE 在每次迭代中创建的作用域封闭起来，但是他们的作用域是空的，因此还会向上层作用域查找。</p>
+<h2 id="this"><a href="#this" class="headerlink" title="this"></a>this</h2><h4 id="1-为什么用this"><a href="#1-为什么用this" class="headerlink" title="1.为什么用this"></a>1.为什么用this</h4><p>this 提供了一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计,得更加简洁并且易于复用。它被自动定义在</p>
+<p>所有函数的作用域中。</p>
+<h4 id="2-this是什么"><a href="#2-this是什么" class="headerlink" title="2. this是什么"></a>2. this是什么</h4><p><strong>this并非指向函数自身</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">function foo()&#123;</span><br><span class="line">var a&#x3D;4</span><br><span class="line">console.log(this.a++)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo() &#x2F;&#x2F; NaN，非严格模式下 ; 严格模式下报错</span><br></pre></td></tr></table></figure>
+
+<p>从这里看并非指向函数本身</p>
+<blockquote>
+<p>实际上this是指向全局对象，<code>this.a++</code>相当于<code>this.a=this.a+1</code></p>
+<p>非严格模式下，lHS 查找a失败，在全局对象创建a,默认值为undefined, undefined+1=NaN</p>
+<p>严格模式下将报错，lHS查找不到报错，同时this指向undefined 而非全局对象</p>
+</blockquote>
+<p><strong>this也不可能指向它的作用域</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function foo() &#123; </span><br><span class="line"> var a &#x3D; 2; </span><br><span class="line"> this.bar();  &#x2F;&#x2F;this并非指向当前作用域，而是全局对象</span><br><span class="line">&#125; </span><br><span class="line">function bar() &#123; </span><br><span class="line"> console.log( this.a ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); &#x2F;&#x2F; ReferenceError: a is not defined</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>this 在任何情况下都不指向函数的词法作用域。在 JavaScript 内部，作用域确实和对象类似，可见的标识符都是它的属性。但是作用域“对象”无法通过 JavaScript代码访问，它存在于 JavaScript 引擎内部。</p>
+</blockquote>
+<p><strong>this 是在运行时进行绑定的</strong>，并不是在编写时绑定，它的上下文取决于函数调用时的各种条件。this 的绑定和函数声明的位置没有任何关系，只取决于函数的调用方式,它指向什么完全取决于函数在哪里被调用.</p>
+<h4 id="3-this调用"><a href="#3-this调用" class="headerlink" title="3. this调用"></a>3. this调用</h4><p><strong>调用位置</strong>：调用位置就是函数在代码中被调用的位置（而不是声明的位置）。最重要的是要分析调用栈(就是为了到达当前执行位置所调用的所有函数)。我们关心的调用位置就在当前正在<strong>执行的函数的前一个调用</strong>中。</p>
+<h4 id="4-this绑定规则"><a href="#4-this绑定规则" class="headerlink" title="4. this绑定规则"></a>4. this绑定规则</h4><p><strong>默认绑定</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">function foo() &#123; </span><br><span class="line"> console.log( this.a ); </span><br><span class="line">&#125; </span><br><span class="line">var a &#x3D; 2; </span><br><span class="line">foo(); &#x2F;&#x2F; 2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 声明在全局作用域中的变量（比如 var a = 2）就是全局对象的一个同名属性, 函数也是。</p>
+<p>严格模式下调用foo函数不受影响，但如果foo书写在严格模式下，this指向为undefined。</p>
+</blockquote>
+<p><strong>隐式绑定</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function foo() &#123; </span><br><span class="line"> console.log( this.a ); </span><br><span class="line">&#125; </span><br><span class="line">var obj &#x3D; &#123; </span><br><span class="line"> a: 2, </span><br><span class="line"> foo: foo </span><br><span class="line">&#125;; </span><br><span class="line">obj.foo(); &#x2F;&#x2F; 2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>当函数引用有上下文对象时，隐式绑定规则会把函数调用中的 this 绑定到这个上下文对象。</li>
+<li>对象属性引用链中只有上一层或者说最后一层在调用位置中起作用。</li>
+</ol>
+</blockquote>
+<p><strong>显示绑定</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a:<span class="number">2</span> </span><br><span class="line">&#125;; </span><br><span class="line">foo.call( obj ); <span class="comment">// 2</span></span><br><span class="line">foo.apply(obj)</span><br><span class="line">foo.bind(obj)()</span><br><span class="line"><span class="comment">//foo.softBind(obj)()</span></span><br></pre></td></tr></table></figure>
+
+<p><code>Function.prototype</code>原型上有call, apply,bind 方法，可以直接或间接绑定this对象</p>
+<blockquote>
+<p>如果你传入了一个原始值（字符串类型、布尔类型或者数字类型）来当作 this 的绑定对象，这个原始值会被转换成它的对象形式（也就是 new String(..)、new Boolean(..) 或者new Number(..)）。这通常被称为“装箱”</p>
+</blockquote>
+<p> <strong>new绑定</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">function foo(a) &#123; </span><br><span class="line"> this.a &#x3D; a; </span><br><span class="line">&#125; </span><br><span class="line">var bar &#x3D; new foo(2); </span><br><span class="line">console.log( bar.a ); &#x2F;&#x2F; 2</span><br></pre></td></tr></table></figure>
+
+<p>​    使用new操作符用来调用函数，会进行特殊的步骤。在第三步会执行this的绑定</p>
+<blockquote>
+<p>使用 new 来调用函数，或者说发生构造函数调用时，会自动执行下面的操作。</p>
+<ol>
+<li>创建（或者说构造）一个全新的对象。</li>
+<li>这个新对象会被执行 [[Prototype]] 连接。</li>
+<li>这个新对象会绑定到函数调用的 this。</li>
+<li>如果函数没有返回其他对象，那么 new 表达式中的函数调用会自动返回这个新对象。</li>
+</ol>
+</blockquote>
+<h4 id="6-判断this顺序"><a href="#6-判断this顺序" class="headerlink" title="6. 判断this顺序"></a>6. 判断this顺序</h4><p>​    this绑定优先级: new绑定 &gt; 显示绑定 &gt; 隐式绑定 &gt; 默认绑定</p>
+<ol>
+<li><p>函数是否在 new 中调用（new 绑定）？如果是的话 this 绑定的是新创建的对象。</p>
+<p><code>var bar = new foo()</code></p>
+</li>
+<li><p>函数是否通过 call、apply（显式绑定）或者硬绑定调用？如果是的话，this 绑定的是指定的对象。</p>
+<p><code>var bar = foo.call(obj2)</code></p>
+</li>
+<li><p>函数是否在某个上下文对象中调用（隐式绑定）？如果是的话，this 绑定的是那个上下文对象。</p>
+<p><code>var bar = obj1.foo()</code></p>
+</li>
+<li><p>如果都不是的话，使用默认绑定。如果在严格模式下，就绑定到 undefined，否则绑定到全局对象。</p>
+<p><code>var bar = foo()</code></p>
+</li>
+</ol>
+<h4 id="7-忽略this"><a href="#7-忽略this" class="headerlink" title="7. 忽略this"></a>7. 忽略this</h4><p>​    如果函数并不关心 this 的话，你仍然需要传入一个占位值，这时 null 可能是一个不错的选择，就像代码所示的那样。</p>
+<p>​    当你把 null 或者 undefined 作为 this 的绑定对象传入 call、apply 或者 bind，这些值在调用时会被忽略，实际应用的是默认绑定规则：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">foo.call( null );</span><br><span class="line">foo.apply( null, [2, 3] );</span><br><span class="line">var bar &#x3D; foo.bind( null, 2 );</span><br></pre></td></tr></table></figure>
+
+<p>​    此时 foo函数中的this有可能会被绑定到全局对象，这样可能会照成意外。所以可以传入一个空对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">var ø &#x3D; Object.create( null ); </span><br><span class="line">&#x2F;&#x2F; 把数组展开成参数</span><br><span class="line">foo.apply( ø, [2, 3] ); &#x2F;&#x2F; a:2, b:3 </span><br><span class="line">&#x2F;&#x2F; 使用 bind(..) 进行柯里化</span><br><span class="line">var bar &#x3D; foo.bind( ø, 2 );</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>Object.create( null )</code>没有绑定的原型对象，比｛｝更空</p>
+</blockquote>
+<h2 id="对象原型"><a href="#对象原型" class="headerlink" title="对象原型"></a>对象原型</h2><p>Array.prototype是 空数组，String.prototype.toString()=’’是空字符串,Function.prototype是空函数，RegExp.prototype.toString()=/(?:)/空正则表达式</p>
+<h4 id="1-原型链上的属性查找"><a href="#1-原型链上的属性查找" class="headerlink" title="1. 原型链上的属性查找"></a>1. 原型链上的属性查找</h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> anotherObject = &#123; </span><br><span class="line"> a:<span class="number">2</span> </span><br><span class="line">&#125;; </span><br><span class="line"><span class="comment">// 创建一个关联到 anotherObject 的对象</span></span><br><span class="line"><span class="keyword">var</span> myObject = <span class="built_in">Object</span>.create( anotherObject ); </span><br><span class="line">myObject.a; <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p>这个过程会持续到找到匹配的属性名或者查找完整条 [[Prototype]] 链。如果是后者的话，[[Get]] 操作的返回值是 undefined。</p>
+<blockquote>
+<p> 原型链的尽头:所有普通的 [[Prototype]] 链最终都会指向内置的<code> Object.prototype</code>。由于所有的“普通”（内置，不是特定主机的扩展）对象都“源于”（或者说把 [[Prototype]] 链的顶端设置为）这个 <code>Object.prototype</code> 对象，所以它包含 JavaScript 中许多通用的功能。<code>Object.prototype.__proto__==null</code></p>
+</blockquote>
+<h4 id="2-设置对象属性"><a href="#2-设置对象属性" class="headerlink" title="2.设置对象属性"></a>2.设置对象属性</h4><p>在于原型链上层时<code> myObject.foo = &quot;bar&quot;</code> 会出现的三种情况。(假设底层对象没有<code>foo</code>属性，高层对象有<code>foo</code>属性)</p>
+<ol>
+<li><p>如果在 [[Prototype]] 链上层存在名为 <code>foo</code> 的普通数据访问属性（参见第 3 章）并且没有被标记为只读（<code>writable:false</code>），那就会直接在<code> myObject</code> 中添加一个名为 <code>foo</code> 的新属性，它是屏蔽属性。</p>
+</li>
+<li><p>如果在 [[Prototype]] 链上层存在<code> foo</code>，但是它被标记为只读（<code>writable:false</code>），那么无法修改已有属性或者在 <code>myObject </code>上创建屏蔽属性。如果运行在严格模式下，代码会抛出一个错误。否则，这条赋值语句会被忽略。总之，不会发生屏蔽。</p>
+</li>
+<li><p>如果在 [[Prototype]] 链上层存在<code> foo</code> 并且它是一个 setter（参见第 3 章），那就一定会调用这个 setter。<code>foo</code> 不会被添加到（或者说屏蔽于）<code>myObject</code>，也不会重新定义 <code>foo</code> 这 个 setter。</p>
+<blockquote>
+<p>如果你希望在第二种和第三种情况下也屏蔽 foo，那就不能使用 = 操作符来赋值，而是使用 <code>Object.defineProperty(..)</code>来向 <code>myObject </code>添加 <code>foo</code>。</p>
+</blockquote>
+<p>隐式屏蔽</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">var anotherObject &#x3D; &#123; </span><br><span class="line"> a:2 </span><br><span class="line">&#125;; </span><br><span class="line">var myObject &#x3D; Object.create( anotherObject ); </span><br><span class="line">anotherObject.a; &#x2F;&#x2F; 2 </span><br><span class="line">myObject.a; &#x2F;&#x2F; 2 </span><br><span class="line">anotherObject.hasOwnProperty( &quot;a&quot; ); &#x2F;&#x2F; true </span><br><span class="line">myObject.hasOwnProperty( &quot;a&quot; ); &#x2F;&#x2F; false </span><br><span class="line">myObject.a++; &#x2F;&#x2F; 隐式屏蔽！</span><br><span class="line">anotherObject.a; &#x2F;&#x2F; 2 </span><br><span class="line">myObject.a; &#x2F;&#x2F; 3 </span><br><span class="line">myObject.hasOwnProperty( &quot;a&quot; ); &#x2F;&#x2F; true</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>++ 操作相当于<code> myObject.a = myObject.a + 1</code>。因此 ++ 操作首先会通过 [[Prototype]]</p>
+<p>查找属性 a 并从<code>anotherObject.a</code>获取当前属性值 2，然后给这个值加 1，接着用 [[Put]]</p>
+<p>将值 3 赋给<code>myObject</code>中新建的屏蔽属性 a</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="3-原型委托-V-类与继承"><a href="#3-原型委托-V-类与继承" class="headerlink" title="3. 原型委托 V 类与继承"></a>3. 原型委托 V 类与继承</h4><ul>
+<li><p><strong>继承意味着复制。</strong>面向类的语言中，类可以被复制（或者说实例化）多次，就像用模具制作东西一样。</p>
+</li>
+<li><p>JavaScript（默认）并不会复制对象属性。相反，JavaScript 会在两个对象之间创建一个关联，这样一个对象就可以通过委托访问另一个对象的属性和函数。</p>
+</li>
+<li><p>建立委托关系</p>
+<ul>
+<li><p><code>Bar.ptototype = Object.create( Foo.prototype )</code>; // ES6 之前需要抛弃默认的 Bar.prototype </p>
+</li>
+<li><p><code>Object.setPrototypeOf( Bar.prototype, Foo.prototype );</code> // ES6 开始可以直接修改现有的 Bar.prototype </p>
+</li>
+<li><p><del><code>Bar.prototype = Foo.prototype;</code></del> 错误</p>
+</li>
+<li><p><code>Bar.prototype = new Foo();</code>可以起到关联作用，但有副作用，(原型链上有一个实例对象)</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-检测关联关系"><a href="#4-检测关联关系" class="headerlink" title="4.检测关联关系"></a>4.检测关联关系</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">function Foo() &#123; </span><br><span class="line"> &#x2F;&#x2F; ... </span><br><span class="line">&#125; </span><br><span class="line">Foo.prototype.blah &#x3D; ...; </span><br><span class="line">var a &#x3D; new Foo();</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p><code>b.isPrototypeOf( c );</code></p>
+</li>
+<li><p><code>a instanceof Foo;</code>  // true</p>
+<blockquote>
+<p>instanceof 操作符的左操作数是一个普通的对象，右操作数是一个函数。instanceof 回答的问题是：在 a 的整条 [[Prototype]] 链中是否有指向 Foo.prototype 的对象？</p>
+</blockquote>
+</li>
+<li><p><code>Foo.prototype.isPrototypeOf( a ); </code>// true</p>
+<blockquote>
+<p>isPrototypeOf(..) 回答的问题是：在 a 的整条 [[Prototype]] 链中是否出现过 Foo.prototype ？</p>
+</blockquote>
+</li>
+<li><p><code>Object.getPrototypeOf( a ) === Foo.prototype;</code> // true 直接获取一个对象的 [[Prototype]] 链。</p>
+</li>
+<li><p><code>a.__proto__ === Foo.prototype; </code></p>
+<blockquote>
+<p>它和其他的常用函数（.<code>toString()、.isPrototypeOf(..)，</code>等等），存在于内置的<code>Object.prototype</code>中</p>
+<p>甚至可以通过 <code>.__proto__.__ptoto__</code>… 来遍历原型链.</p>
+</blockquote>
+<p>__proto__是一个accessors访问器属性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> get: **function**() &#123; </span><br><span class="line"></span><br><span class="line"> **return** Object.getPrototypeOf( this ); </span><br><span class="line"></span><br><span class="line"> &#125;, </span><br><span class="line"></span><br><span class="line"> set: **function**(o) &#123; </span><br><span class="line"></span><br><span class="line"> &#x2F;&#x2F; ES6 中的 setPrototypeOf(..) </span><br><span class="line"></span><br><span class="line"> Object.setPrototypeOf( this, o ); </span><br><span class="line"></span><br><span class="line"> **return** o; </span><br><span class="line"></span><br><span class="line"> &#125; </span><br><span class="line"></span><br><span class="line">&#125; );</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h4 id="5-创建一个空原型链对象"><a href="#5-创建一个空原型链对象" class="headerlink" title="5.创建一个空原型链对象"></a>5.创建一个空原型链对象</h4><p>   <code>Object.create(null) </code>会 创 建 一 个 拥 有 空（ 或 者 说 null）[[Prototype]]链接的对象，这个对象无法进行委托。由于这个对象没有原型链，所以<code>instanceof </code>操作符（之前解释过）无法进行判断，因此总是会返回 false。这些特殊的空 [[Prototype]] 对象通常被称作“字典”，它们完全不会受到原型链的干扰，因此非常适合用来存储数据。</p>
+<p>   打印这个对象</p>
+<p>   <code>[Object: null prototype] &#123;&#125;</code>, 其<code>__proto__</code>属性为undefined</p>
+<h2 id="类型和语法"><a href="#类型和语法" class="headerlink" title="类型和语法"></a>类型和语法</h2><h2 id="异步和性能"><a href="#异步和性能" class="headerlink" title="异步和性能"></a>异步和性能</h2><h3 id="1-异步"><a href="#1-异步" class="headerlink" title="1. 异步"></a>1. 异步</h3><p>异步是指对于耗时的操作，为了避免阻塞，使现在无法立即完成的任务将在将来时刻完成。</p>
+<p>js程序一定可以几乎一定由多个块组成，一个块现在执行，其余块将来执行，块与块之间存在嵌套，最常见的块单位是函数。</p>
+<ul>
+<li><code>console.log()</code>函数有可能是异步完成的，所以不能完全依赖打印结果，可以通过断点或执行一次<code>JSON.stringify()</code>快照</li>
+<li>JS引擎依赖于宿主环境，受宿主环境调用执行JS代码。</li>
+<li>宿主环境通过单线程提供一种事件循环机制处理程序中多个块的运行。每一个事件指的是程序分成的代码块。</li>
+<li>当前的程序组成了现在执行的块，其余块在程序运行时被添加进去。</li>
+</ul>
+<h3 id="2-并行"><a href="#2-并行" class="headerlink" title="2.并行"></a>2.<strong>并行</strong></h3><p>并行计算的常见工具是进程和线程，多个线程共享同一进程的内存且独立运行。</p>
+<p>线程的并行执行，执行粒度是语句，对于存在共享的变量，需要有特殊的步骤进行中断和交错运行。否则得到及结果是出人意料的。</p>
+<p>JS是单线程运行，不必跨线程共享数据，它的执行粒度是块。一个块接着一个块运行。</p>
+<p><strong>但这并不意味着JS程序的运行顺序是确定的，只是不确定的层次在于块的级别，而非语句级别。</strong></p>
+<h3 id="3-并发"><a href="#3-并发" class="headerlink" title="3.并发"></a>3.<strong>并发</strong></h3><p>块之间交替运行，从整体上看，似乎是在并行执行。这些块之间有这样的关系：</p>
+<ol>
+<li><p>块与块可能独立运行，互不干扰</p>
+</li>
+<li><p>块与块须共同完成一件事</p>
+</li>
+<li><p>块与块只需要其中一个便可完成，此时另一个块的执行没有意义。</p>
+</li>
+</ol>
+<h3 id="4-协作"><a href="#4-协作" class="headerlink" title="4.协作"></a>4.<strong>协作</strong></h3><p>这里的协作是指大规模的、耗时的操作，为了避免霸占事件循环队列的并发系统，主动地异步自处理。</p>
+<p>通常可以借助<code>setTimeout()</code>函数递归调用自身，完成某些大规模的操作。</p>
+<blockquote>
+<p><code>setTimeout(..,0)</code>意思在这里为，把这个函数插在当前时间循环队列的结尾处。</p>
+</blockquote>
+<h3 id="5-任务队列、事件队列"><a href="#5-任务队列、事件队列" class="headerlink" title="5. 任务队列、事件队列"></a>5. 任务队列、事件队列</h3><p><strong>事件队列</strong></p>
+<p>是宿主环境提供，包含了程序所划分的块，每次循环处理一个事件块，称为一次Tick。</p>
+<ul>
+<li><p>调在下一次事件循环执行函数fun<code>setTimeout(fun,0)</code></p>
+</li>
+<li><p>用户交互、IO、和定时器都会向事件队列加入事件</p>
+</li>
+<li><p>任意时刻只能处理一个事件，事件执行的时候可能直接或间接引发一个或多个后续事件</p>
+</li>
+</ul>
+<p><strong>任务队列</strong></p>
+<p>可以理解为，它是挂在事件循环队列每个TICK之后的一个队列，可能出现的异步动作，如Promise，它没有被添加到事件循环队列中，而是添加到任务队列中，当前Tick结尾处执行。</p>
+<h3 id="6-代码执行顺序"><a href="#6-代码执行顺序" class="headerlink" title="6.代码执行顺序"></a>6.代码执行顺序</h3><p>编译器对原有代码做出优化，导致编译后代码执行顺序和原有代码分析执行顺序不一致</p>
+<h3 id="7-生成器函数、迭代器"><a href="#7-生成器函数、迭代器" class="headerlink" title="7.生成器函数、迭代器"></a>7.生成器函数、迭代器</h3><p>使用生成的迭代器控制生成器函数的运行，生成器函数中yield关键词将阻塞生成器函数的运行，直到下一次迭代器调用next()，<strong>并将程序控制权交给其它块</strong>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">function * fun&#123;</span><br><span class="line">	yield 1</span><br><span class="line">	yield 2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>生成器函数本身是不可迭代的，调用生成器函数返回一个迭代器。</li>
+<li>生成器的迭代器也有一个 <code>Symbol.iterator </code>函数，基本上这个函数做的就是 return this。生成器迭代器是iterable。</li>
+<li>从 ES6 开始，从一个 iterable 中提取迭代器的方法是：iterable 必须支持一个函数，其名称是专门的 ES6 符号值 Symbol.iterator。迭代器实现了next()方法供迭代访问。</li>
+</ul>
+<h4 id="Iterator接口"><a href="#Iterator接口" class="headerlink" title="Iterator接口"></a>Iterator接口</h4><p>迭代器是一种有序的、连续的、基于拉取的用于消耗数据的组织方式。Array、Map、Set、String、TypedArray、arguments、NodeList均实现了这个接口。</p>
+<ol>
+<li><p>Iterator [required] </p>
+<p><code>next() &#123;method&#125;</code>: 取得下一个IteratorResult</p>
+</li>
+</ol>
+<p>有些迭代器还扩展支持两个可选成员：</p>
+<ol start="2">
+<li>Iterator [optional] </li>
+</ol>
+<ul>
+<li><p>return(x) {method}: 停止迭代器并返回IteratorResult </p>
+</li>
+<li><p>throw(e) {method}: 报错并返回IteratorResult</p>
+<p>it.return(x) 相当于在 上一个yield的语句后插入了 一句 return x</p>
+<p>it.throw(e) 相当于在 上一个yield的语句后插入了 一句 throw new Error(e)</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">function *foo() &#123; </span><br><span class="line"> try &#123; </span><br><span class="line">	 yield 1; </span><br><span class="line">	 yield 2; </span><br><span class="line">	 yield 3; </span><br><span class="line"> &#125; </span><br><span class="line"> catch(err)&#123;</span><br><span class="line">	 console.log(err) </span><br><span class="line"> &#125;</span><br><span class="line"> finally &#123; </span><br><span class="line">	 console.log( &quot;cleanup!&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>IteratorResult 接口指定如下：</p>
+<ul>
+<li>一个对象有两个属性</li>
+<li>value {property}: 当前迭代值或者最终返回值（如果undefined为可选的）</li>
+<li>done {property}: 布尔值，指示完成状态</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-定义一个数组的Symbol-iterator"><a href="#1-定义一个数组的Symbol-iterator" class="headerlink" title="1. 定义一个数组的Symbol.iterator"></a>1. 定义一个数组的<strong>Symbol.iterator</strong></h4><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>] 编写对应生成器</span><br><span class="line">方法一：闭包自助编写的迭代器</span><br><span class="line">arr[<span class="built_in">Symbol</span>.iterator] = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123; <span class="comment">//</span></span><br><span class="line">    <span class="keyword">let</span> nextVal = <span class="number">-1</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">    	<span class="comment">//保证返回的迭代器本身是可迭代的</span></span><br><span class="line">    	[<span class="built_in">Symbol</span>.iterator]() &#123; <span class="keyword">return</span> <span class="built_in">this</span>; &#125;,</span><br><span class="line">        next:<span class="function">()=&gt;</span>&#123;</span><br><span class="line">            nextVal++</span><br><span class="line">            <span class="keyword">if</span> (nextVal &lt; <span class="built_in">this</span>.length) &#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;<span class="attr">done</span>: <span class="literal">false</span>, <span class="attr">value</span>: <span class="built_in">this</span>[nextVal]&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="attr">done</span>: <span class="literal">true</span>, <span class="attr">value</span>: <span class="literal">undefined</span>&#125;</span><br><span class="line">        &#125;，</span><br><span class="line">        <span class="keyword">return</span>(v) &#123; </span><br><span class="line">  			<span class="keyword">return</span> &#123; <span class="attr">value</span>: v, <span class="attr">done</span>: <span class="literal">true</span> &#125;; </span><br><span class="line"> 		&#125;,</span><br><span class="line"> 		<span class="keyword">throw</span>()&#123;</span><br><span class="line"> 		</span><br><span class="line"> 		&#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">方法二：生成器函数简洁返回一个迭代器</span><br><span class="line">arr[<span class="built_in">Symbol</span>.iterator]= <span class="function"><span class="keyword">function</span>* (<span class="params"></span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;i&lt;<span class="built_in">this</span>.length;i++)</span><br><span class="line">		<span class="keyword">if</span>(i <span class="keyword">in</span> <span class="built_in">this</span>) <span class="keyword">yield</span> <span class="built_in">this</span>[i]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-消耗迭代器的操作"><a href="#2-消耗迭代器的操作" class="headerlink" title="2. 消耗迭代器的操作"></a><strong>2. 消耗迭代器的操作</strong></h4><ul>
+<li>for of</li>
+<li>spread…运算符 …[1,2,3], …{a:1,b:2} 展开元素</li>
+<li>生成器函数中的yield *Iterator</li>
+</ul>
+<h4 id="3-生成器函数"><a href="#3-生成器函数" class="headerlink" title="3. 生成器函数"></a>3. 生成器函数</h4><ul>
+<li>可以进行暂停/恢复执行i</li>
+<li>每次暂停/恢复提供了一次机会，可以进行双向信息传递</li>
+<li>把生成器看作一个受控的、可传递的代码执行</li>
+<li>返回的迭代器支持return,throw方法用于提前终止 try{}块内代码，响应catch或finally</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;普通声明形式</span><br><span class="line">function *foo(x,y) &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;作为对象属性简写</span><br><span class="line">var a &#x3D; &#123; </span><br><span class="line"> *foo() &#123; .. &#125; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>yield expression;</strong> </p>
+<p>用来标记暂停点,每次next()运行到下一个yield或return，并返回expression的结果，it.next()可以获取结果。如果是return则函数结束执行。</p>
+<ul>
+<li><p>yield 运算符优先级很低只大于 …和 ，运算符。yield 8+3 返回11</p>
+</li>
+<li><p>yield* iterable ： yield委托其后跟一个迭代器，然后它会调用这个 iterable 的迭代器，把自己的生成器控制委托给这个迭代器，直到其耗尽。</p>
+<p><code>function *foo() &#123;  yield *[1,2,3]; &#125;</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">function *foo() &#123; </span><br><span class="line"> var x &#x3D; (yield 10)+1; </span><br><span class="line">   var y &#x3D; yield 8+3; </span><br><span class="line"> console.log( x,y ); </span><br><span class="line">&#125;</span><br><span class="line">it &#x3D;foo()</span><br><span class="line">&#x2F;&#x2F;启动生成器，接受第一个yield的返回值，yield等待</span><br><span class="line">it.next()</span><br><span class="line">传递3，给等待的yield,接受第二个yield的返回值，第二个yield等待</span><br><span class="line">it.next(3)</span><br><span class="line">传递7，给等待的yield,接受return的返回值, 结束</span><br><span class="line">it.next(7)</span><br></pre></td></tr></table></figure>
+
+<p>第一次<code> it.next()</code>这个生成器首先在暂停自身的时候 yield 出值 10.</p>
+</li>
+</ul>
+<p>第二次运行<code>it.next(3)</code>,这个生成器在暂停自身的时候 yield 出值 8.打印此时<code>it.next(3)</code>的值是8.</p>
+<p>第三次运行<code>it.next()</code> , 生成器函数执行到下一个yield或return 。此时生成器函数执行完毕，其值为 undefined(默认 return undefined)。 此时打印 x,y 4,7     </p>
+<p><strong>it.next(value)</strong></p>
+<p>通过一个生成器函数返回的迭代器，控制生成器函数运行。</p>
+<ul>
+<li>每个it.next(value)接受来自yield和return的返回值</li>
+<li>同时，it.next(value)可以把值传送给在等待的yield</li>
+<li>第一个it.next(value),value将被抛弃。因为没有等待的yield来接受</li>
+<li>it.next()立即将控制权返回到生成器函数调用栈，即使是在任务队列中</li>
+</ul>
+<h4 id="4-生成器的使用"><a href="#4-生成器的使用" class="headerlink" title="4. 生成器的使用"></a>4. 生成器的使用</h4><ul>
+<li><p>产生一系列的值</p>
+</li>
+<li><p>顺序执行的任务队列</p>
+<p>这种用法通常表示算法中步骤的流控制，其中每个步骤要求从某个外部源获得数据。每</p>
+<p>部分数据的完成可以是即时的，也可以是异步延迟的</p>
+</li>
+</ul>
+<h3 id="8-Promise"><a href="#8-Promise" class="headerlink" title="8. Promise"></a>8. Promise</h3><p>随着需求变得越来越复杂，回调也变得越来越难以胜任异步问题。</p>
+<p>promise解决了两个回调异步问题</p>
+<ul>
+<li>不符合人脑思维的回调模式</li>
+<li>解决控制反转的信任问题</li>
+</ul>
+<p>Promise 与生成器的结合完全实现了重新安排异步流控制代码来消除丑陋的回调乱炖（或称“地狱”）。从侧异步代码同步化。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(axios.get(<span class="string">&#x27;http://47.106.244.1:8099/manager/category/findAllCategory&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>打印promise只有三种结果，Promise { <pending> }，Promise { <fulfilled> }，Promise { <rejected> }</li>
+<li>promise只能被决议一次，不管完成或拒绝。</li>
+<li>一旦观察到 Promise 的决议就立刻提取出这个值。换句话说，Promise 可以被看作是同步函数返回值的异步版本。</li>
+</ul>
+<p>创建一个promise</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">1.method 1st</span><br><span class="line">let p&#x3D;new Promise((resolve,reject)&#x3D;&gt;&#123;</span><br><span class="line">	&#x2F;&#x2F;do something</span><br><span class="line">	resolve(a res) &#x2F;&#x2F;返回一个已决议的promise</span><br><span class="line">	&#x2F;&#x2F;or reject(a res) &#x2F;&#x2F;返回一个rejected的promise</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">2. method 2st</span><br><span class="line">let p1&#x3D;Promise.resolve(somthing) 决议一个something，并返回一个已完成的promsise</span><br><span class="line">let p2&#x3D;Promise.reject(somereasons) 传递一个reason，并返回一个已拒绝的promsise</span><br></pre></td></tr></table></figure>
+
+<p><strong>对于第一种创建方式</strong></p>
+<ul>
+<li>如果调用reject，这个promise被拒绝，任何传入值将作为决绝的理由。</li>
+<li>如果resolve,无参数，或者传入非promise非thenable对象，这个promise被完成</li>
+<li>如果调用 resolve(..) 并传入另外一个 promise或 thenable对象，这个 promise 就会采用传入的 promise的状态（要么实现要么拒绝） <strong>。(也就是要进行then操作返回then结果)</strong></li>
+</ul>
+<p><strong>对于第二种创建方式</strong></p>
+<ul>
+<li>resolve,如果这个值已经是可以确定的 promise ,直接返回该promise</li>
+<li>resolve,如果这个值是 thenable，这个thenable对象执行then操作。</li>
+<li>resolve,如果这个值是立即值，那么它会被“封装”为一个真正的promise，这样就把它的行为方式规范为异步的</li>
+<li>reject，并不区分接收的值是什么。如果传入 promise 或 thenable 来拒绝，这个 promise / thenable 本身会被设置为拒绝原因，而不是其底层值。</li>
+</ul>
+<p><strong>处理Promise拒绝</strong></p>
+<blockquote>
+<p>对于<strong>reject promise</strong>我们没有监听拒绝，这意味着它会默默保持这个状态等待未来的观测。如果永远不通过 then(..) 或 catch(..) 调用来观察的话，它就会一直保持未处理状态。有些浏览器开发者终端可能会监测到这些未处理拒绝并报告出来，但是这并不是可靠的保证；我们应该一直观测 promise 拒绝。</p>
+</blockquote>
+<h4 id="Promise-then"><a href="#Promise-then" class="headerlink" title="Promise then"></a>Promise then</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ajax( &quot;http:&#x2F;&#x2F;some.url.1&quot; ) </span><br><span class="line">.then( </span><br><span class="line"> function fulfilled(contents)&#123; </span><br><span class="line"> &#x2F;&#x2F; 处理contents成功情况</span><br><span class="line"> return contents</span><br><span class="line"> &#125;, </span><br><span class="line"> function rejected(reason)&#123; </span><br><span class="line"> &#x2F;&#x2F; 处理ajax出错原因</span><br><span class="line"> return reason</span><br><span class="line"> &#125; </span><br><span class="line">)</span><br><span class="line">.then(res&#x3D;&gt;console.log(res));</span><br></pre></td></tr></table></figure>
+
+<p>then方法的参数</p>
+<ul>
+<li>第一个fulfilled作为 promise 成功完成后的处理函数</li>
+<li>第二个rejected作为 promise 被显<strong>式拒绝后的处理函</strong>数，或者在<strong>决议过程中出现错误 / 异常的情况</strong>下的处理函数</li>
+</ul>
+<blockquote>
+<p>如果某个参数被省略，或者不是一个有效的函数——通常是 null，那么一个默认替代函数</p>
+<p>就会被采用。默认的成功回调把完成值传出，默认的出错回调会传递拒绝原因值。</p>
+</blockquote>
+<ul>
+<li>第二个then介绍来自第一个then的处理结果，res是其中fulfilled或rejected一个处理的返回值</li>
+</ul>
+<h4 id="Promise-catch"><a href="#Promise-catch" class="headerlink" title="Promise catch"></a>Promise catch</h4><ul>
+<li>catch错误捕获相当于 <code>then(null, handleRejection)</code></li>
+<li>如果<code>then(handleFulfill, handleRejection)</code> <code>handleRejection</code>无法捕获来自<code>handleFulfill</code>的错误，<code>handleFulfill</code>中的错误将传递到下一个<code>then(null, handleRejection)</code></li>
+<li>catch既可以捕获<code>then(handleFulfill，handleRejection)</code>中的错误，也可以介绍来自前面决议过程中的错误，因此采用catch捕获更合适</li>
+</ul>
+<h4 id="Promise-Api"><a href="#Promise-Api" class="headerlink" title="Promise Api"></a>Promise Api</h4><ul>
+<li>Promise.all([ .. ]) 等待所有都完成（或者第一个拒绝），而 Promise.race([ .. ]) 等待第一个完成或者拒绝。</li>
+<li>Promise.all([]) 将会立即完成（没有完成值），Promise.race([]) 将会永远挂起。这是一个很奇怪的不一致，因此我建议，永远不要用空数组使用这些方法。</li>
+</ul>
+<h3 id="9-async-await"><a href="#9-async-await" class="headerlink" title="9. async/await"></a>9. async/await</h3><p>await 后面的对象如果是thenable，会被then一次。且await后面的代码会被加到then(函数中去执行)，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> async function f()&#123;</span><br><span class="line"> let res&#x3D; await  fun()</span><br><span class="line"> 	consoel.log(await res)</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">等同于</span><br><span class="line">function f()&#123;</span><br><span class="line">  Promise.resolve(fun()).then(</span><br><span class="line"> async (res)&#x3D;&gt; console.log( await res)</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function f()&#123;</span><br><span class="line">  Promise.resolve(fun()).then(</span><br><span class="line"> (res)&#x3D;&gt; console.log(  Promise.resolve(res).then(res&#x3D;&gt;res) )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面解释 async 关键字做了什么：</p>
+<ul>
+<li><p>被 async 操作符修饰的函数必然返回一个 Promise</p>
+</li>
+<li><p>当 async 函数返回一个值时，Promise 的 resolve 方法负责传递这个值</p>
+</li>
+<li><p>当 async 函数抛出异常时，Promise 的 reject 方法会传递这个异常值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">async function async2() &#123;</span><br><span class="line">    console.log(&#39;async2&#39;)</span><br><span class="line">&#125;</span><br><span class="line">等同于</span><br><span class="line">function async2()&#123;</span><br><span class="line">  console.log(&#39;async2&#39;);</span><br><span class="line">  return Promise.resolve();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+</li>
+</ul>
+<p>合规范和这篇文章，简单总结一下，对于 await v：</p>
+<ul>
+<li><p>await 后的值 v 会被转换为 Promise</p>
+</li>
+<li><p>即使 v 是一个已经 fulfilled 的 Promise，还是会新建一个 Promise，并在这个新 Promise 中 resolve(v)</p>
+</li>
+<li><p>await v 后续的代码的执行类似于传入 then() 中的回调</p>
+</li>
+</ul>
+<blockquote>
+<p><code>Promise.resolve(v)</code> 不同于 <code>new Promise(r =&gt; r(v))</code>，</p>
+<ol>
+<li><p>因为如果 v 是一个 Promise 对象，什么都不会做，只会直接把这个值返回；</p>
+<p><code>Promise.resovle(new Promise(resolve=&gt;resolve(v)))</code></p>
+</li>
+<li><p>方法返回一个以给定值解析后的<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise"><code>Promise</code></a> 对象。</p>
+<p>如果这个值是一个 promise ，那么将返回这个 promise ；</p>
+<p>如果这个值是thenable（即带有<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/then"><code>&quot;then&quot; </code></a>方法），返回的promise会“跟随”这个thenable的对象，采用它的最终状态</p>
+<p>；否则返回的promise将以此值完成。此函数将类promise对象的多层嵌套展平。</p>
+</li>
+</ol>
+</blockquote>
+<h3 id="8-回调"><a href="#8-回调" class="headerlink" title="8. 回调"></a>8. 回调</h3><p>用回调表达异步控制流程的两个关键缺陷</p>
+<ul>
+<li><p>基于回调的异步不符合大脑对任务步骤的规划方式；</p>
+</li>
+<li><p>由于控制反转，回调并不是可信任或可组合的。</p>
+</li>
+</ul>
+<h2 id="模块化"><a href="#模块化" class="headerlink" title="模块化"></a>模块化</h2><h3 id="1-闭包模式"><a href="#1-闭包模式" class="headerlink" title="1. 闭包模式"></a>1. 闭包模式</h3><p>传统的模块模式基于一个带有内部变量和函数的外层函数，以及一个被返回的“public API”，这个“public API”带有对内部数据和功能拥有闭包的方法。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function Hello(name) &#123; </span><br><span class="line"> function greeting() &#123; </span><br><span class="line"> console.log( &quot;Hello &quot; + name + &quot;!&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line"> &#x2F;&#x2F; public API </span><br><span class="line"> return &#123; </span><br><span class="line"> greeting: greeting </span><br><span class="line"> &#125;; </span><br><span class="line">&#125; </span><br><span class="line">var me &#x3D; Hello( &quot;Kyle&quot; ); </span><br><span class="line">me.greeting(); &#x2F;&#x2F; Hello Kyle!</span><br></pre></td></tr></table></figure>
+
+
+
+<p>​    模块导出方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;1. 先声明后导出</span><br><span class="line">let a&#x3D;1,fun&#x3D;()&#x3D;&gt;&quot;haha&quot;</span><br><span class="line">let c&#x3D; class Test &#123;</span><br><span class="line">    constructor() &#123;</span><br><span class="line">        this.name &#x3D; &#39;hh&#39;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">export &#123;a,fun,c&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;2. 边声明边导出</span><br><span class="line">export function Test()&#123;&#125;</span><br><span class="line">export let a&#x3D;1</span><br><span class="line">export class ClassName &#123;...&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;3. 默认导出一个表达式</span><br><span class="line">export default a;</span><br><span class="line">export default function (…) &#123; … &#125; &#x2F;&#x2F; also class, function*</span><br><span class="line">export default function name1(…) &#123; … &#125; &#x2F;&#x2F; also class, function*</span><br><span class="line">export &#123; name1 as default, … &#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-export-default-导出"><a href="#1-export-default-导出" class="headerlink" title="1.export default 导出"></a>1.<strong>export default 导出</strong></h4><ul>
+<li>导出对象的方式同 ”赋值=“，是值绑定。</li>
+<li><code>export default a</code> 与<code>export &#123; a as default, … &#125;;</code>效果不同，后者是导出局部标识符的绑定。如果导出之后在模块内部修改某个值，外部导入的绑定会访问到修改后的值：</li>
+<li>模块的 export 中的关键字 default 指定了一个命名导出，名称实际上就是 default。</li>
+</ul>
+<h4 id="2-import-导入默认对象"><a href="#2-import-导入默认对象" class="headerlink" title="2. import 导入默认对象"></a>2. <strong>import 导入默认对象</strong></h4><p><code>import &#123; default as foo &#125; from &quot;foo&quot;;</code></p>
+<p><strong>import ｛｝ 导入</strong></p>
+<p><code>import &#123; foo, bar, baz &#125; from &quot;foo&quot;</code></p>
+<ul>
+<li>这里的<code>&#123;&#125;</code>不同于对象解构，是专门用于将某一API的某个特定命名成员导入到你的顶级作用域中。</li>
+<li>作为 import 结果的声明是“提升的”</li>
+<li>所有导入的绑定都是不可变和 / 或只读的。</li>
+<li>模块加载器根据 “foo”模块制定符决定去哪里找所需导入的模块命令，或者作为url路径(浏览器)或者作为本地文件系统路径(nodejs)</li>
+</ul>
+<p><strong>import 导入的基本形式</strong></p>
+<p> <code>import foo</code></p>
+<ul>
+<li><p>这种形式并没有实际导入任何一个这个模块的绑定到你的作用域。</p>
+</li>
+<li><p>它加载（如果还没有加载的话）、编译（如果还没有编译的话），并求值（如果还没有运行的话）”foo” 模块。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1. 导入默认对象</span><br><span class="line">import defaultExport from &quot;module-name&quot;;</span><br><span class="line"></span><br><span class="line">2. 导入命名对象</span><br><span class="line">import &#123; export &#125; from &quot;module-name&quot;;</span><br><span class="line">import &#123; export as alias &#125; from &quot;module-name&quot;;</span><br><span class="line">import &#123; export1 , export2 &#125; from &quot;module-name&quot;;</span><br><span class="line"></span><br><span class="line">3. 同时导入默认对象和命名对象</span><br><span class="line">import * as obj from &quot;module-name&quot;</span><br><span class="line">obj.default</span><br><span class="line">obj.name</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-模块依赖环"><a href="#3-模块依赖环" class="headerlink" title="3. 模块依赖环"></a>3. 模块依赖环</h4><p>模块相互依赖是可以的，但不建议</p>
+<p>下面是从粗略概念的意义上循环的 import 依赖如何生效和解析的过程。</p>
+<ul>
+<li><p>如果先加载模块 “A”，第一步是扫描这个文件分析所有的导出，这样就可以注册所有可以导入的绑定。然后处理 import .. from “B”，这表示它需要取得 “B”。</p>
+</li>
+<li><p>引擎加载 “B” 之后，会对它的导出绑定进行同样的分析。当看到 import .. from “A”，它已经了解 “A” 的 API，所以可以验证 import 是否有效。现在它了解 “B” 的 API，就可以验证等待的 “A” 模块中 import .. from “B” 的有效性。</p>
+</li>
+</ul>
+<h4 id="CommonJS-模块化"><a href="#CommonJS-模块化" class="headerlink" title="CommonJS 模块化"></a>CommonJS 模块化</h4><p>CommonJS 和 AMD 模块，都只能在运行时确定模块之间的依赖关系，以及输入输出的变量。比如， CommonJS 模块就是对象，输入时必须查找对象属性。module对象，nodejs本身使用的模块化机制。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> a =<span class="built_in">require</span>(<span class="string">&#x27;./other&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">exports</span>) <span class="comment">//模块内变量，持有module.exports 的引用</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.exports)<span class="comment">//导出的内容</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.parent) <span class="comment">//目标文件是被require文件的parent</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.children) <span class="comment">//被require的文件作为目标文件的children</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&quot;id&quot;</span>+<span class="built_in">module</span>.id) <span class="comment">//模块id，当前模块id是一个 点., 被引入的模块id等于它的filename</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.path) <span class="comment">//文件所在的目录 E:\users\Luke\Desktop\briup\7-es6\day02\src</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.paths) <span class="comment">//从当前目录的node_modules目录到根目录的node_modules路径列表</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.filename)<span class="comment">//文件完整路径E:\users\Luke\Desktop\briup\7-es6\day02\src\index.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.loaded) <span class="comment">//是否被加载</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="两种模块化区别"><a href="#两种模块化区别" class="headerlink" title="两种模块化区别"></a>两种模块化区别</h4><ul>
+<li>ES6 Module 中导入模块的<code>属性或者方法是强绑定的</code>，包括基础类型；而 <code>CommonJS 则是普通的值传递或者引用传递</code>。</li>
+<li>ES6 模块是编译时输出接口，CommonJS 模块是运行时加载。</li>
+<li>ES6可以按需导入,CommonJS按需解构</li>
+</ul>
+<h2 id="ES6及更新版本"><a href="#ES6及更新版本" class="headerlink" title="ES6及更新版本"></a><code>ES6</code>及更新版本</h2><h4 id="1-块作用域"><a href="#1-块作用域" class="headerlink" title="1. 块作用域"></a>1. 块作用域</h4><ul>
+<li><p>块作用域声明</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">形如</span><br><span class="line">1.</span><br><span class="line">&#123; </span><br><span class="line"> let a &#x3D; 3; </span><br><span class="line"> console.log( a ); &#x2F;&#x2F; 3 </span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">2.</span><br><span class="line">var funcs &#x3D; []; </span><br><span class="line">for (let i &#x3D; 0; i &lt; 5; i++) &#123; </span><br><span class="line"> funcs.push( function()&#123; </span><br><span class="line"> console.log( i ); </span><br><span class="line"> &#125; ); </span><br><span class="line">&#125; </span><br><span class="line">funcs[3](); &#x2F;&#x2F; 3</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>第一个代码块。使用｛｝ 创建一个快作用域，let声明的变量只属于此代码块。let声明的变量应尽量在首部声明，避免<code>TDZ</code> 报 <code>ReferenceError</code>。</p>
+</li>
+<li><p>第二个代码块。for 循环头部的 let i 不只为 for 循环本身声明了一个 i，而是为循环的每一次迭代都重新</p>
+<p>声明了一个新的 i。这意味着 loop 迭代内部创建的闭包封闭的是每次迭代中的变量，就像</p>
+<p>期望的那样。</p>
+<blockquote>
+<ol>
+<li><p>块内let, const变量没有提升，但函数仍有提升。同时，在严格模式下函数被绑定到此作用域。</p>
+</li>
+<li><p>从ES3起try/catch 结构在 catch 分句中具有块作用域。</p>
+</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="2-扩展-收集运算符-…"><a href="#2-扩展-收集运算符-…" class="headerlink" title="2. 扩展/收集运算符 …"></a>2. 扩展/收集运算符 …</h4><ul>
+<li><p>扩展运算</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1.</span>函数传参</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x,y,z</span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( x, y, z ); </span><br><span class="line">&#125; </span><br><span class="line">foo( ...[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] ); <span class="comment">// 相当于foo(1 2 3)</span></span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 替代部分场景下concat数组函数功能</span><br><span class="line"><span class="keyword">var</span> a = [<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]; </span><br><span class="line"><span class="keyword">var</span> b = [ <span class="number">1</span>, ...a, <span class="number">5</span> ]; <span class="comment">// b=[1,2,3,4,5]</span></span><br><span class="line"></span><br><span class="line"><span class="number">3.</span> 获取对象键值对</span><br><span class="line"><span class="keyword">var</span> c=&#123; <span class="string">&quot;a&quot;</span>:<span class="number">1</span>, <span class="string">&quot;b&quot;</span>:<span class="number">2</span> &#125;</span><br><span class="line"><span class="keyword">var</span> d=&#123;<span class="string">&quot;b&quot;</span>:<span class="number">3</span>,<span class="string">&quot;d&quot;</span>:<span class="number">4</span>, ...c &#125; <span class="comment">// &#123;&quot;b&quot;:2, &quot;d&quot;:4, &quot;a&quot;:1,&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>收集运算</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.收集函数参数，简化了通过arguments获取参数的方法</span><br><span class="line">function foo(x, y, ...z) &#123; </span><br><span class="line"> console.log( x, y, z ); </span><br><span class="line">&#125;</span><br><span class="line">foo( 1, 2, 3, 4, 5 ); &#x2F;&#x2F;  x&#x3D;1 y&#x3D;2 z&#x3D;[3,4,5]</span><br><span class="line"></span><br><span class="line">2.用于解构赋值中收集</span><br><span class="line">let [a, b, ...c]&#x3D;[1, 2, 3, 4, 5] &#x2F;&#x2F; a&#x3D;1, b&#x3D;2, c&#x3D;[3,4,5] 此时..c一定是最后一个元素</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="3-默认参数值"><a href="#3-默认参数值" class="headerlink" title="3. 默认参数值"></a>3. 默认参数值</h4><ul>
+<li><p>设定默认参数的两种方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">1. ||方式</span><br><span class="line">function foo(x,y) &#123; </span><br><span class="line"> x &#x3D; x || 11; </span><br><span class="line"> y &#x3D; y || 31; </span><br><span class="line"> console.log( x + y ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); &#x2F;&#x2F; 42 </span><br><span class="line">foo( 5, 6 ); &#x2F;&#x2F; 11 </span><br><span class="line">foo( 5 ); &#x2F;&#x2F; 36</span><br><span class="line">但当要传入的值是一个假值时</span><br><span class="line">foo( 0, 42 ); &#x2F;&#x2F; 53 &lt;-- 并非42</span><br><span class="line"></span><br><span class="line">2. !&#x3D;&#x3D; undefined 	</span><br><span class="line">function foo(x,y) &#123; </span><br><span class="line"> x &#x3D; (x !&#x3D;&#x3D; undefined) ? x : 11; </span><br><span class="line"> y &#x3D; (y !&#x3D;&#x3D; undefined) ? y : 31; </span><br><span class="line"> console.log( x + y ); </span><br><span class="line">&#125; </span><br><span class="line">foo( 0, 42 ); &#x2F;&#x2F; 42 </span><br><span class="line">foo( undefined, 6 ); &#x2F;&#x2F; 17</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>第一种方式 当传入一个假值时会造成意外后果</li>
+<li>第二种方式 由于undefined用于判读是否传值，因此，<em>不能传递undefined</em></li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>默认值表达式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">1. 惰性计算</span><br><span class="line">function bar(val) &#123; </span><br><span class="line"> console.log( &quot;bar called!&quot; ); </span><br><span class="line"> return y + val; </span><br><span class="line">&#125; </span><br><span class="line">function foo(x &#x3D; y + 3, z &#x3D; bar( x )) &#123; </span><br><span class="line"> console.log( x, z ); </span><br><span class="line">&#125; </span><br><span class="line">var y &#x3D; 5; </span><br><span class="line">foo(); &#x2F;&#x2F; &quot;bar called&quot; </span><br><span class="line"> &#x2F;&#x2F; 8 13 </span><br><span class="line">foo( 10 ); &#x2F;&#x2F; &quot;bar called&quot; </span><br><span class="line"> &#x2F;&#x2F; 10 15 </span><br><span class="line">y &#x3D; 6; </span><br><span class="line">foo( undefined, 10 ); &#x2F;&#x2F; 9 10</span><br><span class="line"></span><br><span class="line">2. 参数作用域</span><br><span class="line">var w &#x3D; 1, z &#x3D; 2; </span><br><span class="line">function foo( x &#x3D; w + 1, y &#x3D; x + 1, z &#x3D; z + 1 ) &#123; </span><br><span class="line"> console.log( x, y, z ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); &#x2F;&#x2F; ReferenceError</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>可以看到，默认值表达式是惰性求值的，这意味着它们只在需要的时候运行——也就是说，是在参数的值省略或者为 undefined 的时候。</li>
+<li>注意函数声明中形式参数是在它们自己的作用域中，这意味着在默认值表达式中的标识符引用首先匹配到形式参数作用域，然后才会搜索外层作用域。</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h4 id="小知识"><a href="#小知识" class="headerlink" title="小知识"></a>小知识</h4><ul>
+<li><p>新增** pow运算符</p>
+</li>
+<li><p>新增 <code>BigInt</code>第8种内置类型，同时也是第7个基本数据类型。用于进行大数运算。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">声明一个大数</span><br><span class="line">1. var num&#x3D;1526n</span><br><span class="line">2. var num&#x3D;new BigInt(&quot;111111111111111111111111111132&quot;)</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h4 id="4-对象字面量扩展"><a href="#4-对象字面量扩展" class="headerlink" title="4. 对象字面量扩展 {}"></a>4. 对象字面量扩展 {}</h4><ul>
+<li><p>简洁属性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">var x &#x3D; 2, y &#x3D; 3, </span><br><span class="line"> o &#x3D; &#123; </span><br><span class="line"> x, &#x2F;&#x2F; x:x</span><br><span class="line"> y 	&#x2F;&#x2F; x:x</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>简洁方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">runSomething( &#123; </span><br><span class="line"> something(x,y) &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line"> &#125; </span><br><span class="line">&#125; );</span><br><span class="line">相当于</span><br><span class="line">runSomething( &#123; </span><br><span class="line"> something: function something(x,y) &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line"> &#125; </span><br><span class="line">&#125; );</span><br></pre></td></tr></table></figure>
+
+<p><strong>简洁方法意味着匿名表达式</strong></p>
+</li>
+<li><p>super 对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">var o1 &#x3D; &#123; </span><br><span class="line"> foo() &#123; </span><br><span class="line"> console.log( &quot;o1:foo&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;; </span><br><span class="line">var o2 &#x3D; &#123; </span><br><span class="line"> foo() &#123; </span><br><span class="line"> super.foo(); </span><br><span class="line"> console.log( &quot;o2:foo&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;; </span><br><span class="line">Object.setPrototypeOf( o2, o1 ); </span><br><span class="line">o2.foo(); &#x2F;&#x2F; o1:foo </span><br><span class="line"> &#x2F;&#x2F; o2:foo</span><br></pre></td></tr></table></figure>
+
+<p>super 只允许在<strong>简洁方法</strong>中出现，而不允许在普通函数表达式属性中出现。也只允许以**super.XXX **的形式（用于属性 / 方法访问）出现，而不能以super() 的形式出现。</p>
+<blockquote>
+<p><code>o2.foo()</code> 方法中的 super 引用静态锁定到 <code>o2</code>，具体说是锁定到 <code>o2</code> 的 [[Prototype]]。基本</p>
+<p>上这里的 super 就是 <code>Object.getPrototypeOf(o2)</code>——当然会决议到 o1——这是它如何找到</p>
+<p>并调用<code> o1.foo()</code> 的过程。</p>
+</blockquote>
+</li>
+<li><p>设定prototype</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var o1 &#x3D; &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line">&#125;; </span><br><span class="line">var o2 &#x3D; &#123; </span><br><span class="line"> __proto__: o1, </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><code>o2</code> 通过普通的对象字面量声明，但是它也 [[Prototype]] 连接到了 <code>o1</code>。这里的 <code>__proto__</code>属性名也可以是字符串 <code>&quot;__proto__&quot;</code>，但是注意它不能是计算属性名结果。</p>
+<blockquote>
+<p>要为已经存在的对象设定 [[Prototype]]，可以使用 <code>ES6 工具 Object.setPrototypeOf(..)</code>。</p>
+<p>如<code>Object.setPrototypeOf( o2, o1 );</code></p>
+</blockquote>
+</li>
+<li><p>计算属性名</p>
+<p>以前</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">var prefix &#x3D; &quot;user_&quot;; </span><br><span class="line">var o &#x3D; &#123; </span><br><span class="line"> baz: function(..)&#123; .. &#125; </span><br><span class="line">&#125;; </span><br><span class="line">o[ prefix + &quot;foo&quot; ] &#x3D; function(..)&#123; .. &#125;; </span><br><span class="line">o[ prefix + &quot;bar&quot; ] &#x3D; function(..)&#123; .. &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>现在</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var prefix &#x3D; &quot;user_&quot;; </span><br><span class="line">var o &#x3D; &#123; </span><br><span class="line"> baz: function(..)&#123; .. &#125;, </span><br><span class="line"> [ prefix + &quot;foo&quot; ]: function(..)&#123; .. &#125;, </span><br><span class="line"> [ prefix + &quot;bar&quot; ]: function(..)&#123; .. &#125; </span><br><span class="line"> .. </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li><p>计算属性名最常见的用法可能就是和 Symbols 共同使用（我们将在 2.13 节中介绍）。比如：</p>
+<p>var o = {  [Symbol.toStringTag]: “really cool thing”,  .. };</p>
+</li>
+<li><p>计算属性名也可以作为简洁方法或者简洁生成器的名称出现：</p>
+<p>var o = { </p>
+<p>​     <a href="">“f” + “oo”</a> { .. } // 计算出的简洁方法</p>
+<p>​     *<a href="">“b” + “ar”</a> { .. } // 计算出的简洁生成器</p>
+<p>​    };</p>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p><code>ES5</code> Getter/Setter</p>
+<p>严格说来，ES5 定义了 getter/setter 字面量形式，但是没怎么被使用，主要是因为缺少</p>
+<p>transpiler 来处理这个新语法（实际上也是 ES5 新增的唯一主要新语法）。所以尽管这并不</p>
+<p>是一个新的 ES6 特性，我们还是简单介绍一下这种形式，因为很可能在 ES6 及以后它们会</p>
+<p>得到更广泛地使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var o &#x3D; &#123; </span><br><span class="line"> __id: 10, </span><br><span class="line"> get id() &#123; return this.__id++; &#125;, </span><br><span class="line"> set id(v) &#123; this.__id &#x3D; v; &#125; </span><br><span class="line">&#125; </span><br><span class="line">o.id; &#x2F;&#x2F; 10 </span><br><span class="line">o.id; &#x2F;&#x2F; 11 </span><br><span class="line">o.id &#x3D; 20;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>可能不是显而易见，实际上 setter 字面量必须有且只有一个声明参数；省略</p>
+<p>这个参数或者列出多余的都是语法错误。所需的单个参数可以使用解构和默</p>
+<p>认值（例如，set id({ id: v = 0 }) { .. }），但是 gather/rest… 是不允许</p>
+<p>的（set id(…v) { .. }）。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="4-解构"><a href="#4-解构" class="headerlink" title="4. 解构"></a>4. 解构</h4><p>解构（<code>destructuring</code>），可以把这个功能看作是一个结构化赋值（structured assignment）方法，解构赋值面向数组和对象。</p>
+<p>使用解构赋值，相比<code>Object.assign()</code>潜复制， </p>
+<ul>
+<li><p>对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1 var aa &#x3D; 10, bb &#x3D; 20; </span><br><span class="line">2 var o &#x3D; &#123; x: aa, y: bb &#125;; </span><br><span class="line">3 var &#123; x: AA, y: BB &#125; &#x3D; o; </span><br><span class="line">4 console.log( AA, BB ); &#x2F;&#x2F; 10 20</span><br><span class="line"></span><br><span class="line">5 var AA,BB</span><br><span class="line">6 (&#123; x: AA, y: BB &#125;) &#x3D; o; </span><br></pre></td></tr></table></figure>
+
+<p>通常对象的赋值是 o[source]=target 方式，在解构赋值中，赋值更像是这样 target=o[source]或者<code>target=o.source</code> 如：</p>
+<p>第3行，<code>AA=o.x 或者AA=o.[x]</code>，同时允许嵌套解构，原理相同。</p>
+<blockquote>
+<ol>
+<li><p>可以使用let, const 声明时解构赋值如第三行；</p>
+</li>
+<li><p>也可以先声明后赋值， 如第5、6行，注意｛｝要被（）包裹，否则会被识别为代码块；</p>
+</li>
+<li><p>AA不仅可以是变量，也可以是任何合法标志符，如对象的属性(可以用计算属性表示)</p>
+<p>如<code>[ o2.a, o2.b, o2.c ] = [ 1, 2, 3 ]; </code>数组映射为对象</p>
+</li>
+<li><p>var x = 10, y = 20; [ y, x ] = [ x, y ];  不使用临时变量交换变量的值</p>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>数组</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var [ a,b,c,d]&#x3D;[1,2,3,4,5] &#x2F;&#x2F; a&#x3D;1,b&#x3D;2,c&#x3D;3,d&#x3D;4 按对应下标赋值</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>允许重复赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var &#123; a: X, a: Y &#125; &#x3D; &#123; a: 1 &#125;; </span><br><span class="line">X; &#x2F;&#x2F; 1 </span><br><span class="line">Y; &#x2F;&#x2F; 1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解构赋值表达式的完成值是所有<strong>右侧对象 / 数组的值</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var o &#x3D; &#123; a:1, b:2, c:3 &#125;, </span><br><span class="line"> p &#x3D; [4,5,6], </span><br><span class="line"> a, b, c, x, y, z; </span><br><span class="line">( &#123;a&#125; &#x3D; &#123;b,c&#125; &#x3D; o ); </span><br><span class="line">[x,y] &#x3D; [z] &#x3D; p; </span><br><span class="line">console.log( a, b, c ); &#x2F;&#x2F; 1 2 3 </span><br><span class="line">console.log( x, y, z ); &#x2F;&#x2F; 4 5 4</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>按需赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var [,,b] &#x3D;[1,2,3]; </span><br><span class="line">var &#123; x, z &#125; &#x3D; &#123;x:1,y:2,z:4&#125;; </span><br><span class="line">console.log( b, x, z ); &#x2F;&#x2F; 3 1 4</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>默认值赋值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var &#123; x, y, z, w: WW &#x3D; 20 &#125; &#x3D;&#123;x:1,y:2,z:4&#125; ;</span><br><span class="line">var [ a &#x3D; 3, b &#x3D; 6, c &#x3D; 9, d &#x3D; 12 ] &#x3D;[1,2,3];</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let [x&#x3D;1]&#x3D;[undefined]</span><br><span class="line">console.log(x)</span><br><span class="line">结果输出1，无论显示或隐式的RHS为undefind都将启动默认值赋值</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>解构参数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">function f3([ x, y, ...z], ...w) &#123; </span><br><span class="line"> console.log( x, y, z, w ); </span><br><span class="line">&#125; </span><br><span class="line">f3( [] ); &#x2F;&#x2F; undefined undefined [] [] </span><br><span class="line">f3( [1,2,3,4], 5, 6 ); &#x2F;&#x2F; 1 2 [3,4] [5,6]</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>此时解构默认值与参数默认值均可设置，假设两种参数均有设置，则工作流程如下</p>
+<ul>
+<li><p>参数传递-&gt; 使用传递的参数-&gt;与解构默认值共同起作用</p>
+</li>
+<li><p>参数未传递-&gt; 使用默认的参数-&gt;与解构默认值共同起作用</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>解构重组</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> defaults = &#123;</span><br><span class="line">    options: &#123;</span><br><span class="line">        remove: <span class="literal">true</span>,</span><br><span class="line">        enable: <span class="literal">false</span>,</span><br><span class="line">        instance: &#123;&#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    log: &#123;</span><br><span class="line">        warn: <span class="literal">true</span>,</span><br><span class="line">        error: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> config = &#123;</span><br><span class="line">    options: &#123;</span><br><span class="line">        remove: <span class="literal">false</span>,</span><br><span class="line">        instance: <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// (带默认值赋值的)解构</span></span><br><span class="line"><span class="keyword">let</span> &#123;</span><br><span class="line">    options: &#123;</span><br><span class="line">        remove = defaults.options.remove,</span><br><span class="line">        enable = defaults.options.enable,</span><br><span class="line">        instance = defaults.options.instance</span><br><span class="line">    &#125; = &#123;&#125;,</span><br><span class="line">    log: &#123;</span><br><span class="line">        warn = defaults.log.warn,</span><br><span class="line">        error = defaults.log.error</span><br><span class="line">    &#125; = &#123;&#125;</span><br><span class="line">&#125; = config;</span><br><span class="line"><span class="comment">// 重组得到覆盖默认配置的config对象</span></span><br><span class="line">config = &#123;</span><br><span class="line">    options: &#123;remove, enable, instance&#125;,</span><br><span class="line">    log: &#123;warn, error&#125;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="6-数字字面量扩展"><a href="#6-数字字面量扩展" class="headerlink" title="6. 数字字面量扩展"></a>6. 数字字面量扩展</h4><h5 id="可转换的8进制"><a href="#可转换的8进制" class="headerlink" title="可转换的8进制"></a>可转换的8进制</h5><p>旧的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Number( &quot;42&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;052&quot; ); &#x2F;&#x2F; 52 </span><br><span class="line">Number( &quot;0x2a&quot; ); &#x2F;&#x2F; 42</span><br></pre></td></tr></table></figure>
+
+<p><code>ES6</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">var dec &#x3D; 42, </span><br><span class="line"> oct &#x3D; 0o52, &#x2F;&#x2F; 或者0O52 :( </span><br><span class="line"> hex &#x3D; 0x2a, &#x2F;&#x2F; 或者0X2a :&#x2F; </span><br><span class="line"> bin &#x3D; 0b101010; &#x2F;&#x2F; 或者0B101010 :&#x2F;</span><br><span class="line"> </span><br><span class="line"> Number( &quot;42&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;0o52&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;0x2a&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;0b101010&quot; ); &#x2F;&#x2F; 42</span><br></pre></td></tr></table></figure>
+
+<p>唯一合法的小数形式是十进制的。八进制、十六进制和二进制都是整数形式。</p>
+<h4 id="7-箭头函数"><a href="#7-箭头函数" class="headerlink" title="7. 箭头函数"></a>7. 箭头函数</h4><h5 id="使用动机"><a href="#使用动机" class="headerlink" title="使用动机"></a>使用动机</h5><ol>
+<li><p>简单的函数表达式，且这个<strong>函数内部没有 this 引用</strong>，且<strong>没有自身引用（递归、事件绑定 / 解绑定）</strong>，且不会</p>
+<p>要求函数执行这些，那么可以安全地把它重构为 =&gt; 箭头函数。</p>
+</li>
+<li><p>如果你<strong>有一个内层函数表达式</strong>，<strong>依赖于在包含它的函数中调用var self = this hack 或 者 .bind(this)</strong> 来确保适当的 this 绑定，那么这个内层函数表达式应该可以安全地转换为 =&gt; 箭头函数。</p>
+</li>
+<li><p>如果你的<strong>内层函数表达式</strong>依赖于封装函数中某种像<code>var args = Array.prototype.slice.call(arguments)</code>**来保证 arguments 的词法复制，那么这个内层函数应该可以安全地转换为 =&gt; 箭头函数。</p>
+</li>
+</ol>
+<h5 id="this指向"><a href="#this指向" class="headerlink" title="this指向"></a>this指向</h5><p>​    <strong>永远指向外围词法作用域中的this.</strong></p>
+<h4 id="8-模版字面量"><a href="#8-模版字面量" class="headerlink" title="8. 模版字面量"></a>8. 模版字面量</h4><pre><code>##### 插入字符串</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var name &#x3D; &quot;Kyle&quot;; </span><br><span class="line">var greeting &#x3D; &#96;Hello $&#123;name&#125;!&#96;; </span><br><span class="line">console.log( greeting ); &#x2F;&#x2F; &quot;Hello Kyle!&quot; </span><br><span class="line">console.log( typeof greeting ); &#x2F;&#x2F; &quot;string&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以分散在多行,保留原格式</li>
+<li>在插入字符串字面量的 ${..} 内可以出现任何合法的表达式，包括函数调用、在线函数表达式调用，甚至其他插入字符串字面量！，任何表达式都会被立即在线解析求值。</li>
+</ul>
+<blockquote>
+<p>插入字符串字面量，在它出现的词法作用域内，没有任何形式的动态作用域。</p>
+</blockquote>
+<h5 id="标签字符串字面量"><a href="#标签字符串字面量" class="headerlink" title="标签字符串字面量"></a>标签字符串字面量</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">function bar() &#123; </span><br><span class="line"> return function foo(strings, ...values) &#123; </span><br><span class="line"> console.log( strings ); </span><br><span class="line"> console.log( values ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125; </span><br><span class="line">var desc &#x3D; &quot;awesome&quot;; </span><br><span class="line">bar()&#96;Everything is $&#123;desc&#125;!&#96;; </span><br><span class="line">&#x2F;&#x2F; [ &quot;Everything is &quot;, &quot;!&quot;] </span><br><span class="line">&#x2F;&#x2F; [ &quot;awesome&quot; ]</span><br></pre></td></tr></table></figure>
+
+<p>此种怪异的用法在于对``字符串自定义处理</p>
+<p><code>ES6 </code>提供了一个内建函数可以用作字符串字面量标签：<code>String.raw(..)</code>。</p>
+<blockquote>
+<p>原始版本的值保留了原始的转义码 \n 序列（\ 和 n 是独立的字符），而处理过的版本把它当作是一个单独的换行符。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">console.log( &#96;Hello\nWorld&#96; ); </span><br><span class="line">&#x2F;&#x2F; Hello </span><br><span class="line">&#x2F;&#x2F; World </span><br><span class="line"></span><br><span class="line">console.log( String.raw&#96;Hello\nWorld&#96; ); </span><br><span class="line">&#x2F;&#x2F; Hello\nWorld </span><br><span class="line"></span><br><span class="line">String.raw&#96;Hello\nWorld&#96;.length; </span><br><span class="line">&#x2F;&#x2F; 12</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="9-新数据结构"><a href="#9-新数据结构" class="headerlink" title="9.  新数据结构"></a>9.  新数据结构</h4><h5 id="1-判读电脑大小端存储方式"><a href="#1-判读电脑大小端存储方式" class="headerlink" title="1. 判读电脑大小端存储方式"></a>1. 判读电脑大小端存储方式</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">var littleEndian &#x3D; (function() &#123; </span><br><span class="line"> var buffer &#x3D; new ArrayBuffer( 16); </span><br><span class="line"> new DataView( buffer ).setInt16( 0, 256, true ); </span><br><span class="line"> return  new Int8Array( buffer )[1]&#x3D;&#x3D;&#x3D;1; </span><br><span class="line">&#125;)();</span><br><span class="line">console.log(littleEndian)</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-TypedArray"><a href="#2-TypedArray" class="headerlink" title="2. TypedArray"></a>2. TypedArray</h5><p>带类数组构造器</p>
+<ul>
+<li><p>Int8Array(), Int16Array(),Int32Array(),Uint8Array(), Uint16Array(),Uint32Array(),</p>
+</li>
+<li><p>Float32Array(),Floatt64Array()</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var a&#x3D; new Int32Array(3) &#x2F;&#x2F;创建一个三字节大小，用于存储32位有符号整数的数组</span><br><span class="line">a[10]&#x3D;10</span><br><span class="line">a[1]&#x3D;20</span><br><span class="line">a[2]&#x3D;30</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="3-Map"><a href="#3-Map" class="headerlink" title="3.Map"></a>3.Map</h5><p>与｛｝最大区别在于其key可以为对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">var m&#x3D; new Map()</span><br><span class="line">var x&#x3D;[1]</span><br><span class="line">m.set(x, &quot;value1&quot;) &#x2F;&#x2F;返回值 m</span><br><span class="line">m.get(x)&#x2F;&#x2F; 返回值“value1&quot;</span><br><span class="line">m.size &#x2F;&#x2F;1</span><br><span class="line"></span><br><span class="line">m.clear() &#x2F;&#x2F;清空map</span><br><span class="line">m.has(X) &#x2F;&#x2F; true</span><br><span class="line">m.keys() &#x2F;&#x2F;得到keys迭代器</span><br><span class="line">m.values() &#x2F;&#x2F;得到values迭代器</span><br><span class="line">m.entries()&#x2F;&#x2F;得到键值对  是for of 遍历所用的迭代器</span><br><span class="line">m.delete(x)删除</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>new Map(iterator|[[key1,value1],[key2,value2]]…)</p>
+<p>Map()可以接受一个entries迭代器，或者多行两列的二维数组。</p>
+<p>打印map:Map(2) { ‘name’ =&gt; ‘zhangsan’, ‘age’ =&gt; 12 }</p>
+</blockquote>
+<h5 id="4-Set"><a href="#4-Set" class="headerlink" title="4. Set"></a>4. Set</h5><ul>
+<li><p>同Map set方法改成add，即可。</p>
+</li>
+<li><p>其keys()和values()返回结果相同。</p>
+</li>
+<li><p>entries遍历[ ‘first’, ‘first’ ] [ ‘second’, ‘second’ ]</p>
+</li>
+<li><p>使用  !Number.isNaN(x) &amp;&amp; x!==any || !Number.isNaN(any) 进行判断</p>
+</li>
+</ul>
+<h5 id="5-WeakMap，WeakSet"><a href="#5-WeakMap，WeakSet" class="headerlink" title="5. WeakMap，WeakSet"></a>5. WeakMap，WeakSet</h5><p>区别在于</p>
+<ol>
+<li>键只能是对象引用</li>
+<li>不能包含无引用的对象，否则会被自动清除出集合</li>
+<li>无发使用size属性和clear方法。</li>
+</ol>
+<h4 id="10-Symbol符号"><a href="#10-Symbol符号" class="headerlink" title="10. Symbol符号"></a>10. Symbol符号</h4><p>symbol函数用来产生一个唯一的值，使用new操作符报错</p>
+<p>symbol(desc)仅仅产生一个唯一的值,desc用来对此唯一值描述。</p>
+<ul>
+<li>symbol.for(key) 通过key产生一个位置的值注册到全局；如果已经注册过，则直接返回该symbol值</li>
+<li>symbol.keyFor(symbol) 通过symbol值查询是否在全局注册过，返回其key或者undefined</li>
+</ul>
+<p><strong>作为函数对象属性</strong></p>
+<p>不会被枚举到，但是<strong>打印该对象可以显示符号属性</strong>(不可枚举属性不会被打印)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var o &#x3D; &#123; </span><br><span class="line"> foo: 42, </span><br><span class="line"> [ Symbol( &quot;bar&quot; ) ]: &quot;hello world&quot;, </span><br><span class="line"> baz: true </span><br><span class="line">&#125;; </span><br><span class="line">Object.getOwnPropertyNames( o ); &#x2F;&#x2F; [ &quot;foo&quot;,&quot;baz&quot; ]，for in 循环只能变量两个</span><br><span class="line">要取得对象的符号属性：</span><br><span class="line">Object.getOwnPropertySymbols( o ); &#x2F;&#x2F; [ Symbol(bar) ]</span><br></pre></td></tr></table></figure>
+
+<p><strong>内置符号</strong></p>
+<p>Symbol.iterator是把指定的Symbol值绑定到Symbol的iterator属性上</p>
+<p><strong>获取对象的所有symbol属性值</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Object.getOwnPropertySymbols(obj) &#x2F;&#x2F;得到symbol值数组</span><br></pre></td></tr></table></figure>
+
+<h4 id="11-类"><a href="#11-类" class="headerlink" title="11.类"></a>11.类</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class Foo &#123; </span><br><span class="line"> static num&#x3D;1</span><br><span class="line"> static fun()&#123;</span><br><span class="line">	console.log(Foo.num)</span><br><span class="line">&#125;</span><br><span class="line"> constructor(a,b) &#123; </span><br><span class="line"> this.x &#x3D; a; </span><br><span class="line"> this.y &#x3D; b; </span><br><span class="line"> &#125; </span><br><span class="line"> gimmeXY() &#123; </span><br><span class="line"> return this.x * this.y; </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>class 创建一个具名的Foo函数</li>
+<li>constructor指定Foo函数的签名以及函数体内容</li>
+<li>类方法使用简洁形式，同时也包括getter/setter语法，<strong>但是类方法是不可枚举的</strong>，对象方法是可枚举的</li>
+</ul>
+<p><strong>借助构造函数</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;函数模式</span><br><span class="line">function Foo(a,b) &#123; </span><br><span class="line"> this.x &#x3D; a; </span><br><span class="line"> this.y &#x3D; b; </span><br><span class="line">&#125; </span><br><span class="line">Foo.prototype.gimmeXY &#x3D; function() &#123; </span><br><span class="line"> return this.x * this.y; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>两者的区别在于</p>
+<ul>
+<li>由于前 ES6 可用的 Foo.call(obj) 不能工作，class Foo 的 Foo(..) 调用必须通过new 来实现。</li>
+<li><strong>function可以提升，class不可以提升</strong></li>
+<li><strong>全局作用域中的 class Foo 创建了这个作用域的一个词法标识符 Foo，但是和 function Foo 不一样，并没有创建一个同名的全局对象属性。</strong></li>
+</ul>
+<p><strong>extends</strong></p>
+<p>用于继承 只能单继承</p>
+<p> <strong>super</strong></p>
+<ul>
+<li>只能用在简洁方法中，只能以 super点的形式，打印报错keyword。</li>
+<li>在静态简洁方法中super指向 Parent构造函数；<code>Child.__proto__=Parent</code></li>
+<li>在非静态方法中super指向Parent构造函数原型，即<code>Child.prototype.__proto__=Parent.prototype</code></li>
+</ul>
+<p><strong>子类构造器</strong></p>
+<ul>
+<li>默认子类构造器自动调用父类的构造器并传递所有参数。</li>
+<li>且super要放在第一行</li>
+<li>new.target元属性， 只能在构造器中使用且总是指向直接调用的构造器</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">constructor(...args) &#123; </span><br><span class="line"> super(...args); </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>static</strong></p>
+<p>静态属性等同于定义在构造函数上的属性。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/js/" rel="tag"># js</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/12/js/" rel="prev" title="js基础知识总结">
+      <i class="fa fa-chevron-left"></i> js基础知识总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/12/js%E9%A2%98%E7%9B%AE/" rel="next" title="一些有趣的js题目">
+      一些有趣的js题目 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+    <div class="toggle sidebar-toggle">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-inner">
+
+            <ul class="sidebar-nav motion-element"  >
+                <li class="sidebar-nav-toc">
+                    文章目录
+                </li>
+                <li class="sidebar-nav-overview">
+                    站点概览
+                </li>
+            </ul>
+
+            <!--noindex-->
+            <div class="post-toc-wrap sidebar-panel">
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-text">作用域</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BD%9C%E7%94%A8%E5%9F%9F%E5%86%85%E5%A3%B0%E6%98%8E%E6%8F%90%E5%8D%87"><span class="nav-text">1.作用域内声明提升</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-LHS-RHS"><span class="nav-text">2. LHS RHS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%B8%B8%E8%A7%81%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%9E%8B"><span class="nav-text">2. 常见工作模型</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AF%8D%E6%B3%95%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-text">词法作用域</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E8%A7%84%E5%88%99"><span class="nav-text">查找规则</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%AC%BA%E9%AA%97%E8%AF%8D%E6%B3%95%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-text">欺骗词法作用域</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AD%E5%8C%85"><span class="nav-text">闭包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E6%A6%82%E5%BF%B5"><span class="nav-text">1.概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%97%AD%E5%8C%85%E5%BA%94%E7%94%A8%E2%80%94%E2%80%94%E6%A8%A1%E5%9D%97"><span class="nav-text">2. 闭包应用——模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%97%AD%E5%8C%85%E5%BA%94%E7%94%A8%E2%80%94%E2%80%94%E5%B0%81%E9%97%AD%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-text">3. 闭包应用——封闭作用域</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#this"><span class="nav-text">this</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8this"><span class="nav-text">1.为什么用this</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-this%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-text">2. this是什么</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-this%E8%B0%83%E7%94%A8"><span class="nav-text">3. this调用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-this%E7%BB%91%E5%AE%9A%E8%A7%84%E5%88%99"><span class="nav-text">4. this绑定规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E5%88%A4%E6%96%ADthis%E9%A1%BA%E5%BA%8F"><span class="nav-text">6. 判断this顺序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E5%BF%BD%E7%95%A5this"><span class="nav-text">7. 忽略this</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E5%8E%9F%E5%9E%8B"><span class="nav-text">对象原型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%8E%9F%E5%9E%8B%E9%93%BE%E4%B8%8A%E7%9A%84%E5%B1%9E%E6%80%A7%E6%9F%A5%E6%89%BE"><span class="nav-text">1. 原型链上的属性查找</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%AE%BE%E7%BD%AE%E5%AF%B9%E8%B1%A1%E5%B1%9E%E6%80%A7"><span class="nav-text">2.设置对象属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%8E%9F%E5%9E%8B%E5%A7%94%E6%89%98-V-%E7%B1%BB%E4%B8%8E%E7%BB%A7%E6%89%BF"><span class="nav-text">3. 原型委托 V 类与继承</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E6%A3%80%E6%B5%8B%E5%85%B3%E8%81%94%E5%85%B3%E7%B3%BB"><span class="nav-text">4.检测关联关系</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E7%A9%BA%E5%8E%9F%E5%9E%8B%E9%93%BE%E5%AF%B9%E8%B1%A1"><span class="nav-text">5.创建一个空原型链对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E5%92%8C%E8%AF%AD%E6%B3%95"><span class="nav-text">类型和语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E5%92%8C%E6%80%A7%E8%83%BD"><span class="nav-text">异步和性能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%BC%82%E6%AD%A5"><span class="nav-text">1. 异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B9%B6%E8%A1%8C"><span class="nav-text">2.并行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B9%B6%E5%8F%91"><span class="nav-text">3.并发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%8D%8F%E4%BD%9C"><span class="nav-text">4.协作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97%E3%80%81%E4%BA%8B%E4%BB%B6%E9%98%9F%E5%88%97"><span class="nav-text">5. 任务队列、事件队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="nav-text">6.代码执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E7%94%9F%E6%88%90%E5%99%A8%E5%87%BD%E6%95%B0%E3%80%81%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-text">7.生成器函数、迭代器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Iterator%E6%8E%A5%E5%8F%A3"><span class="nav-text">Iterator接口</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%AA%E6%95%B0%E7%BB%84%E7%9A%84Symbol-iterator"><span class="nav-text">1. 定义一个数组的Symbol.iterator</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%B6%88%E8%80%97%E8%BF%AD%E4%BB%A3%E5%99%A8%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-text">2. 消耗迭代器的操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E7%94%9F%E6%88%90%E5%99%A8%E5%87%BD%E6%95%B0"><span class="nav-text">3. 生成器函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E7%94%9F%E6%88%90%E5%99%A8%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">4. 生成器的使用</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Promise"><span class="nav-text">8. Promise</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-then"><span class="nav-text">Promise then</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-catch"><span class="nav-text">Promise catch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Promise-Api"><span class="nav-text">Promise Api</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-async-await"><span class="nav-text">9. async&#x2F;await</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-%E5%9B%9E%E8%B0%83"><span class="nav-text">8. 回调</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97%E5%8C%96"><span class="nav-text">模块化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%97%AD%E5%8C%85%E6%A8%A1%E5%BC%8F"><span class="nav-text">1. 闭包模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-export-default-%E5%AF%BC%E5%87%BA"><span class="nav-text">1.export default 导出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-import-%E5%AF%BC%E5%85%A5%E9%BB%98%E8%AE%A4%E5%AF%B9%E8%B1%A1"><span class="nav-text">2. import 导入默认对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%A8%A1%E5%9D%97%E4%BE%9D%E8%B5%96%E7%8E%AF"><span class="nav-text">3. 模块依赖环</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CommonJS-%E6%A8%A1%E5%9D%97%E5%8C%96"><span class="nav-text">CommonJS 模块化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%A4%E7%A7%8D%E6%A8%A1%E5%9D%97%E5%8C%96%E5%8C%BA%E5%88%AB"><span class="nav-text">两种模块化区别</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ES6%E5%8F%8A%E6%9B%B4%E6%96%B0%E7%89%88%E6%9C%AC"><span class="nav-text">ES6及更新版本</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%9D%97%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-text">1. 块作用域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%89%A9%E5%B1%95-%E6%94%B6%E9%9B%86%E8%BF%90%E7%AE%97%E7%AC%A6-%E2%80%A6"><span class="nav-text">2. 扩展&#x2F;收集运算符 …</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%BB%98%E8%AE%A4%E5%8F%82%E6%95%B0%E5%80%BC"><span class="nav-text">3. 默认参数值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%8F%E7%9F%A5%E8%AF%86"><span class="nav-text">小知识</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E5%AF%B9%E8%B1%A1%E5%AD%97%E9%9D%A2%E9%87%8F%E6%89%A9%E5%B1%95"><span class="nav-text">4. 对象字面量扩展 {}</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E8%A7%A3%E6%9E%84"><span class="nav-text">4. 解构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-%E6%95%B0%E5%AD%97%E5%AD%97%E9%9D%A2%E9%87%8F%E6%89%A9%E5%B1%95"><span class="nav-text">6. 数字字面量扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%AF%E8%BD%AC%E6%8D%A2%E7%9A%848%E8%BF%9B%E5%88%B6"><span class="nav-text">可转换的8进制</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0"><span class="nav-text">7. 箭头函数</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%8A%A8%E6%9C%BA"><span class="nav-text">使用动机</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#this%E6%8C%87%E5%90%91"><span class="nav-text">this指向</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-%E6%A8%A1%E7%89%88%E5%AD%97%E9%9D%A2%E9%87%8F"><span class="nav-text">8. 模版字面量</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AD%97%E9%9D%A2%E9%87%8F"><span class="nav-text">标签字符串字面量</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9-%E6%96%B0%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">9.  新数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E5%88%A4%E8%AF%BB%E7%94%B5%E8%84%91%E5%A4%A7%E5%B0%8F%E7%AB%AF%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="nav-text">1. 判读电脑大小端存储方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-TypedArray"><span class="nav-text">2. TypedArray</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-Map"><span class="nav-text">3.Map</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-Set"><span class="nav-text">4. Set</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-WeakMap%EF%BC%8CWeakSet"><span class="nav-text">5. WeakMap，WeakSet</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10-Symbol%E7%AC%A6%E5%8F%B7"><span class="nav-text">10. Symbol符号</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11-%E7%B1%BB"><span class="nav-text">11.类</span></a></li></ol></li></ol></li></ol></div>
+            </div>
+            <!--/noindex-->
+
+            <div class="site-overview-wrap sidebar-panel">
+                <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马冰阳"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">马冰阳</p>
+  <div class="site-description" itemprop="description">记录成长的点点滴滴</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/likemby" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;likemby" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:mabingyangh@163.com" title="E-Mail → mailto:mabingyangh@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+            </div>
+
+
+          
+          <div class="widget-wrap">
+            <h3 class="widget-title">笔记分类</h3>
+            <div class="category-all-page">
+              <div class="category-all">
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li></ul>
+              </div>
+            </div>
+          </div>
+          
+
+
+          
+            <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+            <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+            <div class="widget-wrap">
+              <h3 class="widget-title">标签云</h3>
+              <div id="myCanvasContainer" class="widget tagcloud">
+                <canvas width="250" height="100" id="resCanvas" style="width:100%">
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">2</span></li></ul>
+                </canvas>
+              </div>
+            </div>
+          
+        </div>
+    </aside>
+
+    <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马冰阳</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

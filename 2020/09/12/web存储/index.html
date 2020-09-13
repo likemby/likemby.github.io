@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"mabingyang.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Cookie存储1. cookie起源, 特点Cookie 的本职工作并非本地存储，而是“维持状态”。因为HTTP协议是无状态的，HTTP协议自身不对请求和响应之间的通信状态进行保存，通俗来说，服务器不知道用户上一次做了什么，这严重阻碍了交互式Web应用程序的实现。  Cookie指某些网站为了辨别用户身份而储存在用户本地终端上的数据(通常经过加密)。 cookie是服务端生成，客户端进行维护和存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浏览器存储机制">
+<meta property="og:url" content="http://mabingyang.top/2020/09/12/web%E5%AD%98%E5%82%A8/index.html">
+<meta property="og:site_name" content="马冰阳的个人博客">
+<meta property="og:description" content="Cookie存储1. cookie起源, 特点Cookie 的本职工作并非本地存储，而是“维持状态”。因为HTTP协议是无状态的，HTTP协议自身不对请求和响应之间的通信状态进行保存，通俗来说，服务器不知道用户上一次做了什么，这严重阻碍了交互式Web应用程序的实现。  Cookie指某些网站为了辨别用户身份而储存在用户本地终端上的数据(通常经过加密)。 cookie是服务端生成，客户端进行维护和存">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic2.zhimg.com/v2-9d22446bd1c422fbab68276bd0440e44_r.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/v2-a7269b1ae24fb52bfcb678450d2f0e63_r.jpg">
+<meta property="article:published_time" content="2020-09-12T10:46:21.631Z">
+<meta property="article:modified_time" content="2020-09-12T11:22:54.006Z">
+<meta property="article:author" content="马冰阳">
+<meta property="article:tag" content="浏览器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic2.zhimg.com/v2-9d22446bd1c422fbab68276bd0440e44_r.jpg">
+
+<link rel="canonical" href="http://mabingyang.top/2020/09/12/web%E5%AD%98%E5%82%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>浏览器存储机制 | 马冰阳的个人博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+
+      <h1 class="site-title">Wanna fly higher</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+
+      <p class="site-subtitle" itemprop="description">如果没有光 就努力成为自己的光</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>我的信息</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>成长历程</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>全站搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/12/web%E5%AD%98%E5%82%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          浏览器存储机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:22:54" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Cookie存储"><a href="#Cookie存储" class="headerlink" title="Cookie存储"></a>Cookie存储</h2><h3 id="1-cookie起源-特点"><a href="#1-cookie起源-特点" class="headerlink" title="1. cookie起源, 特点"></a>1. cookie起源, 特点</h3><p><strong>Cookie 的本职工作并非本地存储，而是“维持状态”</strong>。因为<strong>HTTP协议是无状态的，HTTP协议自身不对请求和响应之间的通信状态进行保存</strong>，通俗来说，服务器不知道用户上一次做了什么，这严重阻碍了交互式Web应用程序的实现。</p>
+<ul>
+<li><strong>Cookie指某些网站为了辨别用户身份而储存在用户本地终端上的数据(通常经过加密)。 cookie是服务端生成，客户端进行维护和存储</strong></li>
+<li>Cookie 不够大。Cookie的大小限制在4KB左右，这里需注意：<strong>各浏览器的cookie每一个<code>name=value</code>的value值大概在4k</strong>，所以4k并不是一个域名下所有的cookie共享的,而是一个name的大小。</li>
+<li>过多的 Cookie 会带来巨大的性能浪费。Cookie 是紧跟域名的。同一个域名下的所有请求，都会携带 Cookie。</li>
+<li>由于在HTTP请求中的Cookie是明文传递的，所以安全性成问题，除非用HTTPS<a id="more"></a>
+
+</li>
+</ul>
+<h3 id="2-cookie原理"><a href="#2-cookie原理" class="headerlink" title="2. cookie原理"></a>2. cookie原理</h3><p> 第一次访问网站的时候，浏览器发出请求，服务器响应请求后，会在响应头里面添加一个Set-Cookie选项，将cookie放入到响应请求中，在浏览器第二次发请求的时候，会通过Cookie请求头部将Cookie信息发送给服务器，服务端会辨别用户身份，另外，Cookie的过期时间、域、路径、有效期、适用站点都可以根据需要来指定。</p>
+<p>Cookie的生成方式主要有两种：</p>
+<ul>
+<li><p>生成方式一：http response header中的set-cookie</p>
+<p>我们可以通过响应头里的 Set-Cookie 指定要存储的 Cookie 值。默认情况下，domain 被设置为设置 Cookie 页面的主机名，我们也可以手动设置 domain 的值。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2018 07:28:00 GMT;//可以指定一个特定的过期时间（Expires）或有效期（Max-Age）</span><br></pre></td></tr></table></figure>
+
+<p>当Cookie的过期时间被设定时，设定的日期和时间只与客户端相关，而不是服务端。</p>
+</li>
+</ul>
+<ul>
+<li>生成方式二：js中可以通过document.cookie可以读写cookie，以键值对的形式展示</li>
+</ul>
+<p><img src="https://pic2.zhimg.com/v2-9d22446bd1c422fbab68276bd0440e44_r.jpg" alt="preview"></p>
+<h3 id="3-cookie安全性"><a href="#3-cookie安全性" class="headerlink" title="3.cookie安全性"></a>3.cookie安全性</h3><p>  HttpOnly 不支持读写，浏览器不允许脚本操作document.cookie去更改cookie， 所以为避免跨域脚本 (XSS) 攻击，通过JavaScript的 Document.cookie API无法访问带有 HttpOnly 标记的Cookie，它们只应该发送给服务端。如果包含服务端 Session 信息的 Cookie 不想被客户端 JavaScript 脚本调用，那么就应该为其设置 HttpOnly 标记。</p>
+  <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly</span><br></pre></td></tr></table></figure>
+
+<p>  标记为 Secure 的Cookie只应通过被HTTPS协议加密过的请求发送给服务端。但即便设置了 Secure 标记，敏感信息也不应该通过Cookie传输，因为Cookie有其固有的不安全性，Secure 标记也无法提供确实的安全保障。</p>
+<p>  <img src="https://pic4.zhimg.com/v2-a7269b1ae24fb52bfcb678450d2f0e63_r.jpg" alt="preview"></p>
+<h3 id="4-使用场景"><a href="#4-使用场景" class="headerlink" title="4. 使用场景"></a>4. 使用场景</h3><p>通过cookie,可以让服务器知道请求是来源哪个客户端，就可以进行客户端状态的维护，比如登陆后刷新，请求头就会携带登陆时response header中的set-cookie,Web服务器接到请求时也能读出cookie的值，根据cookie值的内容就可以判断和恢复一些用户的信息状态。</p>
+<ul>
+<li>记住密码，下次自动登录。</li>
+<li>购物车功能。</li>
+<li>记录用户浏览数据，进行商品（广告）推荐</li>
+</ul>
+<h2 id="WEB存储"><a href="#WEB存储" class="headerlink" title="WEB存储"></a>WEB存储</h2><h3 id="1-sessionStorage"><a href="#1-sessionStorage" class="headerlink" title="1. sessionStorage"></a>1. sessionStorage</h3><ul>
+<li><p>页面会话在浏览器打开期间一直保持，并且重新加载或恢复页面仍会保持原来的页面会话。 </p>
+</li>
+<li><p>打开多个相同的URL的Tabs页面，会创建各自的sessionStorage。 </p>
+</li>
+<li><p>关闭对应浏览器tab，会清除对应的sessionStorage。</p>
+</li>
+<li><p>大小为5M左右</p>
+</li>
+<li><p>仅在客户端使用，不和服务端进行通信</p>
+</li>
+<li><p><strong>即便是相同域名下的两个页面，只要它们不在同一个浏览器窗口中打开，那么它们的 sessionStorage 内容便无法共享</strong></p>
+</li>
+</ul>
+<p>实例方法：setItem、getItem、clear、removeItem</p>
+<blockquote>
+<p>clear()无参数 删除所有键值对,removeItem(key) 删除指定key和value</p>
+<p>getItem(key)不存在时返回null</p>
+</blockquote>
+<h3 id="2-localStorage"><a href="#2-localStorage" class="headerlink" title="2. localStorage"></a>2. localStorage</h3><ul>
+<li>保存的数据长期存在，下一次访问该网站的时候，网页可以直接读取以前保存的数据。</li>
+<li>大小为5M左右</li>
+<li>仅在客户端使用，不和服务端进行通信</li>
+<li>接口封装较好</li>
+<li><strong>同一个domain共享</strong></li>
+</ul>
+<p>基于上面的特点，LocalStorage可以作为浏览器本地缓存方案，用来提升网页首屏渲染速度(根据第一请求返回时，将一些不变信息直接存储在本地)。</p>
+<p>实例方法：setItem、getItem、clear、removeItem 同sessionStorage</p>
+<blockquote>
+<p>相比cookie 它存储容量更大，时间更久(除非刻意删除)</p>
+</blockquote>
+<h2 id="indexDB"><a href="#indexDB" class="headerlink" title="indexDB"></a>indexDB</h2><ul>
+<li>Cookie 的本职工作并非本地存储，而是“维持状态”</li>
+<li>Web Storage 是 HTML5 专门为浏览器存储而提供的数据存储机制，不与服务端发生通信</li>
+<li>IndexedDB 用于客户端存储大量结构化数据</li>
+</ul>
+<h2 id="WebSQL"><a href="#WebSQL" class="headerlink" title="WebSQL"></a>WebSQL</h2><h2 id="Websocket协议"><a href="#Websocket协议" class="headerlink" title="Websocket协议"></a>Websocket协议</h2><p>使用websocket可以在服务器与客户端之间建立一个<strong>非HTTP的双向连接</strong>，这个连接<strong>是实时的也是永久的</strong>，除非被显示关闭。服务器可以随时将消息推送到客户端，客户端也可以随时发送消息到服务端。</p>
+<ul>
+<li>ActiveMQ推送消息队列，是一个封装后的websocket客户端。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> webServerUrl=<span class="string">&#x27;ws://47.102.96.246:5001/imserver/1&#x27;</span></span><br><span class="line"><span class="keyword">let</span> ws=<span class="keyword">new</span> WebSocket(webServerUrl)<span class="comment">//建立链接</span></span><br><span class="line">ws.onopen=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; 	<span class="comment">//监听链接打开</span></span><br><span class="line">    <span class="built_in">console</span>.log(e,<span class="string">&#x27;链接&#x27;</span>)</span><br><span class="line">    ws.send(<span class="string">&#x27;ourdta&#x27;</span>)</span><br><span class="line">&#125; </span><br><span class="line">ws.onmessage=<span class="function"><span class="keyword">function</span> (<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.body.innerHtml+=e.data <span class="comment">//监听消息推送</span></span><br><span class="line">    <span class="built_in">console</span>.log(e.data)</span><br><span class="line">&#125;</span><br><span class="line">ws.onclose=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e+<span class="string">&#x27;over&#x27;</span>) <span class="comment">//监听链接关闭</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ws,close()和刷新页面、断网都会关闭链接。 一般websocket不关闭</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag"># 浏览器</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/12/unicode%E4%B8%8Ejs/" rel="prev" title="从阮一峰老师学习总结">
+      <i class="fa fa-chevron-left"></i> 从阮一峰老师学习总结
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/13/nginx%E9%98%B6%E6%AE%B5%E6%A8%A1%E5%9D%97/" rel="next" title="nginx工作得几个重要阶段">
+      nginx工作得几个重要阶段 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+    <div class="toggle sidebar-toggle">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-inner">
+
+            <ul class="sidebar-nav motion-element"  >
+                <li class="sidebar-nav-toc">
+                    文章目录
+                </li>
+                <li class="sidebar-nav-overview">
+                    站点概览
+                </li>
+            </ul>
+
+            <!--noindex-->
+            <div class="post-toc-wrap sidebar-panel">
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cookie%E5%AD%98%E5%82%A8"><span class="nav-text">Cookie存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-cookie%E8%B5%B7%E6%BA%90-%E7%89%B9%E7%82%B9"><span class="nav-text">1. cookie起源, 特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-cookie%E5%8E%9F%E7%90%86"><span class="nav-text">2. cookie原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-cookie%E5%AE%89%E5%85%A8%E6%80%A7"><span class="nav-text">3.cookie安全性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">4. 使用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WEB%E5%AD%98%E5%82%A8"><span class="nav-text">WEB存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-sessionStorage"><span class="nav-text">1. sessionStorage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-localStorage"><span class="nav-text">2. localStorage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#indexDB"><span class="nav-text">indexDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebSQL"><span class="nav-text">WebSQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Websocket%E5%8D%8F%E8%AE%AE"><span class="nav-text">Websocket协议</span></a></li></ol></div>
+            </div>
+            <!--/noindex-->
+
+            <div class="site-overview-wrap sidebar-panel">
+                <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马冰阳"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">马冰阳</p>
+  <div class="site-description" itemprop="description">记录成长的点点滴滴</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/likemby" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;likemby" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:mabingyangh@163.com" title="E-Mail → mailto:mabingyangh@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+            </div>
+
+
+          
+          <div class="widget-wrap">
+            <h3 class="widget-title">笔记分类</h3>
+            <div class="category-all-page">
+              <div class="category-all">
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li></ul>
+              </div>
+            </div>
+          </div>
+          
+
+
+          
+            <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+            <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+            <div class="widget-wrap">
+              <h3 class="widget-title">标签云</h3>
+              <div id="myCanvasContainer" class="widget tagcloud">
+                <canvas width="250" height="100" id="resCanvas" style="width:100%">
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">2</span></li></ul>
+                </canvas>
+              </div>
+            </div>
+          
+        </div>
+    </aside>
+
+    <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马冰阳</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

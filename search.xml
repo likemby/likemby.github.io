@@ -1,0 +1,2570 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>JavaScript中的类型转换</title>
+    <url>/2020/09/12/js%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/</url>
+    <content><![CDATA[<h2 id="JavaScript中的类型转换"><a href="#JavaScript中的类型转换" class="headerlink" title="JavaScript中的类型转换"></a>JavaScript中的类型转换</h2><h4 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h4><p>值类型转换有显式与隐式之分。</p>
+<ul>
+<li>显式，发生在静态类型语言的编译阶段。</li>
+<li>隐式，也称强制类型转换，发生在动态语言运行时。</li>
+</ul>
+<p>由于JavaScript是一门动态弱类型语言，因此有人说JavaScript中均为隐式转化也不错。不过接下来，我们从其转换的明显程度去划分<em>显式</em> 与<em>隐式</em> 两种转化。</p>
+<h4 id="2-准备"><a href="#2-准备" class="headerlink" title="2. 准备"></a>2. 准备</h4><p>基本数据类型</p>
+<ul>
+<li>共七个：number, string, number, null, undefined, symbol, object.</li>
+</ul>
+<p>抽象值操作</p>
+<a id="more"></a>
+<ul>
+<li><p><code>ToString()</code></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">各个值类型示例</span><br><span class="line"><span class="literal">null</span> -&gt; <span class="string">&quot;null&quot;</span></span><br><span class="line"><span class="literal">undefined</span> -&gt; <span class="string">&quot;undefined&quot;</span></span><br><span class="line"><span class="literal">true</span>, <span class="literal">false</span> -&gt; <span class="string">&quot;true&quot;</span>, <span class="string">&quot;false&quot;</span></span><br><span class="line"><span class="number">5</span>, <span class="number">1e100</span> -&gt; <span class="string">&quot;5&quot;</span>, <span class="string">&quot;1e+100&quot;</span></span><br><span class="line"></span><br><span class="line">object</span><br><span class="line">如果对象重写了toString()方法，则该使用该返回值；否则，返回[[class]]属性</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>ToNumber()</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">值类型</span><br><span class="line">null -&gt;0</span><br><span class="line">undefined -&gt; NAN</span><br><span class="line">false, true -&gt; 0, 1</span><br><span class="line">&quot;5&quot;, &quot;5Nsa&quot;, &quot;&quot; -&gt; 5, NAN, 0 &#x2F;&#x2F;空值包括，&quot;&quot;, &quot; &quot;, &quot;\n&quot;</span><br><span class="line"></span><br><span class="line">object</span><br><span class="line">调用ToPrimitive()</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>ToBoolean()</code></p>
+<ul>
+<li>需要注意，JavaScript中true与1， false与0并不完全相等</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">转化为false的值</span><br><span class="line">undefined -&gt; false</span><br><span class="line">null -&gt; false</span><br><span class="line">+0, -0, NaN -&gt; false</span><br><span class="line">&quot;&quot; -&gt; false</span><br><span class="line"></span><br><span class="line">除此外，其它的boolean转化，如对象，数组，函数等均为true</span><br><span class="line">注意*: 存在一些自定义的对象，bool转换总是false值</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>ToPrimitive()</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">此方法用于对象的拆封</span><br><span class="line">1. 首先检查对象valueOf()方法是否存在并且返回的是基本值类型</span><br><span class="line">2. 否则，检查toString()方法是否存在并且有返回值</span><br><span class="line">3. 如果不存在，则发出TypeError的错误</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="3-显示转换"><a href="#3-显示转换" class="headerlink" title="3. 显示转换"></a>3. 显示转换</h4><ul>
+<li><p>转字符串：通过String(), <code>toString()</code>, +””方法</p>
+<ol>
+<li><p>数值类型 <code>toString(radix)</code>方法可指定radix进制2， 8, 16等，radix一定在[2,36]区间</p>
+</li>
+<li><p>体会 <code>(3).toString(2) =&gt;&#39;11&#39;</code> 与<code>(“3”).toStirng(2)=&gt;&#39;3&#39;</code>的不同, </p>
+</li>
+<li><p>undefined, null 不能进行<code>toString()</code>,可以使用其它两种方法</p>
+<blockquote>
+<p><code>3.toString(2) =&gt;&#39;11&#39;</code> 报错</p>
+<p><code>3..toString(2) =&gt;&#39;11&#39;</code> 通过</p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><p>转数字：通过<code>Nmber(), parseFloat(), parseInt(), +str </code></p>
+<ol>
+<li><p><code>+str</code>、parseInt(), Number（）方法不识别8进制, parseFloat()不识别8进制和16进制。</p>
+</li>
+<li><p>Number识别别数字字符串不支持中间有空格</p>
+</li>
+<li><p><code>parseFloat()</code>从首位开始，直到遇到非数字位或第二个.停止(.，0, <code>0x</code>, +, -可以被处理)。空字符串，bool,undefined,null,都将转为NaN。</p>
+</li>
+<li><p><code>parseInt(),</code>从首位开始，直到遇到非数字位停止(0, 0x, +, -可以被处理)。空字符串，bool,undefined,null,都将转为NaN。</p>
+</li>
+</ol>
+<blockquote>
+<ul>
+<li>获得时间戳 <code>var timeStamp= +new Date()</code> </li>
+<li>截断小数 <code>~~-49.6 == -49</code></li>
+<li><del>x取得x补码  `</del>str.index(“a”)=0或1`</li>
+</ul>
+</blockquote>
+</li>
+<li><p>转布尔：Boolean(), !!</p>
+</li>
+</ul>
+<h4 id="4-隐式转换"><a href="#4-隐式转换" class="headerlink" title="4. 隐式转换"></a>4. 隐式转换</h4><ul>
+<li><p>布尔转换</p>
+<ul>
+<li>if, for, while, ?: 中的条件判断表达式</li>
+<li>&amp;&amp;, || 操作数选择器，两旁的操作数先做布尔转换用来判断返回的操作数</li>
+</ul>
+</li>
+<li><p>”+“号</p>
+<ul>
+<li>如果其两边有一个操作数是字符串或可以转为字符串的对象，则进行字符串拼接；否则进行数字相加。</li>
+<li>[]+{}=”[object Object]” 字符串拼接</li>
+<li>{}+[]=0 {}作为块级区域标志，+[]单独运算</li>
+</ul>
+</li>
+<li><p>== 与 ===</p>
+<ul>
+<li><p>前者允许进行类型转换，后者不许类型转换；两者效率并无大差异</p>
+</li>
+<li><pre><code>规定
+1. NaN 不等于 NaN
+2. +0 = -0
+3. 比较两个对象时，比较其指向的值是否相等，不发生类型转换</code></pre>
+</li>
+</ul>
+</li>
+<li><p>a == b 比较规则</p>
+<ol>
+<li>a, b中一个为<code>bool</code>类型，则转为数字</li>
+<li>a, b中一个为string类型，则转为数字</li>
+<li>若a, b中一个为对象，进行拆封操作，即<code>toPrimitive()</code><ul>
+<li>[null] -&gt; “”, 数组对象重写了<code>toString()</code>方法，null -&gt; “”</li>
+</ul>
+</li>
+<li>null == undefined, 结果为true</li>
+<li>不建议当操作数为true, false, [], “”, 0时使用==比较</li>
+</ol>
+</li>
+<li><p>a&gt;b, a&lt;b抽象比较</p>
+<ul>
+<li>a&gt;=b, a&lt;=b将被转换为!(a&lt;b), !(a&gt;b)</li>
+<li>若a,b中存在数字，则转化为数字比较，否则转为字符串进行比较</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-Symbol类型的转换"><a href="#5-Symbol类型的转换" class="headerlink" title="5. Symbol类型的转换"></a>5. Symbol类型的转换</h4><p>前面一直没有提到这个数据类型，一般很难接触到。</p>
+<ul>
+<li>可以显式、隐式的转化为布尔类型 </li>
+<li>可以显示转为字符串，但不能隐式的转换<ul>
+<li>Symbol(“hahaha”) +”” //TypeError</li>
+<li>String(Symbol(“hahaha”) ) // “Symbol(hahaha)”</li>
+</ul>
+</li>
+<li>不能转为数字类型</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
+    <title>一些有趣的js题目</title>
+    <url>/2020/09/12/js%E9%A2%98%E7%9B%AE/</url>
+    <content><![CDATA[<h2 id="四十四道js难题"><a href="#四十四道js难题" class="headerlink" title="四十四道js难题"></a><a href="http://javascript-puzzlers.herokuapp.com/">四十四道js难题</a></h2><ol>
+<li><p>parseInt(string, base)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;].map(parseInt)</span><br><span class="line">        </span><br><span class="line">what you actually get is [1, NaN, NaN] because parseInt takes two parameters (val, radix) and map passes 3 (element, index, array)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>base指定string是一个多少进制的数字字符串，默认base=0,表示10进制。</p>
+<a id="more"></a>
+<ol start="2">
+<li><p>reduce，调用者为空数组时必须传递初始值</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[ [3,2,1].reduce(Math.pow), [].reduce(Math.pow) ]</span><br><span class="line"></span><br><span class="line">error</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>运算符优先级</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line"><span class="keyword">var</span> val = <span class="string">&#x27;smtg&#x27;</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;Value is &#x27;</span> + (val === <span class="string">&#x27;smtg&#x27;</span>) ? <span class="string">&#x27;Something&#x27;</span> : <span class="string">&#x27;Nothing&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Operator_Precedence">运算符优先级</a></p>
+<p>最高优先级：（）20</p>
+<p>最低优先级：， 0</p>
+<p>常见优先级顺序： 赋值运算&lt; 三目运算符&lt;逻辑运算&lt;位运算 &lt;等不等运算符&lt;比较运算符&lt; 位左右移&lt; 加减&lt;乘除&lt;幂运算&lt;前置递增与其它单目运算 &lt;后置递增   &lt;new(无参)运算符&lt;  .成员访问</p>
+<p>右关联运算符： 赋值运算，三目运算，幂运算，所有单目运算</p>
+</li>
+<li><p>.fitter,map 对空元素不起作用</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var ary &#x3D; [0,1,2];</span><br><span class="line">ary[10] &#x3D; 10;</span><br><span class="line">ary.filter(function(x) &#123; return x &#x3D;&#x3D;&#x3D; undefined;&#125;);</span><br><span class="line"></span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+
+<p>空元素并非指值为undefined的元素</p>
+</li>
+<li><p>小数运算不可信</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var two   &#x3D; 0.2</span><br><span class="line">var one   &#x3D; 0.1</span><br><span class="line">var eight &#x3D; 0.8</span><br><span class="line">var six   &#x3D; 0.6</span><br><span class="line">[two - one &#x3D;&#x3D; one, eight - six &#x3D;&#x3D; two]</span><br><span class="line"></span><br><span class="line">0.2-0.1&#x3D;0.1 0.8-0.6&#x3D;0.2000000007</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>大数运算也不可信</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">var a &#x3D; 111111111111111110000,</span><br><span class="line">    b &#x3D; 1111;</span><br><span class="line">a + b;</span><br><span class="line">        </span><br><span class="line">&#x3D;111111111111111110000</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="7">
+<li><p>全局变量提升</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">(function()&#123;</span><br><span class="line">  var x &#x3D; y &#x3D; 1;</span><br><span class="line">&#125;)();</span><br><span class="line">console.log(y);</span><br><span class="line">console.log(x);</span><br><span class="line">      </span><br><span class="line">      1 error</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>负负得正</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">1 + - + + + - + 1</span><br><span class="line">&#x3D;2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>正则表达式字面量形式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var a &#x3D; &#x2F;123&#x2F;,</span><br><span class="line">    b &#x3D; &#x2F;123&#x2F;;</span><br><span class="line">a &#x3D;&#x3D; b</span><br><span class="line">a &#x3D;&#x3D;&#x3D; b</span><br><span class="line">        false false a与b是对象</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>属性具有不可writable的特性 并且<strong>赋值不保错</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">function foo() &#123; &#125;</span><br><span class="line">var oldName &#x3D; foo.name;</span><br><span class="line">foo.name &#x3D; &quot;bar&quot;;</span><br><span class="line">[oldName, foo.name]</span><br><span class="line">[foo,foo]</span><br><span class="line">   </span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>2^53=2^53+1 </code>for循环中会造成死循环 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var END &#x3D; Math.pow(2, 53);</span><br><span class="line">var START &#x3D; END - 100;</span><br><span class="line">var count &#x3D; 0;</span><br><span class="line">for (var i &#x3D; START; i &lt;&#x3D; END; i++) &#123;</span><br><span class="line">    count++;</span><br><span class="line">&#125;</span><br><span class="line">console.log(count);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>非严格模式下arguments会和函数参数绑定</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function sidEffecting(ary) &#123;</span><br><span class="line">  ary[0] &#x3D; ary[2];</span><br><span class="line">&#125;</span><br><span class="line">function bar(a,b,c) &#123;</span><br><span class="line">  c &#x3D; 10</span><br><span class="line">  sidEffecting(arguments);</span><br><span class="line">  return a + b + c;</span><br><span class="line">&#125;</span><br><span class="line">bar(1,1,1) </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>​    这里总结一下：严格模式和非严格模式  </p>
+<p>  （1）严格模式arguments对象是传入函数内实参列表的静态副本；非严格模式下，指向同一个值的引用   </p>
+<p>  （2）严格模式变量必须先声明，才能使用    </p>
+<p>  （3）严格模式中 call apply传入null undefined保持原样不被转换为window</p>
+</blockquote>
+</li>
+<li><p>reverse()函数现在是严格函数编写，this指向 undefined,null时，不会默认为window</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var x &#x3D; [].reverse;</span><br><span class="line">x();</span><br><span class="line">&#x2F;&#x2F;报错</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<h2 id="第二次考试题及复习题"><a href="#第二次考试题及复习题" class="headerlink" title="第二次考试题及复习题"></a>第二次考试题及复习题</h2><p>JavaScript</p>
+<ol>
+<li><p><strong>JS组成(ECMAScript，DOM，BOM)</strong></p>
+<p>javaScript包括European Computer Manufacturers Association-262标准实现和扩展的一门脚本语言‘</p>
+<p>DOM document object model 文档对象模型</p>
+<p>Brower Object Model 浏览器对象模型</p>
+</li>
+<li><p><strong>数据类型(基本数据类型和引用数据类型)</strong></p>
+<p>基本数据类型，string,number,boolean,null,undefined,bigint(es 10)   复合数据类型 object</p>
+</li>
+<li><p><strong>对象属性定义(Object. defineProperty())</strong></p>
+<ul>
+<li>查看 Object.getOwnPropertyDescriptors(obj)  (es 8)，Object.getOwnPropertyDescriptor(obj，prop) </li>
+<li>修改 Object.defineProperty(obj,prop)   Object.defineProperties(obj)</li>
+<li>可配置的属性 enumerable, writable, configurable</li>
+</ul>
+</li>
+<li><p><strong>闭包的理解及解决方案</strong></p>
+<p>在函数的当前词法作用域外执行函数，函数与其引用的外部变量就形成了闭包。</p>
+<p>let, forEach, IEEF 解决闭包函数执行时共用同一一个外部变量导致的问题。</p>
+</li>
+<li><p><strong>递归实现某个功能</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function factorial(n)&#123;</span><br><span class="line"></span><br><span class="line">if(n&#x3D;&#x3D;1 ) return 1;</span><br><span class="line"></span><br><span class="line">return n * factorial(n-1)</span><br><span class="line"></span><br><span class="line">&#125;&#x2F;&#x2F;递归求阶乘</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="6">
+<li><p>JS继承有几种？如何实现继承？</p>
+<ul>
+<li><p>原型链继承 将子对象原型指向另一个类型的实例实现的继承。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Parent() &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Parent.prototype.color &#x3D; &quot;blue&quot;;</span><br><span class="line">Parent.prototype.sayColor &#x3D; function () &#123;</span><br><span class="line">    alert(this.color);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">function Child() &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype &#x3D; new Parent();</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>优点：子类公用父类中的属性</p>
+<p>缺点：在创建子类型的实例时,不能向超类型的构造函数传递参数;</p>
+</blockquote>
+</li>
+<li><p>函数构造继承</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Parent(name)&#123;</span><br><span class="line">	this.name&#x3D;name</span><br><span class="line">	this.sayHello&#x3D;function()&#123;console.log(&#39;hi&#39;);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child(name)&#123;</span><br><span class="line">	Parent.call(this,name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>优点：每个子对象都拥有父对象的方法和属性</p>
+<p>缺点：子对象无法共用属性</p>
+</blockquote>
+</li>
+<li><p>混合继承</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Parent(name)&#123;</span><br><span class="line">	this.name&#x3D;name</span><br><span class="line">	this.sayHello&#x3D;function()&#123;console.log(&#39;hi&#39;);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child(name)&#123;</span><br><span class="line">	Parent.call(this,name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype&#x3D;new Patent()</span><br><span class="line">Child.prototype.constructor&#x3D;Parent;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>可以向超类中传参，也可以公用超类的方法，这种方式被广泛使用</p>
+</blockquote>
+</li>
+<li><p>行为委托</p>
+<p>利用this隐式绑定与原型链查找，将公共行为写到被委托者，而状态存储在委托者。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let parent&#x3D;&#123;</span><br><span class="line">	setName(name)&#123;this.name&#x3D;name&#125;</span><br><span class="line">	sayHello()&#123;console.log(&#39;hi &#39;+this.name)&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let child&#x3D;Object.create(parent)</span><br><span class="line"></span><br><span class="line">child.init&#x3D;function(name)&#123; </span><br><span class="line">this.setName(name)</span><br><span class="line">this.flag&#x3D;&#39;beautiful&#39;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">child.init(&#39;huahua&#39;)</span><br><span class="line">child.sayHello()</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>对象创建和初始化分离。所有状态放在委托者身上，类似与构造函数继承</li>
+<li>公共行为通过<strong>不同名的方法属性</strong>，合理调用被委托者完成</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>类数组转数组</strong></p>
+<ul>
+<li>Array.from(arrLike)</li>
+<li>Array.prototype.slice.call(arrLike)</li>
+</ul>
+</li>
+<li><p>至少一种排序算法</p>
+<p>插入排序</p>
+</li>
+<li><p><strong>数组的10个方法，String的10个方法</strong></p>
+<p>数组</p>
+<p>push(),pop(),shift(),unshift(),splice()改变自身的方法</p>
+<p>forEach,map,filter,reduce,some,every 遍历数组的方法</p>
+<p>find(cb),findIndex(cb),IndexOf(value,start=0),includes(value,start)查找元素\下标\元素是否存在</p>
+<p>slice()切片操作、concat()链接多个数组</p>
+<p>字符串</p>
+<p>search，match, matchAll, replace ，split可以使用正则的字符串方法</p>
+<p>charAt, charAtCode, indexOf(), startWith(),endWith() 不用药正则的查找方法</p>
+<p>slice,substr,sbstring 子串截取</p>
+<p>trim, toLowerCase,toUpperCase 字符串转换</p>
+<p>concat 字符串拼接 repeat() 字符串赋值</p>
+</li>
+</ol>
+<ol start="10">
+<li><p><strong>页面跳转的几种方式，并且分别实现</strong></p>
+<ul>
+<li>a标签跳转</li>
+<li>history在历史记录中跳转页面</li>
+<li>location.assign, replace,跳转</li>
+<li>window.open 在窗口打开</li>
+</ul>
+</li>
+<li><p><strong>http协议的理解，及编写代码实现数据交互(ajax)</strong></p>
+<p>http Hyper text transmission protocol 超文本传输协议，当前广泛流行的http/1.1版本，它是一个基于Tcp/ip应用层协议，采用客户端到服务器模式。</p>
+<ul>
+<li>限制每次连接只能处理一个请求。服务器处理完客户端的请求，并收到客户端的应答后，就断开连接</li>
+<li>HTTP允许传输任意类型的数据对象。传输的类型由content-type标记；</li>
+<li>HTTP是无记忆能力的协议，如果后面的处理需要前面的信息，则它必须重传</li>
+</ul>
+<p>状态码</p>
+<ul>
+<li>1xx 请求正在处理</li>
+<li>2xx成功请求正常处理</li>
+<li>3xx 重定向，需进行附加操作完成请求</li>
+<li>4xx 客户端错误码 服务器无法处理客户端请求</li>
+<li>5xx 服务器错误码 服务器处理请求出错</li>
+</ul>
+<p>ajax</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let xhr&#x3D;XMLHttpRequest()</span><br><span class="line">xhr.open(’get&#39;,&#39;http:&#x2F;&#x2F;www.baidu.com&#39;)</span><br><span class="line"></span><br><span class="line">xhr.send()</span><br><span class="line">xhr.onStateChanged&#x3D;function(e)&#123;</span><br><span class="line"> xhr.readyState&#x3D;&#x3D;4 &amp;&amp; console.log(xhr.responseText)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="12">
+<li><p><strong>如何创建正则表达式对象、数组对象、Obeject对象</strong></p>
+<p>正则表达式 //或 new RegExp()</p>
+<p>数组 [], Array.of, Array.from, new Array()</p>
+<p>Object对象 ｛｝/ new Object()</p>
+</li>
+<li><p><strong>更改函数内部this指向的几种方式，写出代码实现</strong></p>
+<p>fun.call(obj)</p>
+<p>fun.apply(obj)</p>
+<p>fun.bind(obj)()</p>
+<p>obj=new fun()</p>
+</li>
+<li><p><strong>事件的三要素是什么?如何绑定事件及解绑</strong></p>
+<p>事件源，事件，事件驱动程序</p>
+<p> dom0 ,html行内绑定，js属性绑定；通过js事件属性=null解绑</p>
+<p>如 <code>dom.onclick=function()&#123;&#125;</code></p>
+<p>dom2通过，addEventListener(),removeEventListner()</p>
+<p>如 <code>dom.addEventListenr(&#39;click&#39;,function()&#123;&#125;)</code></p>
+</li>
+<li><p>如<strong>何停止事件冒泡和阻止默认行为？</strong></p>
+<p>el.stopPropagation() el.preventDefault()</p>
+</li>
+<li><p><strong>如何操作DOM节点的属性和内容</strong></p>
+<p>自身属性</p>
+<pre><code>el.prop获取， el.prop=&quot;content&quot;赋值</code></pre>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">closeBanner.className+&#x3D;&quot;hide&quot; &#x2F;&#x2F;保留原类名，添加新类名</span><br><span class="line">closeBanner.className&#x3D;&quot;hide&quot; &#x2F;&#x2F;替换旧类名</span><br></pre></td></tr></table></figure>
+
+<p>自定义属性</p>
+<pre><code>el.getAtrribute(prop), el.setAttribute(prop,value)</code></pre>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>从阮一峰老师学习总结</title>
+    <url>/2020/09/12/unicode%E4%B8%8Ejs/</url>
+    <content><![CDATA[<h2 id="Unicode字符集"><a href="#Unicode字符集" class="headerlink" title="Unicode字符集"></a>Unicode字符集</h2><p>起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。</p>
+<p><strong>它从0开始，为每个符号指定一个编号，这叫做”码点”（code point）</strong>,如<code>u+0000=null</code></p>
+<p>基本平面BMP(Basic Mutillingual Plane)包含可能看到的和接触到的所有标准打印字符，<code>U+0000~U+FFFF</code>。</p>
+<a id="more"></a>
+<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121104.png" alt="img"></p>
+<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121115.png" alt="img"></p>
+<h2 id="Unicode字符编码"><a href="#Unicode字符编码" class="headerlink" title="Unicode字符编码"></a>Unicode字符编码</h2><p>Unicode只规定了每个字符的码点，到底用什么样的字节序表示这个码点，就涉及到编码方法。</p>
+<h3 id="UTF-32"><a href="#UTF-32" class="headerlink" title="UTF-32"></a>UTF-32</h3><p><strong>最直观的编码方法是，每个码点使用四个字节表示，字节内容一一对应码点。这种编码方法就叫做UTF-32</strong></p>
+<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121116.png" alt="img"></p>
+<h3 id="UTF-8"><a href="#UTF-8" class="headerlink" title="UTF-8"></a>UTF-8</h3><p>人们真正需要的是一种节省空间的编码方法，这导致了UTF-8的诞生。<strong>UTF-8是一种变长的编码方法，字符长度从1个字节到4个字节不等。</strong>越是常用的字符，字节越短，最前面的128个字符，只使用1个字节表示，与ASCII码完全相同。</p>
+<table>
+<thead>
+<tr>
+<th>编号范围</th>
+<th>字节</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x0000 - 0x007F</td>
+<td>1</td>
+</tr>
+<tr>
+<td>0x0080 - 0x07FF</td>
+<td>2</td>
+</tr>
+<tr>
+<td>0x0800 - 0xFFFF</td>
+<td>3</td>
+</tr>
+<tr>
+<td>0x010000 - 0x10FFFF</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<h3 id="UTF-16"><a href="#UTF-16" class="headerlink" title="UTF-16"></a>UTF-16</h3><p>它的编码规则很简单：基本平面的字符占用2个字节，辅助平面的字符占用4个字节。<strong>也就是说，UTF-16的编码长度要么是2个字节（U+0000到U+FFFF），要么是4个字节（U+010000到U+10FFFF）。</strong></p>
+<p>于是就有一个问题，当我们遇到两个字节，怎么看出它本身是一个字符，还是需要跟其他两个字节放在一起解读？</p>
+<p>说来很巧妙，我也不知道是不是故意的设计，在基本平面内，从U+D800到U+DFFF是一个空段，即这些码点不对应任何字符。因此，这个空段可以用来映射辅助平面的字符。</p>
+<p>具体来说，辅助平面的字符位共有220个，也就是说，对应这些字符至少需要20个二进制位。UTF-16将这20位拆成两半，前10位映射在U+D800到U+DBFF（空间大小210），称为高位（H），后10位映射在U+DC00到U+DFFF（空间大小210），称为低位（L）。这意味着，一个辅助平面的字符，被拆成两个基本平面的字符表示。</p>
+<p><strong>所以，当我们遇到两个字节，发现它的码点在U+D800到U+DBFF之间，就可以断定，紧跟在后面的两个字节的码点，应该在U+DC00到U+DFFF之间，这四个字节必须放在一起解读。</strong></p>
+<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121106.png" alt="img"></p>
+<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121117.png" alt="img"></p>
+<h2 id="JS字符串使用的字符编码"><a href="#JS字符串使用的字符编码" class="headerlink" title="JS字符串使用的字符编码"></a>JS字符串使用的字符编码</h2><p>JavaScript语言采用Unicode字符集，但是只支持一种编码方法。</p>
+<p>这种编码既不是UTF-16，也不是UTF-8，更不是UTF-32。上面那些编码方法，JavaScript都不用。</p>
+<p><strong>JavaScript用的是UCS-2！</strong></p>
+<p>UCS团队和Unicode团队都想统一字符集，且UCS动作优先于Unicode团队，先发布了UCS-2编码方法，使用两个字节表示已有的码点(就是基本平面)。后来UTF-16 取代了UCS-2成为其超集(加入了辅助平面)。</p>
+<p><strong>在JavaScript语言出现的时候，还没有UTF-16编码。所以使用UCS2</strong></p>
+<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121120.png" alt="img"></p>
+<p>因此js字符串对应非基本平面会当成两个基本平面字符，导致长度、解析出错，这存在所有的字符串相关函数中</p>
+<h2 id="ES6字符串"><a href="#ES6字符串" class="headerlink" title="ES6字符串"></a>ES6字符串</h2><ul>
+<li><p>ES6可以自动识别4字节的码点。因此，遍历字符串就简单多了。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">for (let s of string ) &#123;</span><br><span class="line">  &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Array</span>.from(string).length</span><br><span class="line">但是，为了保持兼容，length属性还是原来的行为方式。为了得到字符串的正确长度，可以用下面的方式</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>JavaScript允许直接用码点表示Unicode字符，写法是”反斜杠+u+码点”。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;好&#x27;</span> === <span class="string">&#x27;\u597D&#x27;</span> <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121123.png" alt="img"></p>
+</li>
+<li><p>新增字符串处理函数</p>
+<ul>
+<li>**String.fromCodePoint()**：从Unicode码点返回对应字符</li>
+<li>**String.prototype.codePointAt()**：从字符返回对应的码点</li>
+<li>**String.prototype.at()**：返回字符串给定位置的字符</li>
+</ul>
+</li>
+<li><p>ES6提供了u修饰符，对正则表达式添加4字节码点的支持。</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浏览器存储机制</title>
+    <url>/2020/09/12/web%E5%AD%98%E5%82%A8/</url>
+    <content><![CDATA[<h2 id="Cookie存储"><a href="#Cookie存储" class="headerlink" title="Cookie存储"></a>Cookie存储</h2><h3 id="1-cookie起源-特点"><a href="#1-cookie起源-特点" class="headerlink" title="1. cookie起源, 特点"></a>1. cookie起源, 特点</h3><p><strong>Cookie 的本职工作并非本地存储，而是“维持状态”</strong>。因为<strong>HTTP协议是无状态的，HTTP协议自身不对请求和响应之间的通信状态进行保存</strong>，通俗来说，服务器不知道用户上一次做了什么，这严重阻碍了交互式Web应用程序的实现。</p>
+<ul>
+<li><strong>Cookie指某些网站为了辨别用户身份而储存在用户本地终端上的数据(通常经过加密)。 cookie是服务端生成，客户端进行维护和存储</strong></li>
+<li>Cookie 不够大。Cookie的大小限制在4KB左右，这里需注意：<strong>各浏览器的cookie每一个<code>name=value</code>的value值大概在4k</strong>，所以4k并不是一个域名下所有的cookie共享的,而是一个name的大小。</li>
+<li>过多的 Cookie 会带来巨大的性能浪费。Cookie 是紧跟域名的。同一个域名下的所有请求，都会携带 Cookie。</li>
+<li>由于在HTTP请求中的Cookie是明文传递的，所以安全性成问题，除非用HTTPS<a id="more"></a>
+
+</li>
+</ul>
+<h3 id="2-cookie原理"><a href="#2-cookie原理" class="headerlink" title="2. cookie原理"></a>2. cookie原理</h3><p> 第一次访问网站的时候，浏览器发出请求，服务器响应请求后，会在响应头里面添加一个Set-Cookie选项，将cookie放入到响应请求中，在浏览器第二次发请求的时候，会通过Cookie请求头部将Cookie信息发送给服务器，服务端会辨别用户身份，另外，Cookie的过期时间、域、路径、有效期、适用站点都可以根据需要来指定。</p>
+<p>Cookie的生成方式主要有两种：</p>
+<ul>
+<li><p>生成方式一：http response header中的set-cookie</p>
+<p>我们可以通过响应头里的 Set-Cookie 指定要存储的 Cookie 值。默认情况下，domain 被设置为设置 Cookie 页面的主机名，我们也可以手动设置 domain 的值。</p>
+<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2018 07:28:00 GMT;//可以指定一个特定的过期时间（Expires）或有效期（Max-Age）</span><br></pre></td></tr></table></figure>
+
+<p>当Cookie的过期时间被设定时，设定的日期和时间只与客户端相关，而不是服务端。</p>
+</li>
+</ul>
+<ul>
+<li>生成方式二：js中可以通过document.cookie可以读写cookie，以键值对的形式展示</li>
+</ul>
+<p><img src="https://pic2.zhimg.com/v2-9d22446bd1c422fbab68276bd0440e44_r.jpg" alt="preview"></p>
+<h3 id="3-cookie安全性"><a href="#3-cookie安全性" class="headerlink" title="3.cookie安全性"></a>3.cookie安全性</h3><p>  HttpOnly 不支持读写，浏览器不允许脚本操作document.cookie去更改cookie， 所以为避免跨域脚本 (XSS) 攻击，通过JavaScript的 Document.cookie API无法访问带有 HttpOnly 标记的Cookie，它们只应该发送给服务端。如果包含服务端 Session 信息的 Cookie 不想被客户端 JavaScript 脚本调用，那么就应该为其设置 HttpOnly 标记。</p>
+  <figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly</span><br></pre></td></tr></table></figure>
+
+<p>  标记为 Secure 的Cookie只应通过被HTTPS协议加密过的请求发送给服务端。但即便设置了 Secure 标记，敏感信息也不应该通过Cookie传输，因为Cookie有其固有的不安全性，Secure 标记也无法提供确实的安全保障。</p>
+<p>  <img src="https://pic4.zhimg.com/v2-a7269b1ae24fb52bfcb678450d2f0e63_r.jpg" alt="preview"></p>
+<h3 id="4-使用场景"><a href="#4-使用场景" class="headerlink" title="4. 使用场景"></a>4. 使用场景</h3><p>通过cookie,可以让服务器知道请求是来源哪个客户端，就可以进行客户端状态的维护，比如登陆后刷新，请求头就会携带登陆时response header中的set-cookie,Web服务器接到请求时也能读出cookie的值，根据cookie值的内容就可以判断和恢复一些用户的信息状态。</p>
+<ul>
+<li>记住密码，下次自动登录。</li>
+<li>购物车功能。</li>
+<li>记录用户浏览数据，进行商品（广告）推荐</li>
+</ul>
+<h2 id="WEB存储"><a href="#WEB存储" class="headerlink" title="WEB存储"></a>WEB存储</h2><h3 id="1-sessionStorage"><a href="#1-sessionStorage" class="headerlink" title="1. sessionStorage"></a>1. sessionStorage</h3><ul>
+<li><p>页面会话在浏览器打开期间一直保持，并且重新加载或恢复页面仍会保持原来的页面会话。 </p>
+</li>
+<li><p>打开多个相同的URL的Tabs页面，会创建各自的sessionStorage。 </p>
+</li>
+<li><p>关闭对应浏览器tab，会清除对应的sessionStorage。</p>
+</li>
+<li><p>大小为5M左右</p>
+</li>
+<li><p>仅在客户端使用，不和服务端进行通信</p>
+</li>
+<li><p><strong>即便是相同域名下的两个页面，只要它们不在同一个浏览器窗口中打开，那么它们的 sessionStorage 内容便无法共享</strong></p>
+</li>
+</ul>
+<p>实例方法：setItem、getItem、clear、removeItem</p>
+<blockquote>
+<p>clear()无参数 删除所有键值对,removeItem(key) 删除指定key和value</p>
+<p>getItem(key)不存在时返回null</p>
+</blockquote>
+<h3 id="2-localStorage"><a href="#2-localStorage" class="headerlink" title="2. localStorage"></a>2. localStorage</h3><ul>
+<li>保存的数据长期存在，下一次访问该网站的时候，网页可以直接读取以前保存的数据。</li>
+<li>大小为5M左右</li>
+<li>仅在客户端使用，不和服务端进行通信</li>
+<li>接口封装较好</li>
+<li><strong>同一个domain共享</strong></li>
+</ul>
+<p>基于上面的特点，LocalStorage可以作为浏览器本地缓存方案，用来提升网页首屏渲染速度(根据第一请求返回时，将一些不变信息直接存储在本地)。</p>
+<p>实例方法：setItem、getItem、clear、removeItem 同sessionStorage</p>
+<blockquote>
+<p>相比cookie 它存储容量更大，时间更久(除非刻意删除)</p>
+</blockquote>
+<h2 id="indexDB"><a href="#indexDB" class="headerlink" title="indexDB"></a>indexDB</h2><ul>
+<li>Cookie 的本职工作并非本地存储，而是“维持状态”</li>
+<li>Web Storage 是 HTML5 专门为浏览器存储而提供的数据存储机制，不与服务端发生通信</li>
+<li>IndexedDB 用于客户端存储大量结构化数据</li>
+</ul>
+<h2 id="WebSQL"><a href="#WebSQL" class="headerlink" title="WebSQL"></a>WebSQL</h2><h2 id="Websocket协议"><a href="#Websocket协议" class="headerlink" title="Websocket协议"></a>Websocket协议</h2><p>使用websocket可以在服务器与客户端之间建立一个<strong>非HTTP的双向连接</strong>，这个连接<strong>是实时的也是永久的</strong>，除非被显示关闭。服务器可以随时将消息推送到客户端，客户端也可以随时发送消息到服务端。</p>
+<ul>
+<li>ActiveMQ推送消息队列，是一个封装后的websocket客户端。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> webServerUrl=<span class="string">&#x27;ws://47.102.96.246:5001/imserver/1&#x27;</span></span><br><span class="line"><span class="keyword">let</span> ws=<span class="keyword">new</span> WebSocket(webServerUrl)<span class="comment">//建立链接</span></span><br><span class="line">ws.onopen=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; 	<span class="comment">//监听链接打开</span></span><br><span class="line">    <span class="built_in">console</span>.log(e,<span class="string">&#x27;链接&#x27;</span>)</span><br><span class="line">    ws.send(<span class="string">&#x27;ourdta&#x27;</span>)</span><br><span class="line">&#125; </span><br><span class="line">ws.onmessage=<span class="function"><span class="keyword">function</span> (<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.body.innerHtml+=e.data <span class="comment">//监听消息推送</span></span><br><span class="line">    <span class="built_in">console</span>.log(e.data)</span><br><span class="line">&#125;</span><br><span class="line">ws.onclose=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e+<span class="string">&#x27;over&#x27;</span>) <span class="comment">//监听链接关闭</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>ws,close()和刷新页面、断网都会关闭链接。 一般websocket不关闭</li>
+</ul>
+]]></content>
+      <categories>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>js基础知识总结</title>
+    <url>/2020/09/12/js/</url>
+    <content><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
+<li><p><input disabled="" type="checkbox">  回调函数如何递归执行</p>
+</li>
+<li><p><input disabled="" type="checkbox">  递归函数传入Dom对象引用丢失问题</p>
+</li>
+<li><p><input disabled="" type="checkbox">  如何检测数组中某一元素是否为空元素 </p>
+<p>使用  index in arr ，判断下标是否为数组属性</p>
+</li>
+</ul>
+<h2 id="语言"><a href="#语言" class="headerlink" title="语言"></a>语言</h2><ul>
+<li>代码解释 当程序运行时，对命令的翻译是自上而下执行的。</li>
+<li>代码编译 程序运行前事先编译</li>
+<li>静态类型，强类型 指定变量存放指定类型的值，避免不想要的值转换</li>
+<li>动态类型，弱类型 允许一个变量在任意时刻存放任意类型的值</li>
+</ul>
+<p>基本上可以说 JavaScript 是解释型的，因为每次执行 JavaScript 源码时都需要进行处理。但这</p>
+<p>么说并不完全精确。JavaScript 引擎实际上是动态编译程序，然后立即执行编译后的代码。</p>
+<a id="more"></a>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><ul>
+<li><p>js变量、对象属性名由 数字、字母、下划线、$符号组成，且不以数字开头。</p>
+</li>
+<li><p>有些单词不能用作变量名，但可以作为属性名。这些单词被称为“保留词”，其中包括 JavaScript 关键字（for、</p>
+<p>in、if 等）以及 null、true 和 false。</p>
+</li>
+<li><p><code>polyfilling</code>：poly多边形,多态;fill填充。根据新特性的定义，使用js或其它语言编写对应特性的代码，填充旧的javaScript环境所没有新特性native源码的缺口。</p>
+</li>
+<li><p><code>transpiling</code>:它是由 transforming（转换）和 compiling（编译）组合而成的术语。语言中新增的语法是无法进行 <code>polyfifilling</code> 的。新语法在旧版 JavaScript 引擎上会抛出未识别无效错误。</p>
+</li>
+<li><p>声明时没有赋值的变量会自动赋值为 undefined，const变量需要显示赋值。</p>
+</li>
+<li><p>基本数据类型的变量和值存在栈区，引用的内存地址放在栈区，引用的内容存在堆区。引用的赋值通过其地址。</p>
+</li>
+<li><p>位运算 &amp;, |, ~, ^, &lt;&lt;, &gt;&gt;(有符号右移), &gt;&gt;&gt;(无符号右移)</p>
+</li>
+<li><p><code>const</code>声明变量不可更改其绑定，必须显式赋值；注意是变量不可更改绑定, 但其内容可以改变。</p>
+</li>
+<li><p>var变量重复声明时不会报错，会被忽略。</p>
+</li>
+<li><p>js箭头函数返回一个对象时，用一个｛｝包裹，<code> ()=&gt;(&#123;&#125;)</code> </p>
+</li>
+<li><p><del>js中万物皆对象</del>，其中有8中内置类型， undefined,null,string,number,boolean,bigint是 基本类型 ，他们本身并不是对象; 也有许多对象子类型,function等可称为复合类型。function,array, number，error也被称为内置对象(实际上是函数）。</p>
+</li>
+<li><p>for(;;) for死循环</p>
+</li>
+<li><p>undefined, 变量声明但未初始化；null,变量声明，且其值为null,表示曾经有值，现在为空。</p>
+</li>
+<li><p>void something ,用于返回undefined</p>
+</li>
+<li><p>有时 JavaScript 会自动为代码行补上缺失的分号，即自动分号插入（Automatic Semicolon Insertion，<strong>ASI</strong>）</p>
+</li>
+<li><p>for(let el of arr){} 数组迭代器 ,本质遍历<code>Object.values(arr)</code></p>
+</li>
+</ul>
+<h5 id="1-运算符优先级"><a href="#1-运算符优先级" class="headerlink" title="1. 运算符优先级"></a>1. 运算符优先级</h5><p>​    <strong>运算顺序:</strong> 默认执行顺序从左到右，优先级会改变语句的指向顺序</p>
+<p>​    <strong>关联性：</strong>左关联和右关联，描述同级运算符如何划分单元</p>
+<blockquote>
+<p>常见右关联运算符</p>
+</blockquote>
+<p>赋值运算符<code>=</code>，三目运算符<code>？:</code>，幂运算符 <code>**</code>  ,其它单目运算符<code>yield</code>等</p>
+<blockquote>
+<p>具有短路特性的运算符 <code>&amp;&amp; </code> <code>||</code></p>
+</blockquote>
+<h5 id="2-swtich语句"><a href="#2-swtich语句" class="headerlink" title="2. swtich语句"></a>2.<code> swtich</code>语句</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1 function test(n)&#123;</span><br><span class="line">2   switch(n)&#123;</span><br><span class="line">3   case &quot;1&quot;: console.log(&quot;string&quot;);break;</span><br><span class="line">4   case 1 : console.log(&quot;number&quot;);break;</span><br><span class="line">5   default: console.log(&quot;default&quot;)</span><br><span class="line">6 &#125;</span><br><span class="line">7 &#125;</span><br><span class="line">8 test(&quot;1&quot;)         </span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>n将依次匹配case然后在匹配default</li>
+<li>匹配为 === 匹配</li>
+<li>switch(expression) expression表达式只执行一次</li>
+<li>多个匹配成功只执行第一个</li>
+<li>如果匹配到的没有break中断switch, 则后面的case语句都将进行，无论匹配是否成功</li>
+</ol>
+<h5 id="3-try-…catch…-finally语句"><a href="#3-try-…catch…-finally语句" class="headerlink" title="3. try …catch… finally语句"></a>3. try …catch… finally语句</h5><ul>
+<li><p>try语句块率先执行，如果有返回值，则将成为函数的返回值</p>
+</li>
+<li><p>catch语句在try语句块中出现异常再执行</p>
+</li>
+<li><p>finally 语句块最后且一定执行</p>
+<blockquote>
+<ol>
+<li>如果finally语句块有返回值，则将成为函数的返回值，此时try语句块返回值失效</li>
+<li>如果finally语句块抛出异常，则函数将在此终止</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h5 id="4-语句和表达式"><a href="#4-语句和表达式" class="headerlink" title="4. 语句和表达式"></a>4. 语句和表达式</h5><p>  表达式都有返回值，语句也是</p>
+<p>  声明语句返回值为undefined; 代码块返回值是最后一个语句的结果</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var b;</span><br><span class="line">if (true) &#123;</span><br><span class="line"> b &#x3D; 4 + 38;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;代码块返回值为42</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-typeof"><a href="#5-typeof" class="headerlink" title="5. typeof"></a>5. <code>typeof</code></h5><p><code>typeof</code> 到返回值只有 number, string, boolean, bigint, null, undefined, symbol,object, function(object子类型).</p>
+<p><code>typeof </code>undeclared 返回undefined，且不会报错，因为其有特殊的安全防范机制. </p>
+<p><strong>但是!!!</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">对未声明变量使用 <span class="keyword">typeof</span> 不会产生错误，但在 TDZ 中却会报错：</span><br><span class="line">&#123;</span><br><span class="line"> <span class="keyword">typeof</span> a; <span class="comment">// undefined</span></span><br><span class="line"> <span class="keyword">typeof</span> b; <span class="comment">// ReferenceError! (TDZ)</span></span><br><span class="line"> <span class="keyword">let</span> b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="6-TDZ-Temporal-Dead-Zone"><a href="#6-TDZ-Temporal-Dead-Zone" class="headerlink" title="6. TDZ(Temporal Dead Zone)"></a>6. TDZ(Temporal Dead Zone)</h5><p> 临时死亡区，提前访问未初始化的变量报ReferenceError。ReferenceError也有可能是在访问一个没没有在当前作用域的变量或者是不存在的变量。var、function变量不会出现这样的错误，因为他们有声明提升。</p>
+<p><strong>块作用域中</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let a&#x3D;5;</span><br><span class="line">&#123;</span><br><span class="line"> a &#x3D; 2; &#x2F;&#x2F; ReferenceError!</span><br><span class="line"> let a; &#x2F;&#x2F; 编译时作用域会记录声明的变量,又因为let变量没有提升的效果，所以</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let b&#x3D;b;&#x2F;&#x2F;ReferenceError Cannot access &#39;b&#39; before initialization</span><br></pre></td></tr></table></figure>
+
+<p><strong>函数参数中的TDZ</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var b &#x3D; 3;</span><br><span class="line">function foo( a &#x3D; 42, b &#x3D; a + b + 5 ) &#123;</span><br><span class="line"> &#x2F;&#x2F; ..</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>b = a + b + 5 在参数 b（= 右边的 b，而不是函数外的那个）的 TDZ 中访问 b，所以会出错。而访问 a 却没有问题，因为此时刚好跨出了参数 a 的 TDZ。</p>
+<h5 id="7-常见错误"><a href="#7-常见错误" class="headerlink" title="7.常见错误"></a>7.常见错误</h5><ul>
+<li><p>TypeError 当值不是预期类型时，如对字符串调用<code>()</code></p>
+</li>
+<li><p>ReferenceError LHS或RHS查找失败</p>
+</li>
+<li><p>SynatxError 词法或语法错误</p>
+</li>
+</ul>
+<h5 id="8-赋值运算符"><a href="#8-赋值运算符" class="headerlink" title="8. 赋值运算符"></a>8. 赋值运算符</h5><p>常见如<code>=</code>,<code>+=</code>,<code>-=</code>…运算符 <strong>其返回值是左侧变量的结果值</strong>，且是有关联</p>
+<h5 id="9-逗号运算符"><a href="#9-逗号运算符" class="headerlink" title="9.逗号运算符"></a>9.逗号运算符</h5><p>运算顺序从左到右，返回值是最右侧的表达式返回值</p>
+<h5 id="10-scopes-属性"><a href="#10-scopes-属性" class="headerlink" title="10. [[scopes]]属性"></a>10. [[scopes]]属性</h5><p>双方括号代表这是JavaScript引擎内部使用的属性/方法，可以帮助debug（点一下<code>[[FunctionLocation]]</code>就能跳到定义，点一下<code>[[Scopes]]</code>就能查看闭包、环境作用域），但是正常JavaScript代码是取不到这些属性的。引擎看心情决定要显示哪些内部属性，显示的格式也没有规定，但在控制台里大家一般都约定俗成用双方括号，保持和规范的格式一致。</p>
+<p>​    </p>
+<h2 id="ES6-严格模式"><a href="#ES6-严格模式" class="headerlink" title="ES6 严格模式"></a><code>ES6</code> 严格模式</h2><ol>
+<li><p>“use strict”;开启严格模式</p>
+</li>
+<li><p>不允许var隐式全局变量声明 ， <code>a=1</code> 如果未声明a a将报错而不是自动提升为全局对象的属性</p>
+</li>
+<li><p>函数作用块</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123; </span><br><span class="line"> foo(); &#x2F;&#x2F; 可以这么做! ,函数声明提升依然存在</span><br><span class="line"> function foo() &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line"> &#125; </span><br><span class="line">&#125; </span><br><span class="line">foo(); &#x2F;&#x2F; ReferenceError </span><br></pre></td></tr></table></figure>
+
+<p>严格模式下, 在｛｝内声明的函数，其作用域在此块</p>
+</li>
+<li><p><code>arguments.callee</code>、<code>arguments.callee.caller</code>、<code>arguments</code> ES5严格模式已禁止使用</p>
+</li>
+<li><p>with功能被禁用， eval拥有自己的词法作用域，无法用于欺骗作用域</p>
+</li>
+<li><p>this默认绑定不能绑定到全局对象，帮定值为undefined</p>
+</li>
+<li><p>0363八进制格式不在支持，支持改用<code>0o</code>形式</p>
+</li>
+<li><p>严格模式下将报错，lHS查找不到报错，同时this指向undefined 而非全局对象</p>
+</li>
+<li><p><strong>函数参数中含有rest运算符，默认值运算符，展开运算符时，函数不能直接使用严格模式</strong></p>
+</li>
+</ol>
+<h2 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h5 id="1-字符串转数组"><a href="#1-字符串转数组" class="headerlink" title="1. 字符串转数组"></a>1. 字符串转数组</h5>  <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> txt = <span class="string">&quot;a,b,c,d,e&quot;</span>;</span><br><span class="line"><span class="number">1.</span>arr=txt.split()</span><br><span class="line">则arr[<span class="number">0</span>]=<span class="string">&quot;a,b,c,d,e&quot;</span> ,arr.length=<span class="number">1</span> </span><br><span class="line"></span><br><span class="line"><span class="number">2.</span>arr=txt.split(<span class="string">&quot;&quot;</span>)</span><br><span class="line">则arr=[a,,,b,,,c,,,d,,,e,,,f] arr.length=<span class="number">11</span></span><br><span class="line"></span><br><span class="line"><span class="number">3.</span>arr=txt.split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">则arr[<span class="number">0</span>]=<span class="string">&quot;a,b,c,d,e&quot;</span> arr.length=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>字符串没有倒置的方法，也不能借用<code>Array.prototype.reverse.call(str)</code>,因为字符串是不可改变的，</p>
+<p>一个破解的方法是<code> str.split(&quot;&quot;).reverse().join()</code></p>
+<p>！！！<code> str.split()!==str.split(&quot;&quot;)</code></p>
+</blockquote>
+<h5 id="2-字符串下标获取是只读的"><a href="#2-字符串下标获取是只读的" class="headerlink" title="2.字符串下标获取是只读的"></a>2.字符串下标获取是只读的</h5><p>与数组不同，字符串是只读的</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> str = <span class="string">&quot;HELLO WORLD&quot;</span>;</span><br><span class="line">str[<span class="number">0</span>] = <span class="string">&quot;A&quot;</span>;             <span class="comment">// Gives no error, but does not work</span></span><br><span class="line">str[<span class="number">0</span>];    </span><br></pre></td></tr></table></figure>
+
+<h5 id="3-提取字符串-charAt与-index-区别"><a href="#3-提取字符串-charAt与-index-区别" class="headerlink" title="3.提取字符串 charAt与[ index ] 区别"></a>3.提取字符串 charAt与[ index ] 区别</h5><p>再碰到没有的元素时，一个返回undefined一个返回空串</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> str = <span class="string">&quot;HE&quot;</span>;</span><br><span class="line">str[<span class="number">3</span>];  <span class="comment">//undefined</span></span><br><span class="line">str.charAt(<span class="number">3</span>)<span class="comment">// &quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>​    <code>str.charAtCode(index)</code>获取某位置字符编码</p>
+</blockquote>
+<h5 id="4-字符串复制操作"><a href="#4-字符串复制操作" class="headerlink" title="4.字符串复制操作"></a>4.字符串复制操作</h5><ul>
+<li><p>√ slice(<em>start</em>, <em>end</em>)</p>
+<p>切片操作同python[start,end]操作，下标可为负数</p>
+</li>
+</ul>
+<ul>
+<li><p>substring(<em>start</em>, <em>end</em>)</p>
+<p>同slice, 但下标不能为负数 </p>
+</li>
+<li><p>substr(<em>start</em>, <em>length</em>)</p>
+<p>同slice,但第二个参数为长度</p>
+</li>
+</ul>
+<ul>
+<li><p>字符串拼接</p>
+<p> + 与 concat( str1,str2) 作用相同，返回新的字符串。</p>
+</li>
+</ul>
+<h5 id="5-字符串查找和替换"><a href="#5-字符串查找和替换" class="headerlink" title="5.字符串查找和替换"></a>5.字符串查找和替换</h5><ul>
+<li><p>search(re)</p>
+<p>​    只接受一个可以为re的参数</p>
+</li>
+<li><p>字符串替换</p>
+<p>replace(re, newStr)</p>
+</li>
+<li><p>indexOf(str,start)</p>
+<pre><code> 第一个为要查找的字符串，第二个为查找开始位置</code></pre>
+</li>
+<li><p>大小写转换、去前后空格</p>
+<p> toLowerCase()、 toUpperCase()、trim()</p>
+<h5 id="6-es6新增"><a href="#6-es6新增" class="headerlink" title="6. es6新增"></a>6. es6新增</h5></li>
+</ul>
+<ul>
+<li><code>str.startWith(string)</code>, <code>str.endWith(string)</code> ,<code>str.include(string)</code>返回值为boolean 判读是否查找到</li>
+<li><code>str.repeat(n)</code>将字符串重复n次， 相当于python的 <code>str*n</code></li>
+<li><code>String.raw</code>`标签模版字面值` 获取未应用任何转义的的字符串。</li>
+</ul>
+<h2 id="Number"><a href="#Number" class="headerlink" title="Number"></a>Number</h2><p>JavaScript 的数字值永远都是浮点数（IEE-754），整数就是没有小数位的数。因此”.“是一个有效的标识符，数字后紧跟的第一个点将被认为是数字的组成部分。</p>
+<table>
+<thead>
+<tr>
+<th align="left">Value (aka Fraction/Mantissa)</th>
+<th align="left">Exponent</th>
+<th align="left">Sign</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">52 bits (0 - 51)</td>
+<td align="left">11 bits (52 - 62)</td>
+<td align="left">1 bit (63)</td>
+</tr>
+</tbody></table>
+<blockquote>
+<ol>
+<li><p>MAX_SAFE_INTEGER，JavaScript 可以用数字值无歧义“安全”表达的最大整数：2^53 - 1 </p>
+</li>
+<li><p>MIN_SAFE_INTEGER，JavaScript 可以用数字值无歧义“安全”表达的最小整数：-(2^53 - 1) 或 (-2)^53 + 1</p>
+</li>
+<li><p><code>Number.EPSILON</code>， 用于在一定误差范围内进行正确判读，任意两个值之间的最小差：2^-52。</p>
+</li>
+<li><p>小数点后最大精度是17位，但小数点运算并不完全准确 0.1+0.2！=0.3；可以x = (0.2 * 10 + 0.1 * 10) / 10; </p>
+</li>
+</ol>
+</blockquote>
+<h5 id="1-特殊的数字类型"><a href="#1-特殊的数字类型" class="headerlink" title="1.特殊的数字类型"></a>1.特殊的数字类型</h5><table>
+<thead>
+<tr>
+<th align="left">Property</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">MAX_VALUE</td>
+<td align="left">Returns the largest number possible in JavaScript</td>
+</tr>
+<tr>
+<td align="left">MIN_VALUE</td>
+<td align="left">Returns the smallest number possible in JavaScript</td>
+</tr>
+<tr>
+<td align="left">POSITIVE_INFINITY</td>
+<td align="left">Represents infinity (returned on overflow)</td>
+</tr>
+<tr>
+<td align="left">NEGATIVE_INFINITY</td>
+<td align="left">Represents negative infinity (returned on overflow)</td>
+</tr>
+<tr>
+<td align="left">NaN</td>
+<td align="left">Represents a “Not-a-Number” value</td>
+</tr>
+</tbody></table>
+<figure class="highlight plain"><figcaption><span>Number.MIN_VALUE</span></figcaption><table><tr><td class="code"><pre><span class="line">Number.MAX_VALUE&#x3D;1.7976931348623157e+308  </span><br><span class="line">Number.MIN_VALUE&#x3D;5e-324</span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li><p>infinity </p>
+<blockquote>
+<ol>
+<li>绝对值大于Number.MAX_VALUE则为正无穷</li>
+<li>infinity有+-之分</li>
+<li>Number.isFinity() 判读一个数字是否是有限的数字</li>
+</ol>
+</blockquote>
+</li>
+<li><p>NaN 不合法的数字</p>
+<blockquote>
+<ol>
+<li>使用Number.isNaN()判断一个数字是不是NaN</li>
+<li>NaN!=NaN</li>
+<li>NaN既不大于某一值，也不小于某一值</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h5 id="2-控制有效位数"><a href="#2-控制有效位数" class="headerlink" title="2.控制有效位数"></a>2.控制有效位数</h5><p>  <code>number.toFixed(n)</code>控制到小数点后几位</p>
+<p>  <code>number.toPrecision(n)</code>控制保留的数字个数</p>
+<blockquote>
+<p>保留时，四舍五入,返回值都是字符串</p>
+<p>5.toFixed(1)报错，.被认为是5的有效组成部分</p>
+</blockquote>
+<h5 id="3-字符串转换为数字"><a href="#3-字符串转换为数字" class="headerlink" title="3. 字符串转换为数字"></a>3. 字符串转换为数字</h5><ul>
+<li><p>Number(str) ,pareInt(str, base),parseFloat(str )</p>
+<blockquote>
+<ol>
+<li>如果 str不能被转为数字，就返回NaN；反正返回一个数字</li>
+<li>Number(new Date(“2017-09-30”));   // returns 1506729600000</li>
+<li>base可以为0， 2-36  0表示10进制</li>
+</ol>
+</blockquote>
+</li>
+<li><pre><code>Number(&quot;10 33&quot;);       // returns NaN
+Number(&quot; 10  &quot;);       // returns 10
+
+parseInt(&quot;10 years&quot;);   // returns 10
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">  ##### 4. 其它进制数</span><br><span class="line"></span><br><span class="line">* 2进制  &#96;0b123&#96;或&#96;0B123&#96;</span><br><span class="line">* 8进制 &#96;0o123&#96;或&#96;0O123&#96;</span><br><span class="line">* 16进制 &#96;0x123&#96;或&#96;0X123&#96;</span><br><span class="line"></span><br><span class="line">##### 5. 安全整数 -(2^53-1)~ 2^53-1</span><br><span class="line"></span><br><span class="line">安全整数的含有是</span><br><span class="line"></span><br><span class="line">- 可以准确地表示为一个IEEE-754双精度数字</span><br><span class="line"></span><br><span class="line">- 其IEEE-754表示不能是舍入任何其他整数以适应IEEE-754表示的结果。</span><br><span class="line"></span><br><span class="line">  &gt; 比如，&#96;2^53 - 1&#96; 是一个安全整数，它能被精确表示，在任何 IEEE-754 舍入模式（rounding mode）下，没有其他整数舍入结果为该整数。作为对比，&#96;253&#96; 就不是一个安全整数，它能够使用 IEEE-754 表示，但是 &#96;2^53 + 1&#96; 不能使用 IEEE-754 直接表示，在就近舍入（round-to-nearest）和向零舍入中，会被舍入为 &#96;2^53&#96;。</span><br><span class="line"></span><br><span class="line">- &#96;2^53&#x3D;2^53+1 &#96;for循环中会造成死循环 </span><br><span class="line"></span><br><span class="line">##### 6. IEEE 754标准</span><br><span class="line"></span><br><span class="line">js采用IEEE754 64位浮点小数表示Number</span><br><span class="line"></span><br><span class="line">&#96;sign | exponent | significand&#96;，其中</span><br><span class="line"></span><br><span class="line">- sign一位表示正负</span><br><span class="line"></span><br><span class="line">- exponent 11位；全为0 表示 0；全为1表示无穷，规格化表示中指数大小等于exponent大小 - 1023，属于[-1022 ， +1023]区间</span><br><span class="line">- significand 52位；规格化表示中第一位是1, 后跟隐藏小数点，然后是51位二进制数，属于[1-2^53 , 2 - 2^51]区间</span><br><span class="line"></span><br><span class="line">因此最大规格化数为 +1 * 2^1023 * (2- 2^51) 约等于&#96;1.7976931348623155e+308&#96;</span><br><span class="line"></span><br><span class="line"> 最小规格化数为 +1 * 2^-1022 * (1-2^53)约等于&#96;2.2250738585072014e-308&#96;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## 数组</span><br><span class="line"></span><br><span class="line">* 数组与对象的区别</span><br><span class="line"></span><br><span class="line">  一般对象使用命名索引，索引只能是或被转为字符串；</span><br><span class="line"></span><br><span class="line">  数组是特殊的对象，索引是数字类型字符串。使用 &#96;1 in arr&#96; 会发生隐式转化，1&#x3D;&gt;&#39;1&#39;</span><br><span class="line"></span><br><span class="line">  &gt; &lt;mark&gt;暂未发现&lt;&#x2F;mark&gt; 如果对一个数组采用命名索引赋值，将导致数组一些功能不能使用，被转化为标准对象。</span><br><span class="line"></span><br><span class="line">* &#96;typeof [1,2,3].valueOf()&#x3D;&#x3D; &#39;object&#39;&#96; 拆包获得复合类型&#96;object&#96;</span><br><span class="line"></span><br><span class="line">* 比较两个数组是否相等，可以不安全的使用&#96;toString或Json.stringfy&#96;</span><br><span class="line"></span><br><span class="line">* &#96;arr.sort()&#96;默认排序规则为**按字典序**，对待number也是如此</span><br><span class="line"></span><br><span class="line">* 类数组是指一个对象，拥有length属性，并且值大于等于0</span><br><span class="line"></span><br><span class="line">  &gt; 将类数组转为数组</span><br><span class="line">  &gt;</span><br><span class="line">  &gt; 1. &#96;Array.from(arrLike)&#96;</span><br><span class="line">  &gt; 2. &#96;Array.prototype.slice.call(arrLike)&#96;</span><br><span class="line">  </span><br><span class="line">* 稀疏数组指含有空元素的数组</span><br><span class="line"></span><br><span class="line">##### 1. 创建数组</span><br><span class="line"></span><br><span class="line">&#96;&#96;&#96;js</span><br><span class="line">1. 	var arr &#x3D;new Array()</span><br><span class="line">2. 	var arr &#x3D; new Array(n) &#x2F;&#x2F;创建指定大小的数组() n默认等于0，只能为数字类型，其它类型元素会填充进去</span><br><span class="line">3. 	var arr &#x3D; new Array(a1,a2) &#x2F;&#x2F;创建并填充a1 a2到数组</span><br><span class="line">4. √ var arr &#x3D;[] &#x2F;&#x2F;字面量数组 [,]含有一个空元素的数组</span><br><span class="line">5. 	var arr &#x3D; Array.of(a1,a2...) &#x2F;&#x2F;与 new Array相比，参数都将作为数组元素</span><br><span class="line">6. √ var arr &#x3D; Array.from(arrLike|iterator,map(val,index,array),context)&#x2F;&#x2F;用于产生事先定义的数组</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+<p>**<code>arrLike</code>**对象，是指一个拥有一个length属性并且大于等于0的对象。</p>
+<p><code>Array.from()</code>优点</p>
+<ol>
+<li>初始化时不会有空槽位产生，原本的每个空槽位被显式声明为undefined。</li>
+<li>映射，第二个参数传递一个映射函数作用数组每个元素。</li>
+</ol>
+<blockquote>
+<p>允许数组字面量在定义时后面跟个多余的逗号，**[1, 2,]代表两个元素的数组**</p>
+</blockquote>
+<h5 id="2-数组长度"><a href="#2-数组长度" class="headerlink" title="2. 数组长度"></a>2. 数组长度</h5><ul>
+<li><p>指定<code>arr.length </code> :<code>arr.length</code>增大，多余地方为空元素；<code>arr.length</code>减小，将多余部分裁剪。</p>
+</li>
+<li><p>指定arr最后一个元素的值，<code>arr[n]=1 </code>那么<code>arr.length=n+1</code>,中间填充空元素</p>
+<blockquote>
+<ol>
+<li><p>空元素不等于undefined元素，某些方法不能遍历到，某些方法将其转为undefined</p>
+</li>
+<li><p><strong>delete arr[index] 删除已存在的数字元素会造成空元素，同时length属性不改变</strong></p>
+</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h5 id="3-判断是否是数组"><a href="#3-判断是否是数组" class="headerlink" title="3. 判断是否是数组"></a>3. 判断是否是数组</h5><ul>
+<li><p>√ 使用 <code>Array.isArray()</code>判读一个数组是否为数组类型</p>
+</li>
+<li><p><code>arr instaceof Array</code> Array在arr的原型链上</p>
+<blockquote>
+<p><code>typeof arr=&#39;object&#39;</code></p>
+</blockquote>
+</li>
+</ul>
+<h5 id="4-数组序列化"><a href="#4-数组序列化" class="headerlink" title="4. 数组序列化"></a>4. 数组序列化</h5><ul>
+<li><p><code>arr.toString()</code></p>
+<p>undefined=&gt;’’,null=&gt;’’,function=&gt;函数源码，NaN,+Infinity,-Infinity =&gt; ‘NaN’,”+Infinity”,”-Infinity“</p>
+</li>
+<li><p><code>JSON.stringify() </code></p>
+<p>undefined,null,function,NaN,+Infinity,=&gt;null</p>
+</li>
+<li><p><code>arr.join() </code>默认为逗号隔开 </p>
+<p>同<code>arr.toString()</code></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="number">1.</span> [<span class="number">13</span>,<span class="number">22</span>,[<span class="number">1</span>,<span class="number">3</span>],<span class="number">1</span>,<span class="number">3</span>,<span class="number">6</span>].join(<span class="string">&quot;,&quot;</span>) =<span class="string">&#x27;13,22,1,3,1,3,6</span></span><br><span class="line"><span class="string">2. JSON.stringify([13,22,[1,3],1,3,6])=&#x27;</span>[<span class="number">13</span>,<span class="number">22</span>,[<span class="number">1</span>,<span class="number">3</span>],<span class="number">1</span>,<span class="number">3</span>,<span class="number">6</span>]<span class="string">&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="3">
+<li><p>[13,22,[1,3],1,3,6].toString()=’13,22,1,3,1,3,6’</p>
+<blockquote>
+<p>注意<code>Json.stringify</code>效果不同</p>
+</blockquote>
+</li>
+</ol>
+<h5 id="5-数组的遍历"><a href="#5-数组的遍历" class="headerlink" title="5. 数组的遍历"></a>5. 数组的遍历</h5><ol>
+<li>for(let i=0;i&lt;<code>arr.length</code>;i++){} 传统c语言风格</li>
+<li>for(let el of arr){} 数组迭代器 , 本质遍历arr[Symbol.iterator]<code>Object.values(arr)</code></li>
+<li><code>arr.forEach</code>(callback(value,index,array)) 返回值为undefined</li>
+<li><code>arr.map</code>(callback(value,index,array))  返回值为新数组</li>
+<li><code>arr.filter</code>(callback(value,index,array)) 返回符合条件的数组</li>
+<li><code>arr.reduce(callback(ac, value, index, array),ac的初始值) </code> 返回ac</li>
+<li><code>arr.every</code>(callback(value,index,array)), 所有条件都符合返回true,空数组返回true</li>
+<li><code> arr.some</code>(callback(value,index,array)) 至少有一个符合返回true,空数组返回false</li>
+</ol>
+<blockquote>
+<ol>
+<li>数组的遍历 <strong>除前两钟遍历外，其余变量对空元素不起作用</strong></li>
+<li>reduce方法 当数组为空是 ac必须有初始值，否则报错</li>
+</ol>
+</blockquote>
+<h5 id="6-数组模拟栈与队列"><a href="#6-数组模拟栈与队列" class="headerlink" title="6. 数组模拟栈与队列"></a>6. 数组模拟栈与队列</h5><p>数组的 <code>unshift, push</code>方法返回值为 <strong>修改后数组的长度</strong>，<code>pop，shift</code>方法返回值是<strong>指定元素</strong><br>这四个方法都将改变原数组</p>
+<ul>
+<li><p>栈</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var arr&#x3D;[]</span><br><span class="line">arr.push(element) 尾部进栈</span><br><span class="line">arr.pop() 尾部出栈</span><br><span class="line"></span><br><span class="line">arr.unshift(element) 头部进栈</span><br><span class="line">arr.shift() 头部出栈</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>队列</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var arr&#x3D;[]</span><br><span class="line">arr.shift() 头部移除</span><br><span class="line">arr.unshift(element) 头部添加</span><br><span class="line">arr.push(element) 尾部添加</span><br><span class="line">arr.pop()尾部移除</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="7-切片，拼接数组-插入，删除，修改数组元素，"><a href="#7-切片，拼接数组-插入，删除，修改数组元素，" class="headerlink" title="7. 切片，拼接数组\ 插入，删除，修改数组元素，"></a>7. 切片，拼接数组\ 插入，删除，修改数组元素，</h5><ol>
+<li><p><code>arr.concat(arr1,arr2,arr3...) </code>拼接<code>arr1,arr2，arr3</code>到arr数组后面, 返回拼接后数组</p>
+<blockquote>
+<p>参数可以为值也可以为迭代器</p>
+</blockquote>
+<p>返回拼接后的数字，不改变原数组</p>
+</li>
+<li><p><code>arr.slice(start,end)</code> 切片操作类似python </p>
+</li>
+<li><p><code>arr.splice(insertedIndex,deleted-elements-nums,el1,el2,el3...)</code>  从index下标开始删除指定个数的元素，在插入<code>el1,el2,lel3，，</code>等元素 </p>
+<ul>
+<li>返回值是被删除的元素  <code>arr.splice()</code> 无参数返回 [], 没有元素被修改</li>
+<li><code>insertedIndex</code> 可正可负， 超出范围区边界值</li>
+<li><code>deleted-elements-nums</code> 如果省略，将删除<code>insertedIndex</code> 元素后所有元素，否则删除合理的元素</li>
+<li><code>el1,el2</code>…可选</li>
+<li><strong>改变原数组</strong></li>
+</ul>
+</li>
+</ol>
+<h5 id="8-排序、反转数组"><a href="#8-排序、反转数组" class="headerlink" title="8.排序、反转数组"></a>8.排序、反转数组</h5><p><code>arr.reverse()</code> 进行数组反转， <strong>改变原数组</strong></p>
+<p><code>arr.sort(fun)</code> 默认按照字母序排序，可传递fun方法，<strong>改变原数组</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">fun(a,b)&#123;</span><br><span class="line">	<span class="keyword">return</span> a-b; <span class="comment">//从小到大 </span></span><br><span class="line">	<span class="comment">//return b-a;//从大到小</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>！！! 排序规则 根据函数返回值决定，为0,不变；大于0，b在a前面；小于0，a在b前面。</p>
+</blockquote>
+<h5 id="9-数组的查找"><a href="#9-数组的查找" class="headerlink" title="9. 数组的查找"></a>9. 数组的查找</h5><ol>
+<li><p>√ <code>arr.find(cb)</code> 查找满足callback函数条件的第一个元素；查找失败返回undefined ；自行控制逻辑</p>
+</li>
+<li><p>√ <code>arr.findIndex(cb)</code>方法返回数组中满足提供的测试函数的第一个元素的<strong>索引</strong>。若没有找到对应元素则返回-1。同上</p>
+</li>
+<li><p><code> arr.indexOf(value,start)</code>方法返回在数组中可以找到一个给定元素的第一个索引，如果不存在，则返回-1。使用<code>===</code></p>
+<blockquote>
+<p>可以指定查找的开始位置，start可以为负数</p>
+</blockquote>
+</li>
+<li><p><code>includes()</code> 方法用来判断一个数组是否包含一个指定的值，根据情况，如果包含则返回 true，否则返回false。使用<code>===</code>和但NaN特殊</p>
+<blockquote>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>].includes(<span class="number">3</span>, <span class="number">-1</span>); <span class="comment">// true</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, <span class="literal">NaN</span>].includes(<span class="literal">NaN</span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ol>
+<h5 id="10-数组的扁平化"><a href="#10-数组的扁平化" class="headerlink" title="10. 数组的扁平化"></a>10. 数组的扁平化</h5><ol>
+<li><p>arr.flat(n=1) n代表展开的层数，默认为1</p>
+</li>
+<li><p>arr.flatmap(callback) 效果等同于arr.flat(arr.map(callback))</p>
+<blockquote>
+<p>扁平化处理会忽略空元素</p>
+</blockquote>
+</li>
+</ol>
+<h5 id="11-数组的填充"><a href="#11-数组的填充" class="headerlink" title="11. 数组的填充"></a>11. 数组的填充</h5><ol>
+<li>arr.fill(value,start,end) 从指定的范围填充value</li>
+<li>超出数组范围不能填充，已存在的元素将被替换</li>
+<li><strong>改变元素组，并且返回修改后的数组</strong></li>
+</ol>
+<h5 id="12-数组的keys-values-entries"><a href="#12-数组的keys-values-entries" class="headerlink" title="12. 数组的keys(),values(),entries()"></a>12. 数组的keys(),values(),entries()</h5><ul>
+<li><p>三个方法返回的是Iterator而非如Object.keys(arr)返回值是数组</p>
+</li>
+<li><p>打印Objext.entries(arr)返回，<code>[ [ &#39;0&#39;, 12 ], [ &#39;1&#39;, 3 ]</code> 观察到数组下标和值可以形成 key,value组</p>
+</li>
+</ul>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>​    复杂数据类型之一，<code>typeof Function.prototype= &#39;function&#39;</code> ,是object子类型，是可调用的对象，其拥有内部属性[[call]]，使得其可以被调用。</p>
+<ul>
+<li>函数的<code>Function.lenth=1  &amp;&amp; new Function().length=0</code></li>
+<li><code>Math.max()</code>返回-Infinity, <code>Math.min()</code> 返回Infinity</li>
+</ul>
+<h5 id="1-创建函数"><a href="#1-创建函数" class="headerlink" title="1.创建函数"></a>1.创建函数</h5><ul>
+<li>创建空函数：从 JavaScript 的早期开始，就有一个不为人知但是很有用的技巧可以使用：<code>Function.prototype </code>本身就是一个没有操作的空函数。所以，使用 <code>Function. prototype</code>创建空函数，这样就省去了在线函数表达式的创建过程。</li>
+</ul>
+<h5 id="2-函数声明与函数表达式"><a href="#2-函数声明与函数表达式" class="headerlink" title="2. 函数声明与函数表达式"></a>2. 函数声明与函数表达式</h5><p>函数声明: <code>function foo()&#123;&#125;</code> </p>
+<p>函数表达式：  </p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="number">1.</span> <span class="keyword">var</span> fun =  <span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>)</span>&#123;&#125; </span><br><span class="line"><span class="number">2.</span> <span class="keyword">var</span> fun = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;&#125; <span class="comment">//匿名</span></span><br><span class="line"><span class="number">3.</span> <span class="keyword">var</span> fun = <span class="function">()=&gt;</span> &#123;&#125;  <span class="comment">//匿名</span></span><br><span class="line">   <span class="number">4.</span> <span class="keyword">var</span> fun = <span class="keyword">new</span> <span class="built_in">Function</span>(arg1, arg2,...<span class="string">&quot;代码字符串&quot;</span>) <span class="comment">//动态创建函数，不推荐</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>函数声明与函数表达式的区别在于 <code>function</code>是否位于语句头部</li>
+<li>函数表达式可以为匿名，函数声明不可以</li>
+<li>函数声明可以提升，函数表达式提升的是变量</li>
+</ol>
+</blockquote>
+<p>具名函数表达式，在其内部函数名只读</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let d &#x3D; function c() &#123;</span><br><span class="line">    c &#x3D; 1</span><br><span class="line">    console.log(c)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">d()&#x2F;&#x2F;[Function: c]</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="3-重要内部属性"><a href="#3-重要内部属性" class="headerlink" title="3. 重要内部属性"></a>3. 重要内部属性</h5><ul>
+<li>arguments <strong>严格模式下禁止使用</strong>,逐渐被弃用</li>
+</ul>
+<ol>
+<li>类数组对象，存实参数</li>
+<li><code> arguments.callee</code>指向函数的地址</li>
+<li><code>arguments.length</code> 指向传入的实参个数</li>
+</ol>
+<ul>
+<li><p>this 指向函数执行的环境变量</p>
+</li>
+<li><p>name 指向函数名</p>
+</li>
+<li><p>length 指向函数的形参个数，<strong>不统计…rest参数个数，只统计第一个具有默认值参数之前的参数个数</strong>，解构赋值参数整体只算一个</p>
+<blockquote>
+<p><code>Function.length=1</code> 但其可以传入多个参数。原因在于：函数的形参与实参并无实际关联关系。</p>
+<p>可以通过arguments引用实参，也可以通过函数实参引用，</p>
+</blockquote>
+</li>
+</ul>
+<h5 id="4-匿名函数的缺点"><a href="#4-匿名函数的缺点" class="headerlink" title="4. 匿名函数的缺点"></a>4. 匿名函数的缺点</h5><ol>
+<li>函数的名字具有天然注释功能，没有名字的函数，可读性差</li>
+<li>函数递归、自调用不方便，需要<code>arguments.callee</code>指向函数的地址,已被弃用，es5严格模式禁止使用</li>
+<li>栈跟踪、调试困难</li>
+</ol>
+<h5 id="5-IIFE-立即执行函数表达式"><a href="#5-IIFE-立即执行函数表达式" class="headerlink" title="5. IIFE 立即执行函数表达式"></a>5. IIFE 立即执行函数表达式</h5><p>Immediately Invoked Function Expression</p>
+<p><code>(function()&#123; .. &#125;())</code>或者<code>(function foo()&#123; .. &#125;)()</code> 或者<code>!function foo()&#123; .. &#125;()</code></p>
+<p>带参数的IIFE</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var a &#x3D; 2; </span><br><span class="line">(function IIFE( global ) &#123; </span><br><span class="line"> var a &#x3D; 3; </span><br><span class="line"> console.log( a ); &#x2F;&#x2F; 3 </span><br><span class="line"> console.log( global.a ); &#x2F;&#x2F; 2 </span><br><span class="line">&#125;)( window ); </span><br><span class="line">console.log( a ); &#x2F;&#x2F; 2</span><br></pre></td></tr></table></figure>
+
+<p><strong>命名空间</strong> :命名空间是指 库(一个独立作用域) 暴露的一个对象，通过这个对象（命名空间）访问其属性，从而不必把内部标识符暴露到顶级作用域。</p>
+<p><strong>函数作用域</strong> ： 函数作用域指属于这个函数作用域的全部变量可以在整个函数范围内（包括其嵌套的作用域中）可以使用，外部作用域不可访问。</p>
+<p><strong><code>IIFE</code>的优点：</strong> </p>
+<ol>
+<li>省去了函数声明，避免了一次对全局作用域命名的污染</li>
+<li>省去了函数调用</li>
+</ol>
+<h5 id="6-bind-apply-call"><a href="#6-bind-apply-call" class="headerlink" title="6. bind, apply, call"></a>6. bind, apply, call</h5><p><code>function.call( context, arg1,arg2)</code></p>
+<p><code>function.apply(context,[arg1,arg2])</code></p>
+<p><code>function.bind(context, prefilledArg1)(arg2)</code></p>
+<blockquote>
+<p>如果context==null 或 undefined，在非严格模式会自动绑定为全局对象</p>
+</blockquote>
+<h5 id="7-内置函数"><a href="#7-内置函数" class="headerlink" title="7.内置函数"></a>7.内置函数</h5><ol>
+<li><code>Object(), Array(),Regexp(),Date(), Error()</code>可以不加new关键字，自动会加上</li>
+<li><strong>Date() 不加new关键词时,永远返回当前时期字符串 ，有没有参数都一样。</strong></li>
+<li>new Date()</li>
+</ol>
+<h2 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h2><p><strong>null是简单基本类型</strong>， <code>typeof null ==&#39;object&#39;·</code> 是因为不同的对象在底层都表示为二进制，在 JavaScript 中二进制前三位都为 0 的话会被判断为 object 类型，null 的二进制表示是全 0，自然前三位也是 0，所以执行<code>typeof</code>时会返回“object”。</p>
+<p>所有<code>typeof val=&#39;object&#39;</code>的变量类型，其内部都有一个属性[[class]],是分类的意思，而非面向对象的类</p>
+<p><strong>.属性操作符 要求属性名须满足标识符规范</strong>,[string|expression]键访问无此要求而且可以为表达式</p>
+<h5 id="1-创建对象的方法"><a href="#1-创建对象的方法" class="headerlink" title="1. 创建对象的方法"></a>1. 创建对象的方法</h5><ol>
+<li><p>对象字面量Object Literal var o={}</p>
+</li>
+<li><p>使用 var o=new Object(value)</p>
+</li>
+<li><p><code>o=Object.create(parent)</code>  创建对象o，并指定其原型为parent对象。</p>
+</li>
+<li><p><code>Object.assign(&#123;&#125;,o)</code>从o中复制对象，它遍历o中自有的可枚举属性通过<code>=</code>号赋值,并返回第一个参数。</p>
+<blockquote>
+<p>方法二，根据value的不同，产生不同的对象</p>
+<ol>
+<li>null undefined =&gt;{}</li>
+<li>基本数据类型 =&gt;相应的封装对象</li>
+<li>引用类型 =&gt;不变</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<h5 id="2-属性特性"><a href="#2-属性特性" class="headerlink" title="2. 属性特性"></a>2. 属性特性</h5><ol>
+<li><p>writable:可写属性，属性默认都是可读的，是否可被修改取决与此属性</p>
+<blockquote>
+<p>非严格模式下，修改<code>writable:false</code>属性不会报错，但修改失败</p>
+</blockquote>
+</li>
+<li><p>enumerable:枚举属性，可枚举则意味着可以被for…in访问到；打印时可以被看到</p>
+</li>
+<li><p>configurable  </p>
+<ul>
+<li>默认为true, 配置false操作不可逆；</li>
+<li>且该属性不可被删除；</li>
+<li>设置为false,后该属性不可再次被配置，否则报错</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><p>数据属性默认为true，访问器属性默认为false</p>
+<blockquote>
+<p><em>奇怪在于 writable仍可以从true改为false。</em></p>
+</blockquote>
+</li>
+</ul>
+<ol start="4">
+<li><p>get, set 拥有get,set的对象属性为访问器属性。(accessors)</p>
+<p><strong>不能同时设置访问器属性和 value与 writable属性</strong></p>
+<p>下面第一种属性设置<strong>configurable、enumerable属性自动设置为false(可修改成false)</strong></p>
+<p>下面第二种显式设置，<strong>configurable、enumerable属性自动设置为true</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="number">1.</span> 通过定义内部属性</span><br><span class="line"><span class="built_in">Object</span>.defineProperty(obj,<span class="string">&#x27;age&#x27;</span>,&#123;</span><br><span class="line"> <span class="number">19</span>   enumerable:<span class="literal">true</span>,</span><br><span class="line"> <span class="number">20</span>   get: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"> <span class="number">21</span>   <span class="keyword">return</span>  <span class="built_in">this</span>._age_</span><br><span class="line"> <span class="number">22</span> &#125;,</span><br><span class="line"> <span class="number">23</span>   set:<span class="function">(<span class="params">val</span>)=&gt;</span>&#123;<span class="built_in">this</span>._age_=val+<span class="number">11</span> &#125;&#125;)</span><br><span class="line"> 打印属性为 xage: [Getter/Setter]</span><br><span class="line"> </span><br><span class="line"><span class="number">2.</span>在对象字面量中定义</span><br><span class="line">_a_可以设置为enumerable:<span class="literal">false</span>的属性。</span><br><span class="line"><span class="keyword">var</span> myObject = &#123; </span><br><span class="line"> <span class="comment">// 给 a 定义一个 getter </span></span><br><span class="line"> <span class="keyword">get</span> <span class="title">a</span>() &#123; </span><br><span class="line"> <span class="keyword">return</span> <span class="built_in">this</span>._a_; </span><br><span class="line"> &#125;, </span><br><span class="line"> <span class="comment">// 给 a 定义一个 setter </span></span><br><span class="line"> <span class="keyword">set</span> <span class="title">a</span>(<span class="params">val</span>) &#123; </span><br><span class="line"> <span class="built_in">this</span>._a_ = val * <span class="number">2</span>; </span><br><span class="line"> &#125; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li><code>Object.defineProperty(object, property, descriptor)</code>与<code>Object.defineProperties(object, descriptors)·</code>定义属性特性</li>
+<li><code>Object.defineProperty(object, property, descriptor)</code>定义的属性<strong>默认值为undefined，不可配置，不可改变值，不可迭代</strong></li>
+<li><code>Object.getOwnPropertyDescriptor(object, property)</code> 查看该属性描述</li>
+<li><code>Object.preventExtensions(object)</code> 不能添加新属性, 保留已有属性</li>
+<li><code>Object.seal(object)</code> 不能添加新属性 保留已有属性 并且 属性特性 <code> configurable:false</code></li>
+<li><code>Object.freeze(object)</code>  不能添加新属性 保留已有属性 并且 属性特性 <code>writable:false</code> 并且 <code> configurable:false</code></li>
+<li><code>Object.isSealed(object)</code>,<code>Object.isFrozen(object)</code>,<code>Object.isExtensible(object)</code> 查看信息</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<h5 id="3-遍历与检测对象的属性"><a href="#3-遍历与检测对象的属性" class="headerlink" title="3. 遍历与检测对象的属性"></a>3. 遍历与检测对象的属性</h5><ol>
+<li><p><code>for(let prop in obj)</code></p>
+<p>其可以变量<strong>对象及其原型</strong>上所有<strong>可枚举</strong>属性。</p>
+</li>
+<li><p><code>prop in obj</code> 检测某一属性是否在obj中是否存在(检测自身属性及原形链)；<strong>不适用于数组类型<code>(用arr.indexOf())</code></strong></p>
+<p><code>obj.hasOwnProperty(&#39;prop&#39;)</code>测某一属性是否在obj中是否存在(仅仅检测自身属性 )；</p>
+<p><code>obj.propertyIsEnumerable(&#39;prop&#39;)</code>检测某一属性是否存在obj并且可枚举(不检查原型链)</p>
+<p><code>prop of obj.keys() </code> 与 <code>property of obj.getOwnPropertyNames()</code> 不检查原型链</p>
+<blockquote>
+<p>变量对象属性时，其顺序是不可信的；数组通过下标排序</p>
+</blockquote>
+</li>
+</ol>
+<h5 id="4-使用new-创建对象时，会发生一下四步"><a href="#4-使用new-创建对象时，会发生一下四步" class="headerlink" title="4. 使用new 创建对象时，会发生一下四步"></a>4. 使用new 创建对象时，会发生一下四步</h5><ol>
+<li>创建(构造)全新的对象</li>
+<li>将新对象执行原型链接</li>
+<li>新对象绑定到函数调用的this</li>
+<li>如果函数没有返回对象，就把这个新对象返回</li>
+</ol>
+<h5 id="5-原型对象、构造函数、实例对象"><a href="#5-原型对象、构造函数、实例对象" class="headerlink" title="5. 原型对象、构造函数、实例对象"></a>5. 原型对象、构造函数、实例对象</h5><ol>
+<li><p>构造函数指向的原型对象上方法、属性，类似与实例方法、属性，可以被实例调用,它是公共的，所有实例共享的</p>
+<p> The <code>Object.prototype</code> is on the top of the prototype inheritance chain:<code>Date</code> objects, <code>Array</code> objects, and <code>Person</code> objects inherit from <code>Object.prototype</code>.</p>
+<ul>
+<li><code>Date</code> objects inherit from <code>Date.prototype</code><ul>
+<li><code>Array</code> objects inherit from <code>Array.prototype</code></li>
+</ul>
+</li>
+<li><code>Person</code> objects inherit from <code>Person.prototype</code><blockquote>
+<p><code>Object.getPrototypeOf(object)</code>获得对象原型</p>
+<p><code>Object.setPrototypeOf(object,target)</code> 设置原型委托,返回 object</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>构造函数的静态属性和静态方法、属性，类似与类的静态方法、属性，由构造函数调用</p>
+<blockquote>
+<p>Object静态方法 <code>Object.values(), Object.keys(), Object.assign(), Object.create()</code></p>
+</blockquote>
+<p><code>Object.keys()</code>获取可迭代的属性</p>
+</li>
+<li><p>实例对象上的方法、属性，是构造函数中<code>this.property</code>指定的，为单个实例所用</p>
+</li>
+</ol>
+<h5 id="6-delete-删除属性"><a href="#6-delete-删除属性" class="headerlink" title="6. delete 删除属性"></a>6. delete 删除属性</h5><ol>
+<li>只用于删除对象中的属性，不能用于变量、函数的删除</li>
+<li>delete不能删除其原型上的属性</li>
+<li>delete 删除对象属性时，值与属性均会被删除，这意味着迭代属性时将不会访问到。</li>
+<li>delete返回值为 true或false 代表删除是否成功</li>
+</ol>
+<h5 id="7-使用JSON-stringify-深度复制简单对象"><a href="#7-使用JSON-stringify-深度复制简单对象" class="headerlink" title="7. 使用JSON.stringify()深度复制简单对象"></a>7. 使用<code>JSON.stringify()</code>深度复制简单对象</h5><ol>
+<li>属性值为<code>undefined</code>的属性会被忽略</li>
+<li>属性值为<code>function</code>的属性也会被忽略</li>
+<li>属性值为<code>null</code>的属性正常</li>
+<li>属性值为<code>date</code>的属性正常</li>
+</ol>
+<h5 id="8-全局对象"><a href="#8-全局对象" class="headerlink" title="8. 全局对象"></a>8. 全局对象</h5><p>Json, Math， document(浏览器),  global(nodejs)</p>
+<h5 id="9-tostring-与valueOf"><a href="#9-tostring-与valueOf" class="headerlink" title="9. tostring() 与valueOf()"></a>9. tostring() 与valueOf()</h5><p>对象toString() =&gt; “[object Object]”   valueOf() =&gt; 打印对象字面量 typeof =&gt; 打印“object”</p>
+<h5 id="10-ES6对象静态方法"><a href="#10-ES6对象静态方法" class="headerlink" title="10. ES6对象静态方法"></a>10. ES6对象静态方法</h5><ol>
+<li><p><code>Object.is(obj1,obj2)</code> 与===的最大区别是 <code>Object.is(NaN,NaN)===true</code> ,<code>Object.is(+0,-0)===true</code> </p>
+</li>
+<li><p><code>Object.assign(target,source1,source2...)</code></p>
+<p>可以指定多个源，它们将依次被处理，对与每个source的的<strong>可枚举</strong>、<strong>非继承属性</strong>都将通过 <code>=</code>赋值处理。</p>
+</li>
+</ol>
+<h5 id="11-对象封装与拆封"><a href="#11-对象封装与拆封" class="headerlink" title="11. 对象封装与拆封"></a>11. 对象封装与拆封</h5><p>​    <strong>封装：</strong>使用Object(value)可以把用有相关内置函数的值给封装。new String(“123”),将字符串123封装对象。</p>
+<blockquote>
+<p>Object()相当于一个工厂函数, 根据传入值调用对应构造函数。</p>
+</blockquote>
+<p>​    <strong>拆封：</strong>要想获得封装对象的值，使用其<code>valueOf()</code>属性</p>
+<p><strong>当在一个基本类型上使用方法时</strong></p>
+<ol>
+<li><code>str.split(&quot;&quot;)</code> string字符串封装成对象</li>
+<li>封装对象上调用split(“”)方法</li>
+<li>调用完毕自动销毁对象，返回到基本数据类型</li>
+</ol>
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><h4 id="1-声明"><a href="#1-声明" class="headerlink" title="1. 声明"></a>1. 声明</h4><ul>
+<li>对象 <code>var reg=new RegExp(&#39;hello&#39;,&#39;img&#39;)</code> </li>
+<li>字面量<code>var reg=/hello/img</code> </li>
+</ul>
+<h4 id="2-使用"><a href="#2-使用" class="headerlink" title="2.使用"></a>2.使用</h4><p><strong>正则表达式对象方法</strong></p>
+<ul>
+<li><p><code>re.test(string)</code></p>
+<p>返回true或者false查看string中是否存在此模式</p>
+</li>
+<li><p><code>re.exec(string)</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">str&#x3D;&quot;123345&quot;</span><br><span class="line">re&#x3D;&#x2F;(\w)(\w)&#x2F;ig</span><br><span class="line">re.exec(str)	&#x2F;&#x2F; 返回match对象,[ &#39;12&#39;, &#39;1&#39;,&#39;2&#39;, index: 0, input: &#39;123345&#39;, groups: undefined ]</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<blockquote>
+<p>match对象match[0]代表匹配结果，match[1]代表匹配的第一个分组，match[2]代表匹配的第一个分组，</p>
+</blockquote>
+<ul>
+<li><p><code>re.lastIndex</code>  </p>
+<p>指定下一次match开始的位置，只有当g标志位设定时有效。</p>
+<p>每次指向exec和test将移动<code>re.lastIndex</code>, 最后一次匹配将返回0。</p>
+</li>
+</ul>
+<p><strong>字符串对正则的支持</strong></p>
+<ul>
+<li><p><code>str.search(re|substr)</code> 查找字符串有无匹配的模式，没有返回-1.有则返回下标</p>
+</li>
+<li><p><code>str.match(re)</code> 如果使用global模式，则返回所有匹配的值数组;否则返回第一个的捕获组;无匹配返回null</p>
+</li>
+<li><p><code>str.matchAll(re)</code> 只支持global模式，返回所有捕获组的一个迭代器；无匹配返回null</p>
+</li>
+<li><p><code>str.split(re|substr,limit)</code> 使用正则匹配分割字符串，返回分割后的数组；<strong>无匹配的分隔符或re为空，返回一个只包含原字符串的数组。</strong>limit指定返回数组长度最大值。</p>
+</li>
+<li><p><code>str.replace(re|substr,newSubStr|function(match,p1,p2...,offset,originString))</code></p>
+<blockquote>
+<p><code>newSubStr</code>中可以使用<code>$1</code>,<code>$2</code>,<code>$n</code>代表第几个匹配组的值；</p>
+<p><code>function()</code>传递的会掉函数中<code>p1,p2</code>指的是第几个分组</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="3-常见正则表达式"><a href="#3-常见正则表达式" class="headerlink" title="3. 常见正则表达式"></a>3. 常见正则表达式</h4><ul>
+<li>匹配汉字 <code>/[\u4e00-\u9fa5]/</code></li>
+<li>匹配数字中文数字:零一二三四五六七八九十</li>
+</ul>
+<p><code>[\u96f6\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]</code></p>
+<h2 id="Date"><a href="#Date" class="headerlink" title="Date"></a>Date</h2><p>Date没有字符串字面量</p>
+<h4 id="1-创建日期对象"><a href="#1-创建日期对象" class="headerlink" title="1. 创建日期对象"></a>1. 创建日期对象</h4>  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. new Date()</span><br><span class="line">2. new Date(year, month, day, hours, minutes, seconds, milliseconds)</span><br><span class="line">3. new Date(milliseconds) &#x2F;&#x2F; new Date(0);</span><br><span class="line">4. new Date(date string)&#x2F;&#x2F;  new Date(&quot;October 13, 2014 11:13:00&quot;);</span><br><span class="line"></span><br><span class="line">var a &#x3D; new Date(&quot;2014-03-19&quot;),    b &#x3D; new Date(2014, 03, 19); </span><br><span class="line">a.getDay() &#x3D;&#x3D;&#x3D; b.getDay()  19&#x3D;&#x3D;19</span><br><span class="line">a.getMonth() &#x3D;&#x3D;&#x3D; b.getMonth()   2!&#x3D;&#x3D;3</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>空参数，使用当前时间、日期的日期对象</p>
+</li>
+<li><p>使用指定到时间和日期创建日期对象</p>
+<blockquote>
+<p>month从0-11</p>
+</blockquote>
+</li>
+<li><p>使用时间戳创建对象</p>
+<blockquote>
+<p>js内部使用时间戳存储日期</p>
+<p>0时刻是 <code>1970-1-1 00:00:00</code> </p>
+</blockquote>
+</li>
+</ol>
+<blockquote>
+<p><strong>Date() 不加new关键词时,永远返回当前时期字符串 ，有没有参数都一样。</strong></p>
+<p>创建对象后返回值总是ISO格式的的日期格式对象</p>
+</blockquote>
+<h4 id="2-日期对象的方法"><a href="#2-日期对象的方法" class="headerlink" title="2. 日期对象的方法"></a>2. 日期对象的方法</h4><p><em>获取完整年份</em></p>
+<ul>
+<li>√ Date#getFullYear()获取完整的四位年份</li>
+<li>× Date#getYear() 返回Date对象中的年份值减去1900</li>
+</ul>
+<p><em>获取月份</em></p>
+<p>​    Date#getMonth() 返回值从0-11 </p>
+<p><em>获取日</em></p>
+<ul>
+<li>Date#getDate() 返回某月中几日</li>
+<li>Date#getDay() 返回一个星期内的几日</li>
+</ul>
+<p><em>获取时分秒</em> getHours,getMinutes,getSeconds,getMilliseconds</p>
+<p><em>获取时间戳</em></p>
+<ul>
+<li>Date#getTime()</li>
+<li>Date.now() date静态属性, 返回当前时间戳</li>
+<li>+d(日期对象) 隐式转换</li>
+</ul>
+<blockquote>
+<p>隐式转换的原因在于，Date#valueOf()被重写，返回时间戳</p>
+</blockquote>
+<h4 id="3-日期字符串的展示格式"><a href="#3-日期字符串的展示格式" class="headerlink" title="3. 日期字符串的展示格式"></a>3. 日期字符串的展示格式</h4><ul>
+<li><p>UTC 时区 （Coordinated Universal Time协调世界时）</p>
+<p>使用<code>toUTCString()</code>返回值是一个使用UTC时区(GMT时区)的易读格式字符串, 如<code>Fri, 25 Sep 2020 02:50:00 GMT</code></p>
+</li>
+<li><p>ISO格式 </p>
+<p>使用 <code>toISOString()</code>返回一个ISO 格式的字符串： **<code>YYYY-MM-DDTHH:mm:ss.sssZ</code>**。时区总是UTC（协调世界时），GMT时间，加一个后缀“Z”标识。</p>
+<blockquote>
+<p>相比<code>toUTCString()</code>，它多了一个标准的格式；</p>
+</blockquote>
+</li>
+<li><p><code>JSON</code>格式</p>
+<p><code>toJson()</code>返回一个 <code>JSON</code> 格式字符串(使用 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString"><code>toISOString()</code></a>)，表示该日期对象的值。</p>
+</li>
+<li><p>本地日期</p>
+<p><code>toString()</code>获取本时区时间 包括<code>getFullYear, getMonth...</code>他们都返回的是本时区时间</p>
+<p><code>toLoacleString(&quot;zh-cn&quot;,&#123;hour12:false&#125;)</code>指定地区和配置条件显示时间，还有<code>toLocaleDateString</code>,<code>toLocalTimeString</code> </p>
+<blockquote>
+<p>相比<code>toString()</code>显示更加人性化</p>
+</blockquote>
+<p><code>toUTCString()</code>获取UTC时区，也是GMT时区的字符串,包括<code>getUTCFullYear, getUTCMonth...</code>,他们都返回的是UTC时区时间</p>
+<blockquote>
+<p>字符串拼接时，默认调用<code>toString()</code>方法</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="内置对象"><a href="#内置对象" class="headerlink" title="内置对象"></a>内置对象</h2><h3 id="1-Math"><a href="#1-Math" class="headerlink" title="1. Math"></a>1. Math</h3><ul>
+<li><p><code>Math.random()</code>[0,1)的小数</p>
+<blockquote>
+<p>返回指定min, max范围内到小数，Random=min+Math.random()(max-min)</p>
+<p>返回指定范围内整数，~~Random, Math.floor(Random)</p>
+</blockquote>
+</li>
+<li><p><code>Math.floor</code>，<code>Math.ceil</code>向上取整，<code>Math.round</code>四舍五入</p>
+</li>
+<li><p><code>Math.abs</code>返回绝对值</p>
+</li>
+<li><p><code>Math.sqrt</code>返回平方根</p>
+</li>
+<li><p><code>Math.min()</code>参数为空返回+Infinity</p>
+</li>
+<li><p><code>Math.max()</code>参数为空，返回-Infinity</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>js中重点难点</title>
+    <url>/2020/09/12/js%E9%9A%BE%E7%82%B9/</url>
+    <content><![CDATA[<h2 id="作用域"><a href="#作用域" class="headerlink" title="作用域"></a>作用域</h2><ul>
+<li><strong>作用域</strong>指明了如何查找和存储一个变量，是一套规则。负责收集并维护由所有声明的标识符（变量）组成的一系列查</li>
+</ul>
+<p>询，并实施一套非常严格的规则，确定当前执行的代码对这些标识符的访问权限。一个js文件就是一个全局作用域</p>
+<ul>
+<li><p><strong>js引擎</strong>负责从头到尾负责整个 JavaScript 程序的编译及执行过程。</p>
+</li>
+<li><p><strong>编译器</strong>负责语法分析及代码生成等</p>
+<blockquote>
+<p>传统的编译</p>
+</blockquote>
+<ul>
+<li><p><em>分词/词法分析</em>（Tokenizing/Lexing）</p>
+<p>考虑程序 var a = 2;。这段程序通常会被分解成为下面这些<strong>词法单元</strong>：var、a、=、2 、;</p>
+</li>
+<li><p><em>解析/语法分析</em>（Parsing）</p>
+<p>这个过程是将词法单元流（数组）转换成一个由元素逐级嵌套所组成的代表了程序语法结构的树。这个树被称为“抽象语法树”（Abstract Syntax Tree，AST）</p>
+</li>
+<li><p><em>代码生成</em></p>
+<p>将 AST 转换为可执行代码的过程被称为代码生成。这个过程与语言、目标平台等息息相关</p>
+</li>
+</ul>
+<blockquote>
+<p>js编译</p>
+</blockquote>
+<ol>
+<li>比起那些编译过程只有三个步骤的语言的编译器，JavaScript 引擎要复杂得多。例如，在语法分析和代码生成阶段有特定的步骤来对运行性能进行优化，包括对冗余元素进行优化等。</li>
+</ol>
+</li>
+</ul>
+<ol start="2">
+<li>JavaScript 引擎不会有大量的（像其他语言编译器那么多的）时间用来进行优化，因为与其他语言不同，JavaScript 的编译过程不是发生在构建之前的。<a id="more"></a>
+<h4 id="1-作用域内声明提升"><a href="#1-作用域内声明提升" class="headerlink" title="1.作用域内声明提升"></a>1.作用域内声明提升</h4></li>
+</ol>
+<p>针对var变量和函数类型</p>
+<ul>
+<li>包括变量和函数在内的所有声明都会在任何代码被执行前首先被处理。</li>
+<li>函数优先于变量</li>
+</ul>
+<h4 id="2-LHS-RHS"><a href="#2-LHS-RHS" class="headerlink" title="2. LHS RHS"></a>2. LHS RHS</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="number">1.</span> <span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">a</span>) </span>&#123; </span><br><span class="line"><span class="number">2.</span>  <span class="keyword">var</span> b = a; </span><br><span class="line"><span class="number">3.</span>  <span class="keyword">return</span> a + b; </span><br><span class="line"><span class="number">4.</span> &#125; </span><br><span class="line"><span class="number">5.</span> <span class="keyword">var</span> c = foo( <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>LHS 查找赋值操作的目标是否存在  如第2行，查找变量b是否存在。</p>
+<blockquote>
+<p>严格模式下，LHS查找不到目标将报错；非严格模式下将在顶级作用域中创建这个目标</p>
+</blockquote>
+</li>
+<li><p>RHS查找赋值操作的目标是否存在，并获取其值 如第二行对变量a的查询</p>
+<blockquote>
+<p>查找找不到将报错</p>
+</blockquote>
+</li>
+<li><p>LHS与RHS都将在其封闭作用域内嵌套向上查找</p>
+</li>
+<li><p>一般来讲变量的声明在编译阶段进行LHS，但函数声明是LHS</p>
+<blockquote>
+<p>编译器可以在代码生成的同时处理声明和值的定义，比如在引擎执行代码时，并不会有线程专门用来将一个函数值“分</p>
+<p>配给”foo。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="2-常见工作模型"><a href="#2-常见工作模型" class="headerlink" title="2. 常见工作模型"></a>2. 常见工作模型</h4><ol>
+<li>词法作用域，大多数编程语言采用；<ol start="2">
+<li>动态作用域，仍有一些编程语言在使用（比如 Bash 脚本、Perl 中的一些模式等）</li>
+</ol>
+</li>
+</ol>
+<h5 id="词法作用域"><a href="#词法作用域" class="headerlink" title="词法作用域"></a>词法作用域</h5><p>​    词法作用域就是定义在词法阶段的作用域。换句话说，词法作用域是由你在写代码时将变量和块作用域写在哪里来决定的，因此当词法分析器处理代码时会保持作用域不变（大部分情况下是这样的）。</p>
+<h5 id="查找规则"><a href="#查找规则" class="headerlink" title="查找规则"></a>查找规则</h5><p>​    1. 作用域查找会在找到第一个匹配的标识符时停止。在多层的嵌套作用域中可以定义同名的标识符，这叫作“遮蔽效应”（内部的标识符“遮蔽”了外部的标识符）。</p>
+<blockquote>
+<p>全局变量会自动成为全局对象（比如浏览器中的 window 对象）的属性，因此可以不直接通过全局对象的词法名称，而是间接地通过对全局对象属性的引用来对其进行访问。如<code>window.a</code></p>
+<p>通过这种技术可以访问那些被同名变量所遮蔽的全局变量。但非全局的变量如果被遮蔽了，无论如何都无法被访问到。</p>
+</blockquote>
+<ol start="2">
+<li>无论函数在哪里被调用，也无论它如何被调用，它的词法作用域都只由函数被声明时所处的位置决定。</li>
+</ol>
+<h5 id="欺骗词法作用域"><a href="#欺骗词法作用域" class="headerlink" title="欺骗词法作用域"></a>欺骗词法作用域</h5><p>​    <em>欺骗词法作用域会导致性能下降</em></p>
+<p>​    JavaScript 引擎会在编译阶段进行数项的性能优化。其中有些优化依赖于能够根据代码的词法进行静态分析，并预先确定所有变量和函数的定义位置，才能在执行过程中快速找到标识符。但如果引擎在代码中发现了 <code>eval(..)</code> 或 <code>with</code>,词法作用域可能遭到破坏，因此可能完全不做任何优化</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function foo(str, a) &#123; </span><br><span class="line"> eval( str ); &#x2F;&#x2F; 欺骗！</span><br><span class="line"> console.log( a, b ); </span><br><span class="line">&#125; </span><br><span class="line">var b &#x3D; 2; </span><br><span class="line">foo( &quot;var b &#x3D; 3;&quot;, 1 ); &#x2F;&#x2F; 1, 3</span><br></pre></td></tr></table></figure>
+
+<p>​    ES6中with功能被禁用， eval拥有自己的词法作用域，意味着其中的声明无法修改所在的作用域。</p>
+<p>​    <strong>使用这其中任何一个机制都将导致代码运行变慢</strong></p>
+<h2 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h2><h4 id="1-概念"><a href="#1-概念" class="headerlink" title="1.概念"></a>1.概念</h4><p>​    函数可以记住并访问所在的词法作用域，即使函数在当前词法作用域之外执行，这时就产生了闭包。</p>
+<p>​    闭包发生在函数定义时。</p>
+<h4 id="2-闭包应用——模块"><a href="#2-闭包应用——模块" class="headerlink" title="2. 闭包应用——模块"></a>2. 闭包应用——模块</h4><p>闭包的一个应用。实现模块模式必须具备两个条件：</p>
+<ol>
+<li><p>必须有外部的封闭函数，且至少被调用一次</p>
+</li>
+<li><p>必须返回一个内部函数，并且可以访问或者修改私有的状态。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var foo &#x3D; (function CoolModule() &#123; </span><br><span class="line"> var something &#x3D; &quot;cool&quot;; </span><br><span class="line"> var another &#x3D; [1, 2, 3]; </span><br><span class="line"> function doSomething() &#123; </span><br><span class="line"> console.log( something ); </span><br><span class="line"> &#125; </span><br><span class="line"> function doAnother() &#123; </span><br><span class="line"> console.log( another.join( &quot; ! &quot; ) ); </span><br><span class="line"> &#125; </span><br><span class="line"> return &#123; </span><br><span class="line"> doSomething: doSomething, </span><br><span class="line"> doAnother: doAnother </span><br><span class="line"> &#125;; </span><br><span class="line">&#125;)(); </span><br><span class="line">foo.doSomething(); &#x2F;&#x2F; cool </span><br><span class="line">foo.doAnother(); &#x2F;&#x2F; 1 ! 2 ! 3</span><br></pre></td></tr></table></figure>
+
+<p>立即调用这个函数并将返回值直接赋值给单例的模块实例标识符 foo</p>
+</li>
+</ol>
+<h4 id="3-闭包应用——封闭作用域"><a href="#3-闭包应用——封闭作用域" class="headerlink" title="3. 闭包应用——封闭作用域"></a>3. 闭包应用——封闭作用域</h4><p>下面的语句想要依次输出1,2,3,4,5 </p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">for (var i&#x3D;1; i&lt;&#x3D;5; i++) &#123; </span><br><span class="line"> setTimeout( function timer() &#123; </span><br><span class="line"> console.log( i ); </span><br><span class="line"> &#125;, 0 ); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实际输出5,5,5,5,5 原因在于 5个循环的timer具有涵盖for循环作用域的闭包，持有对i相同的引用。</p>
+<p><strong>解决方法</strong></p>
+   <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">for (var i&#x3D;1; i&lt;&#x3D;5; i++) &#123; </span><br><span class="line"> (function(j) &#123; </span><br><span class="line"> setTimeout( function timer() &#123; </span><br><span class="line"> console.log( j ); </span><br><span class="line"> &#125;, 0 ); </span><br><span class="line"> &#125;)( i ); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每个延迟函数都会将 IIFE 在每次迭代中创建的作用域封闭起来, 并且每个作用域拥有自己的j</p>
+<p><strong><em>警惕！</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">for (var i&#x3D;1; i&lt;&#x3D;5; i++) &#123; </span><br><span class="line"> (function() &#123; </span><br><span class="line"> setTimeout( function timer() &#123; </span><br><span class="line"> console.log( i );</span><br><span class="line"> &#125;, 0 ); </span><br><span class="line"> &#125;)(); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每个延迟函数都会将 IIFE 在每次迭代中创建的作用域封闭起来，但是他们的作用域是空的，因此还会向上层作用域查找。</p>
+<h2 id="this"><a href="#this" class="headerlink" title="this"></a>this</h2><h4 id="1-为什么用this"><a href="#1-为什么用this" class="headerlink" title="1.为什么用this"></a>1.为什么用this</h4><p>this 提供了一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计,得更加简洁并且易于复用。它被自动定义在</p>
+<p>所有函数的作用域中。</p>
+<h4 id="2-this是什么"><a href="#2-this是什么" class="headerlink" title="2. this是什么"></a>2. this是什么</h4><p><strong>this并非指向函数自身</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function foo()&#123;</span><br><span class="line">var a&#x3D;4</span><br><span class="line">console.log(this.a++)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo() &#x2F;&#x2F; NaN，非严格模式下 ; 严格模式下报错</span><br></pre></td></tr></table></figure>
+
+<p>从这里看并非指向函数本身</p>
+<blockquote>
+<p>实际上this是指向全局对象，<code>this.a++</code>相当于<code>this.a=this.a+1</code></p>
+<p>非严格模式下，lHS 查找a失败，在全局对象创建a,默认值为undefined, undefined+1=NaN</p>
+<p>严格模式下将报错，lHS查找不到报错，同时this指向undefined 而非全局对象</p>
+</blockquote>
+<p><strong>this也不可能指向它的作用域</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function foo() &#123; </span><br><span class="line"> var a &#x3D; 2; </span><br><span class="line"> this.bar();  &#x2F;&#x2F;this并非指向当前作用域，而是全局对象</span><br><span class="line">&#125; </span><br><span class="line">function bar() &#123; </span><br><span class="line"> console.log( this.a ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); &#x2F;&#x2F; ReferenceError: a is not defined</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>this 在任何情况下都不指向函数的词法作用域。在 JavaScript 内部，作用域确实和对象类似，可见的标识符都是它的属性。但是作用域“对象”无法通过 JavaScript代码访问，它存在于 JavaScript 引擎内部。</p>
+</blockquote>
+<p><strong>this 是在运行时进行绑定的</strong>，并不是在编写时绑定，它的上下文取决于函数调用时的各种条件。this 的绑定和函数声明的位置没有任何关系，只取决于函数的调用方式,它指向什么完全取决于函数在哪里被调用.</p>
+<h4 id="3-this调用"><a href="#3-this调用" class="headerlink" title="3. this调用"></a>3. this调用</h4><p><strong>调用位置</strong>：调用位置就是函数在代码中被调用的位置（而不是声明的位置）。最重要的是要分析调用栈(就是为了到达当前执行位置所调用的所有函数)。我们关心的调用位置就在当前正在<strong>执行的函数的前一个调用</strong>中。</p>
+<h4 id="4-this绑定规则"><a href="#4-this绑定规则" class="headerlink" title="4. this绑定规则"></a>4. this绑定规则</h4><p><strong>默认绑定</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function foo() &#123; </span><br><span class="line"> console.log( this.a ); </span><br><span class="line">&#125; </span><br><span class="line">var a &#x3D; 2; </span><br><span class="line">foo(); &#x2F;&#x2F; 2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 声明在全局作用域中的变量（比如 var a = 2）就是全局对象的一个同名属性, 函数也是。</p>
+<p>严格模式下调用foo函数不受影响，但如果foo书写在严格模式下，this指向为undefined。</p>
+</blockquote>
+<p><strong>隐式绑定</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function foo() &#123; </span><br><span class="line"> console.log( this.a ); </span><br><span class="line">&#125; </span><br><span class="line">var obj &#x3D; &#123; </span><br><span class="line"> a: 2, </span><br><span class="line"> foo: foo </span><br><span class="line">&#125;; </span><br><span class="line">obj.foo(); &#x2F;&#x2F; 2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>当函数引用有上下文对象时，隐式绑定规则会把函数调用中的 this 绑定到这个上下文对象。</li>
+<li>对象属性引用链中只有上一层或者说最后一层在调用位置中起作用。</li>
+</ol>
+</blockquote>
+<p><strong>显示绑定</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a:<span class="number">2</span> </span><br><span class="line">&#125;; </span><br><span class="line">foo.call( obj ); <span class="comment">// 2</span></span><br><span class="line">foo.apply(obj)</span><br><span class="line">foo.bind(obj)()</span><br><span class="line"><span class="comment">//foo.softBind(obj)()</span></span><br></pre></td></tr></table></figure>
+
+<p><code>Function.prototype</code>原型上有call, apply,bind 方法，可以直接或间接绑定this对象</p>
+<blockquote>
+<p>如果你传入了一个原始值（字符串类型、布尔类型或者数字类型）来当作 this 的绑定对象，这个原始值会被转换成它的对象形式（也就是 new String(..)、new Boolean(..) 或者new Number(..)）。这通常被称为“装箱”</p>
+</blockquote>
+<p> <strong>new绑定</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function foo(a) &#123; </span><br><span class="line"> this.a &#x3D; a; </span><br><span class="line">&#125; </span><br><span class="line">var bar &#x3D; new foo(2); </span><br><span class="line">console.log( bar.a ); &#x2F;&#x2F; 2</span><br></pre></td></tr></table></figure>
+
+<p>​    使用new操作符用来调用函数，会进行特殊的步骤。在第三步会执行this的绑定</p>
+<blockquote>
+<p>使用 new 来调用函数，或者说发生构造函数调用时，会自动执行下面的操作。</p>
+<ol>
+<li>创建（或者说构造）一个全新的对象。</li>
+<li>这个新对象会被执行 [[Prototype]] 连接。</li>
+<li>这个新对象会绑定到函数调用的 this。</li>
+<li>如果函数没有返回其他对象，那么 new 表达式中的函数调用会自动返回这个新对象。</li>
+</ol>
+</blockquote>
+<h4 id="6-判断this顺序"><a href="#6-判断this顺序" class="headerlink" title="6. 判断this顺序"></a>6. 判断this顺序</h4><p>​    this绑定优先级: new绑定 &gt; 显示绑定 &gt; 隐式绑定 &gt; 默认绑定</p>
+<ol>
+<li><p>函数是否在 new 中调用（new 绑定）？如果是的话 this 绑定的是新创建的对象。</p>
+<p><code>var bar = new foo()</code></p>
+</li>
+<li><p>函数是否通过 call、apply（显式绑定）或者硬绑定调用？如果是的话，this 绑定的是指定的对象。</p>
+<p><code>var bar = foo.call(obj2)</code></p>
+</li>
+<li><p>函数是否在某个上下文对象中调用（隐式绑定）？如果是的话，this 绑定的是那个上下文对象。</p>
+<p><code>var bar = obj1.foo()</code></p>
+</li>
+<li><p>如果都不是的话，使用默认绑定。如果在严格模式下，就绑定到 undefined，否则绑定到全局对象。</p>
+<p><code>var bar = foo()</code></p>
+</li>
+</ol>
+<h4 id="7-忽略this"><a href="#7-忽略this" class="headerlink" title="7. 忽略this"></a>7. 忽略this</h4><p>​    如果函数并不关心 this 的话，你仍然需要传入一个占位值，这时 null 可能是一个不错的选择，就像代码所示的那样。</p>
+<p>​    当你把 null 或者 undefined 作为 this 的绑定对象传入 call、apply 或者 bind，这些值在调用时会被忽略，实际应用的是默认绑定规则：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">foo.call( null );</span><br><span class="line">foo.apply( null, [2, 3] );</span><br><span class="line">var bar &#x3D; foo.bind( null, 2 );</span><br></pre></td></tr></table></figure>
+
+<p>​    此时 foo函数中的this有可能会被绑定到全局对象，这样可能会照成意外。所以可以传入一个空对象</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var ø &#x3D; Object.create( null ); </span><br><span class="line">&#x2F;&#x2F; 把数组展开成参数</span><br><span class="line">foo.apply( ø, [2, 3] ); &#x2F;&#x2F; a:2, b:3 </span><br><span class="line">&#x2F;&#x2F; 使用 bind(..) 进行柯里化</span><br><span class="line">var bar &#x3D; foo.bind( ø, 2 );</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>Object.create( null )</code>没有绑定的原型对象，比｛｝更空</p>
+</blockquote>
+<h2 id="对象原型"><a href="#对象原型" class="headerlink" title="对象原型"></a>对象原型</h2><p>Array.prototype是 空数组，String.prototype.toString()=’’是空字符串,Function.prototype是空函数，RegExp.prototype.toString()=/(?:)/空正则表达式</p>
+<h4 id="1-原型链上的属性查找"><a href="#1-原型链上的属性查找" class="headerlink" title="1. 原型链上的属性查找"></a>1. 原型链上的属性查找</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> anotherObject = &#123; </span><br><span class="line"> a:<span class="number">2</span> </span><br><span class="line">&#125;; </span><br><span class="line"><span class="comment">// 创建一个关联到 anotherObject 的对象</span></span><br><span class="line"><span class="keyword">var</span> myObject = <span class="built_in">Object</span>.create( anotherObject ); </span><br><span class="line">myObject.a; <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p>这个过程会持续到找到匹配的属性名或者查找完整条 [[Prototype]] 链。如果是后者的话，[[Get]] 操作的返回值是 undefined。</p>
+<blockquote>
+<p> 原型链的尽头:所有普通的 [[Prototype]] 链最终都会指向内置的<code> Object.prototype</code>。由于所有的“普通”（内置，不是特定主机的扩展）对象都“源于”（或者说把 [[Prototype]] 链的顶端设置为）这个 <code>Object.prototype</code> 对象，所以它包含 JavaScript 中许多通用的功能。<code>Object.prototype.__proto__==null</code></p>
+</blockquote>
+<h4 id="2-设置对象属性"><a href="#2-设置对象属性" class="headerlink" title="2.设置对象属性"></a>2.设置对象属性</h4><p>在于原型链上层时<code> myObject.foo = &quot;bar&quot;</code> 会出现的三种情况。(假设底层对象没有<code>foo</code>属性，高层对象有<code>foo</code>属性)</p>
+<ol>
+<li><p>如果在 [[Prototype]] 链上层存在名为 <code>foo</code> 的普通数据访问属性（参见第 3 章）并且没有被标记为只读（<code>writable:false</code>），那就会直接在<code> myObject</code> 中添加一个名为 <code>foo</code> 的新属性，它是屏蔽属性。</p>
+</li>
+<li><p>如果在 [[Prototype]] 链上层存在<code> foo</code>，但是它被标记为只读（<code>writable:false</code>），那么无法修改已有属性或者在 <code>myObject </code>上创建屏蔽属性。如果运行在严格模式下，代码会抛出一个错误。否则，这条赋值语句会被忽略。总之，不会发生屏蔽。</p>
+</li>
+<li><p>如果在 [[Prototype]] 链上层存在<code> foo</code> 并且它是一个 setter（参见第 3 章），那就一定会调用这个 setter。<code>foo</code> 不会被添加到（或者说屏蔽于）<code>myObject</code>，也不会重新定义 <code>foo</code> 这 个 setter。</p>
+<blockquote>
+<p>如果你希望在第二种和第三种情况下也屏蔽 foo，那就不能使用 = 操作符来赋值，而是使用 <code>Object.defineProperty(..)</code>来向 <code>myObject </code>添加 <code>foo</code>。</p>
+</blockquote>
+<p>隐式屏蔽</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var anotherObject &#x3D; &#123; </span><br><span class="line"> a:2 </span><br><span class="line">&#125;; </span><br><span class="line">var myObject &#x3D; Object.create( anotherObject ); </span><br><span class="line">anotherObject.a; &#x2F;&#x2F; 2 </span><br><span class="line">myObject.a; &#x2F;&#x2F; 2 </span><br><span class="line">anotherObject.hasOwnProperty( &quot;a&quot; ); &#x2F;&#x2F; true </span><br><span class="line">myObject.hasOwnProperty( &quot;a&quot; ); &#x2F;&#x2F; false </span><br><span class="line">myObject.a++; &#x2F;&#x2F; 隐式屏蔽！</span><br><span class="line">anotherObject.a; &#x2F;&#x2F; 2 </span><br><span class="line">myObject.a; &#x2F;&#x2F; 3 </span><br><span class="line">myObject.hasOwnProperty( &quot;a&quot; ); &#x2F;&#x2F; true</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>++ 操作相当于<code> myObject.a = myObject.a + 1</code>。因此 ++ 操作首先会通过 [[Prototype]]</p>
+<p>查找属性 a 并从<code>anotherObject.a</code>获取当前属性值 2，然后给这个值加 1，接着用 [[Put]]</p>
+<p>将值 3 赋给<code>myObject</code>中新建的屏蔽属性 a</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="3-原型委托-V-类与继承"><a href="#3-原型委托-V-类与继承" class="headerlink" title="3. 原型委托 V 类与继承"></a>3. 原型委托 V 类与继承</h4><ul>
+<li><p><strong>继承意味着复制。</strong>面向类的语言中，类可以被复制（或者说实例化）多次，就像用模具制作东西一样。</p>
+</li>
+<li><p>JavaScript（默认）并不会复制对象属性。相反，JavaScript 会在两个对象之间创建一个关联，这样一个对象就可以通过委托访问另一个对象的属性和函数。</p>
+</li>
+<li><p>建立委托关系</p>
+<ul>
+<li><p><code>Bar.ptototype = Object.create( Foo.prototype )</code>; // ES6 之前需要抛弃默认的 Bar.prototype </p>
+</li>
+<li><p><code>Object.setPrototypeOf( Bar.prototype, Foo.prototype );</code> // ES6 开始可以直接修改现有的 Bar.prototype </p>
+</li>
+<li><p><del><code>Bar.prototype = Foo.prototype;</code></del> 错误</p>
+</li>
+<li><p><code>Bar.prototype = new Foo();</code>可以起到关联作用，但有副作用，(原型链上有一个实例对象)</p>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-检测关联关系"><a href="#4-检测关联关系" class="headerlink" title="4.检测关联关系"></a>4.检测关联关系</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Foo() &#123; </span><br><span class="line"> &#x2F;&#x2F; ... </span><br><span class="line">&#125; </span><br><span class="line">Foo.prototype.blah &#x3D; ...; </span><br><span class="line">var a &#x3D; new Foo();</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p><code>b.isPrototypeOf( c );</code></p>
+</li>
+<li><p><code>a instanceof Foo;</code>  // true</p>
+<blockquote>
+<p>instanceof 操作符的左操作数是一个普通的对象，右操作数是一个函数。instanceof 回答的问题是：在 a 的整条 [[Prototype]] 链中是否有指向 Foo.prototype 的对象？</p>
+</blockquote>
+</li>
+<li><p><code>Foo.prototype.isPrototypeOf( a ); </code>// true</p>
+<blockquote>
+<p>isPrototypeOf(..) 回答的问题是：在 a 的整条 [[Prototype]] 链中是否出现过 Foo.prototype ？</p>
+</blockquote>
+</li>
+<li><p><code>Object.getPrototypeOf( a ) === Foo.prototype;</code> // true 直接获取一个对象的 [[Prototype]] 链。</p>
+</li>
+<li><p><code>a.__proto__ === Foo.prototype; </code></p>
+<blockquote>
+<p>它和其他的常用函数（.<code>toString()、.isPrototypeOf(..)，</code>等等），存在于内置的<code>Object.prototype</code>中</p>
+<p>甚至可以通过 <code>.__proto__.__ptoto__</code>… 来遍历原型链.</p>
+</blockquote>
+<p>__proto__是一个accessors访问器属性</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> get: **function**() &#123; </span><br><span class="line"></span><br><span class="line"> **return** Object.getPrototypeOf( this ); </span><br><span class="line"></span><br><span class="line"> &#125;, </span><br><span class="line"></span><br><span class="line"> set: **function**(o) &#123; </span><br><span class="line"></span><br><span class="line"> &#x2F;&#x2F; ES6 中的 setPrototypeOf(..) </span><br><span class="line"></span><br><span class="line"> Object.setPrototypeOf( this, o ); </span><br><span class="line"></span><br><span class="line"> **return** o; </span><br><span class="line"></span><br><span class="line"> &#125; </span><br><span class="line"></span><br><span class="line">&#125; );</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h4 id="5-创建一个空原型链对象"><a href="#5-创建一个空原型链对象" class="headerlink" title="5.创建一个空原型链对象"></a>5.创建一个空原型链对象</h4><p>   <code>Object.create(null) </code>会 创 建 一 个 拥 有 空（ 或 者 说 null）[[Prototype]]链接的对象，这个对象无法进行委托。由于这个对象没有原型链，所以<code>instanceof </code>操作符（之前解释过）无法进行判断，因此总是会返回 false。这些特殊的空 [[Prototype]] 对象通常被称作“字典”，它们完全不会受到原型链的干扰，因此非常适合用来存储数据。</p>
+<p>   打印这个对象</p>
+<p>   <code>[Object: null prototype] &#123;&#125;</code>, 其<code>__proto__</code>属性为undefined</p>
+<h2 id="类型和语法"><a href="#类型和语法" class="headerlink" title="类型和语法"></a>类型和语法</h2><h2 id="异步和性能"><a href="#异步和性能" class="headerlink" title="异步和性能"></a>异步和性能</h2><h3 id="1-异步"><a href="#1-异步" class="headerlink" title="1. 异步"></a>1. 异步</h3><p>异步是指对于耗时的操作，为了避免阻塞，使现在无法立即完成的任务将在将来时刻完成。</p>
+<p>js程序一定可以几乎一定由多个块组成，一个块现在执行，其余块将来执行，块与块之间存在嵌套，最常见的块单位是函数。</p>
+<ul>
+<li><code>console.log()</code>函数有可能是异步完成的，所以不能完全依赖打印结果，可以通过断点或执行一次<code>JSON.stringify()</code>快照</li>
+<li>JS引擎依赖于宿主环境，受宿主环境调用执行JS代码。</li>
+<li>宿主环境通过单线程提供一种事件循环机制处理程序中多个块的运行。每一个事件指的是程序分成的代码块。</li>
+<li>当前的程序组成了现在执行的块，其余块在程序运行时被添加进去。</li>
+</ul>
+<h3 id="2-并行"><a href="#2-并行" class="headerlink" title="2.并行"></a>2.<strong>并行</strong></h3><p>并行计算的常见工具是进程和线程，多个线程共享同一进程的内存且独立运行。</p>
+<p>线程的并行执行，执行粒度是语句，对于存在共享的变量，需要有特殊的步骤进行中断和交错运行。否则得到及结果是出人意料的。</p>
+<p>JS是单线程运行，不必跨线程共享数据，它的执行粒度是块。一个块接着一个块运行。</p>
+<p><strong>但这并不意味着JS程序的运行顺序是确定的，只是不确定的层次在于块的级别，而非语句级别。</strong></p>
+<h3 id="3-并发"><a href="#3-并发" class="headerlink" title="3.并发"></a>3.<strong>并发</strong></h3><p>块之间交替运行，从整体上看，似乎是在并行执行。这些块之间有这样的关系：</p>
+<ol>
+<li><p>块与块可能独立运行，互不干扰</p>
+</li>
+<li><p>块与块须共同完成一件事</p>
+</li>
+<li><p>块与块只需要其中一个便可完成，此时另一个块的执行没有意义。</p>
+</li>
+</ol>
+<h3 id="4-协作"><a href="#4-协作" class="headerlink" title="4.协作"></a>4.<strong>协作</strong></h3><p>这里的协作是指大规模的、耗时的操作，为了避免霸占事件循环队列的并发系统，主动地异步自处理。</p>
+<p>通常可以借助<code>setTimeout()</code>函数递归调用自身，完成某些大规模的操作。</p>
+<blockquote>
+<p><code>setTimeout(..,0)</code>意思在这里为，把这个函数插在当前时间循环队列的结尾处。</p>
+</blockquote>
+<h3 id="5-任务队列、事件队列"><a href="#5-任务队列、事件队列" class="headerlink" title="5. 任务队列、事件队列"></a>5. 任务队列、事件队列</h3><p><strong>事件队列</strong></p>
+<p>是宿主环境提供，包含了程序所划分的块，每次循环处理一个事件块，称为一次Tick。</p>
+<ul>
+<li><p>调在下一次事件循环执行函数fun<code>setTimeout(fun,0)</code></p>
+</li>
+<li><p>用户交互、IO、和定时器都会向事件队列加入事件</p>
+</li>
+<li><p>任意时刻只能处理一个事件，事件执行的时候可能直接或间接引发一个或多个后续事件</p>
+</li>
+</ul>
+<p><strong>任务队列</strong></p>
+<p>可以理解为，它是挂在事件循环队列每个TICK之后的一个队列，可能出现的异步动作，如Promise，它没有被添加到事件循环队列中，而是添加到任务队列中，当前Tick结尾处执行。</p>
+<h3 id="6-代码执行顺序"><a href="#6-代码执行顺序" class="headerlink" title="6.代码执行顺序"></a>6.代码执行顺序</h3><p>编译器对原有代码做出优化，导致编译后代码执行顺序和原有代码分析执行顺序不一致</p>
+<h3 id="7-生成器函数、迭代器"><a href="#7-生成器函数、迭代器" class="headerlink" title="7.生成器函数、迭代器"></a>7.生成器函数、迭代器</h3><p>使用生成的迭代器控制生成器函数的运行，生成器函数中yield关键词将阻塞生成器函数的运行，直到下一次迭代器调用next()，<strong>并将程序控制权交给其它块</strong>。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function * fun&#123;</span><br><span class="line">	yield 1</span><br><span class="line">	yield 2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>生成器函数本身是不可迭代的，调用生成器函数返回一个迭代器。</li>
+<li>生成器的迭代器也有一个 <code>Symbol.iterator </code>函数，基本上这个函数做的就是 return this。生成器迭代器是iterable。</li>
+<li>从 ES6 开始，从一个 iterable 中提取迭代器的方法是：iterable 必须支持一个函数，其名称是专门的 ES6 符号值 Symbol.iterator。迭代器实现了next()方法供迭代访问。</li>
+</ul>
+<h4 id="Iterator接口"><a href="#Iterator接口" class="headerlink" title="Iterator接口"></a>Iterator接口</h4><p>迭代器是一种有序的、连续的、基于拉取的用于消耗数据的组织方式。Array、Map、Set、String、TypedArray、arguments、NodeList均实现了这个接口。</p>
+<ol>
+<li><p>Iterator [required] </p>
+<p><code>next() &#123;method&#125;</code>: 取得下一个IteratorResult</p>
+</li>
+</ol>
+<p>有些迭代器还扩展支持两个可选成员：</p>
+<ol start="2">
+<li>Iterator [optional] </li>
+</ol>
+<ul>
+<li><p>return(x) {method}: 停止迭代器并返回IteratorResult </p>
+</li>
+<li><p>throw(e) {method}: 报错并返回IteratorResult</p>
+<p>it.return(x) 相当于在 上一个yield的语句后插入了 一句 return x</p>
+<p>it.throw(e) 相当于在 上一个yield的语句后插入了 一句 throw new Error(e)</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function *foo() &#123; </span><br><span class="line"> try &#123; </span><br><span class="line">	 yield 1; </span><br><span class="line">	 yield 2; </span><br><span class="line">	 yield 3; </span><br><span class="line"> &#125; </span><br><span class="line"> catch(err)&#123;</span><br><span class="line">	 console.log(err) </span><br><span class="line"> &#125;</span><br><span class="line"> finally &#123; </span><br><span class="line">	 console.log( &quot;cleanup!&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>IteratorResult 接口指定如下：</p>
+<ul>
+<li>一个对象有两个属性</li>
+<li>value {property}: 当前迭代值或者最终返回值（如果undefined为可选的）</li>
+<li>done {property}: 布尔值，指示完成状态</li>
+</ul>
+</li>
+</ol>
+<h4 id="1-定义一个数组的Symbol-iterator"><a href="#1-定义一个数组的Symbol-iterator" class="headerlink" title="1. 定义一个数组的Symbol.iterator"></a>1. 定义一个数组的<strong>Symbol.iterator</strong></h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>] 编写对应生成器</span><br><span class="line">方法一：闭包自助编写的迭代器</span><br><span class="line">arr[<span class="built_in">Symbol</span>.iterator] = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123; <span class="comment">//</span></span><br><span class="line">    <span class="keyword">let</span> nextVal = <span class="number">-1</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">    	<span class="comment">//保证返回的迭代器本身是可迭代的</span></span><br><span class="line">    	[<span class="built_in">Symbol</span>.iterator]() &#123; <span class="keyword">return</span> <span class="built_in">this</span>; &#125;,</span><br><span class="line">        next:<span class="function">()=&gt;</span>&#123;</span><br><span class="line">            nextVal++</span><br><span class="line">            <span class="keyword">if</span> (nextVal &lt; <span class="built_in">this</span>.length) &#123;</span><br><span class="line">                <span class="keyword">return</span> &#123;<span class="attr">done</span>: <span class="literal">false</span>, <span class="attr">value</span>: <span class="built_in">this</span>[nextVal]&#125;;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="attr">done</span>: <span class="literal">true</span>, <span class="attr">value</span>: <span class="literal">undefined</span>&#125;</span><br><span class="line">        &#125;，</span><br><span class="line">        <span class="keyword">return</span>(v) &#123; </span><br><span class="line">  			<span class="keyword">return</span> &#123; <span class="attr">value</span>: v, <span class="attr">done</span>: <span class="literal">true</span> &#125;; </span><br><span class="line"> 		&#125;,</span><br><span class="line"> 		<span class="keyword">throw</span>()&#123;</span><br><span class="line"> 		</span><br><span class="line"> 		&#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">方法二：生成器函数简洁返回一个迭代器</span><br><span class="line">arr[<span class="built_in">Symbol</span>.iterator]= <span class="function"><span class="keyword">function</span>* (<span class="params"></span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">let</span> i=<span class="number">0</span>;i&lt;<span class="built_in">this</span>.length;i++)</span><br><span class="line">		<span class="keyword">if</span>(i <span class="keyword">in</span> <span class="built_in">this</span>) <span class="keyword">yield</span> <span class="built_in">this</span>[i]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-消耗迭代器的操作"><a href="#2-消耗迭代器的操作" class="headerlink" title="2. 消耗迭代器的操作"></a><strong>2. 消耗迭代器的操作</strong></h4><ul>
+<li>for of</li>
+<li>spread…运算符 …[1,2,3], …{a:1,b:2} 展开元素</li>
+<li>生成器函数中的yield *Iterator</li>
+</ul>
+<h4 id="3-生成器函数"><a href="#3-生成器函数" class="headerlink" title="3. 生成器函数"></a>3. 生成器函数</h4><ul>
+<li>可以进行暂停/恢复执行i</li>
+<li>每次暂停/恢复提供了一次机会，可以进行双向信息传递</li>
+<li>把生成器看作一个受控的、可传递的代码执行</li>
+<li>返回的迭代器支持return,throw方法用于提前终止 try{}块内代码，响应catch或finally</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;普通声明形式</span><br><span class="line">function *foo(x,y) &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line">&#125;</span><br><span class="line">&#x2F;&#x2F;作为对象属性简写</span><br><span class="line">var a &#x3D; &#123; </span><br><span class="line"> *foo() &#123; .. &#125; </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>yield expression;</strong> </p>
+<p>用来标记暂停点,每次next()运行到下一个yield或return，并返回expression的结果，it.next()可以获取结果。如果是return则函数结束执行。</p>
+<ul>
+<li><p>yield 运算符优先级很低只大于 …和 ，运算符。yield 8+3 返回11</p>
+</li>
+<li><p>yield* iterable ： yield委托其后跟一个迭代器，然后它会调用这个 iterable 的迭代器，把自己的生成器控制委托给这个迭代器，直到其耗尽。</p>
+<p><code>function *foo() &#123;  yield *[1,2,3]; &#125;</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function *foo() &#123; </span><br><span class="line"> var x &#x3D; (yield 10)+1; </span><br><span class="line">   var y &#x3D; yield 8+3; </span><br><span class="line"> console.log( x,y ); </span><br><span class="line">&#125;</span><br><span class="line">it &#x3D;foo()</span><br><span class="line">&#x2F;&#x2F;启动生成器，接受第一个yield的返回值，yield等待</span><br><span class="line">it.next()</span><br><span class="line">传递3，给等待的yield,接受第二个yield的返回值，第二个yield等待</span><br><span class="line">it.next(3)</span><br><span class="line">传递7，给等待的yield,接受return的返回值, 结束</span><br><span class="line">it.next(7)</span><br></pre></td></tr></table></figure>
+
+<p>第一次<code> it.next()</code>这个生成器首先在暂停自身的时候 yield 出值 10.</p>
+</li>
+</ul>
+<p>第二次运行<code>it.next(3)</code>,这个生成器在暂停自身的时候 yield 出值 8.打印此时<code>it.next(3)</code>的值是8.</p>
+<p>第三次运行<code>it.next()</code> , 生成器函数执行到下一个yield或return 。此时生成器函数执行完毕，其值为 undefined(默认 return undefined)。 此时打印 x,y 4,7     </p>
+<p><strong>it.next(value)</strong></p>
+<p>通过一个生成器函数返回的迭代器，控制生成器函数运行。</p>
+<ul>
+<li>每个it.next(value)接受来自yield和return的返回值</li>
+<li>同时，it.next(value)可以把值传送给在等待的yield</li>
+<li>第一个it.next(value),value将被抛弃。因为没有等待的yield来接受</li>
+<li>it.next()立即将控制权返回到生成器函数调用栈，即使是在任务队列中</li>
+</ul>
+<h4 id="4-生成器的使用"><a href="#4-生成器的使用" class="headerlink" title="4. 生成器的使用"></a>4. 生成器的使用</h4><ul>
+<li><p>产生一系列的值</p>
+</li>
+<li><p>顺序执行的任务队列</p>
+<p>这种用法通常表示算法中步骤的流控制，其中每个步骤要求从某个外部源获得数据。每</p>
+<p>部分数据的完成可以是即时的，也可以是异步延迟的</p>
+</li>
+</ul>
+<h3 id="8-Promise"><a href="#8-Promise" class="headerlink" title="8. Promise"></a>8. Promise</h3><p>随着需求变得越来越复杂，回调也变得越来越难以胜任异步问题。</p>
+<p>promise解决了两个回调异步问题</p>
+<ul>
+<li>不符合人脑思维的回调模式</li>
+<li>解决控制反转的信任问题</li>
+</ul>
+<p>Promise 与生成器的结合完全实现了重新安排异步流控制代码来消除丑陋的回调乱炖（或称“地狱”）。从侧异步代码同步化。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(axios.get(<span class="string">&#x27;http://47.106.244.1:8099/manager/category/findAllCategory&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>打印promise只有三种结果，Promise { <pending> }，Promise { <fulfilled> }，Promise { <rejected> }</li>
+<li>promise只能被决议一次，不管完成或拒绝。</li>
+<li>一旦观察到 Promise 的决议就立刻提取出这个值。换句话说，Promise 可以被看作是同步函数返回值的异步版本。</li>
+</ul>
+<p>创建一个promise</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1.method 1st</span><br><span class="line">let p&#x3D;new Promise((resolve,reject)&#x3D;&gt;&#123;</span><br><span class="line">	&#x2F;&#x2F;do something</span><br><span class="line">	resolve(a res) &#x2F;&#x2F;返回一个已决议的promise</span><br><span class="line">	&#x2F;&#x2F;or reject(a res) &#x2F;&#x2F;返回一个rejected的promise</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">2. method 2st</span><br><span class="line">let p1&#x3D;Promise.resolve(somthing) 决议一个something，并返回一个已完成的promsise</span><br><span class="line">let p2&#x3D;Promise.reject(somereasons) 传递一个reason，并返回一个已拒绝的promsise</span><br></pre></td></tr></table></figure>
+
+<p><strong>对于第一种创建方式</strong></p>
+<ul>
+<li>如果调用reject，这个promise被拒绝，任何传入值将作为决绝的理由。</li>
+<li>如果resolve,无参数，或者传入非promise非thenable对象，这个promise被完成</li>
+<li>如果调用 resolve(..) 并传入另外一个 promise或 thenable对象，这个 promise 就会采用传入的 promise的状态（要么实现要么拒绝） <strong>。(也就是要进行then操作返回then结果)</strong></li>
+</ul>
+<p><strong>对于第二种创建方式</strong></p>
+<ul>
+<li>resolve,如果这个值已经是可以确定的 promise ,直接返回该promise</li>
+<li>resolve,如果这个值是 thenable，这个thenable对象执行then操作。</li>
+<li>resolve,如果这个值是立即值，那么它会被“封装”为一个真正的promise，这样就把它的行为方式规范为异步的</li>
+<li>reject，并不区分接收的值是什么。如果传入 promise 或 thenable 来拒绝，这个 promise / thenable 本身会被设置为拒绝原因，而不是其底层值。</li>
+</ul>
+<p><strong>处理Promise拒绝</strong></p>
+<blockquote>
+<p>对于<strong>reject promise</strong>我们没有监听拒绝，这意味着它会默默保持这个状态等待未来的观测。如果永远不通过 then(..) 或 catch(..) 调用来观察的话，它就会一直保持未处理状态。有些浏览器开发者终端可能会监测到这些未处理拒绝并报告出来，但是这并不是可靠的保证；我们应该一直观测 promise 拒绝。</p>
+</blockquote>
+<h4 id="Promise-then"><a href="#Promise-then" class="headerlink" title="Promise then"></a>Promise then</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ajax( &quot;http:&#x2F;&#x2F;some.url.1&quot; ) </span><br><span class="line">.then( </span><br><span class="line"> function fulfilled(contents)&#123; </span><br><span class="line"> &#x2F;&#x2F; 处理contents成功情况</span><br><span class="line"> return contents</span><br><span class="line"> &#125;, </span><br><span class="line"> function rejected(reason)&#123; </span><br><span class="line"> &#x2F;&#x2F; 处理ajax出错原因</span><br><span class="line"> return reason</span><br><span class="line"> &#125; </span><br><span class="line">)</span><br><span class="line">.then(res&#x3D;&gt;console.log(res));</span><br></pre></td></tr></table></figure>
+
+<p>then方法的参数</p>
+<ul>
+<li>第一个fulfilled作为 promise 成功完成后的处理函数</li>
+<li>第二个rejected作为 promise 被显<strong>式拒绝后的处理函</strong>数，或者在<strong>决议过程中出现错误 / 异常的情况</strong>下的处理函数</li>
+</ul>
+<blockquote>
+<p>如果某个参数被省略，或者不是一个有效的函数——通常是 null，那么一个默认替代函数</p>
+<p>就会被采用。默认的成功回调把完成值传出，默认的出错回调会传递拒绝原因值。</p>
+</blockquote>
+<ul>
+<li>第二个then介绍来自第一个then的处理结果，res是其中fulfilled或rejected一个处理的返回值</li>
+</ul>
+<h4 id="Promise-catch"><a href="#Promise-catch" class="headerlink" title="Promise catch"></a>Promise catch</h4><ul>
+<li>catch错误捕获相当于 <code>then(null, handleRejection)</code></li>
+<li>如果<code>then(handleFulfill, handleRejection)</code> <code>handleRejection</code>无法捕获来自<code>handleFulfill</code>的错误，<code>handleFulfill</code>中的错误将传递到下一个<code>then(null, handleRejection)</code></li>
+<li>catch既可以捕获<code>then(handleFulfill，handleRejection)</code>中的错误，也可以介绍来自前面决议过程中的错误，因此采用catch捕获更合适</li>
+</ul>
+<h4 id="Promise-Api"><a href="#Promise-Api" class="headerlink" title="Promise Api"></a>Promise Api</h4><ul>
+<li>Promise.all([ .. ]) 等待所有都完成（或者第一个拒绝），而 Promise.race([ .. ]) 等待第一个完成或者拒绝。</li>
+<li>Promise.all([]) 将会立即完成（没有完成值），Promise.race([]) 将会永远挂起。这是一个很奇怪的不一致，因此我建议，永远不要用空数组使用这些方法。</li>
+</ul>
+<h3 id="9-async-await"><a href="#9-async-await" class="headerlink" title="9. async/await"></a>9. async/await</h3><p>await 后面的对象如果是thenable，会被then一次。且await后面的代码会被加到then(函数中去执行)，</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> async function f()&#123;</span><br><span class="line"> let res&#x3D; await  fun()</span><br><span class="line"> 	consoel.log(await res)</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">等同于</span><br><span class="line">function f()&#123;</span><br><span class="line">  Promise.resolve(fun()).then(</span><br><span class="line"> async (res)&#x3D;&gt; console.log( await res)</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function f()&#123;</span><br><span class="line">  Promise.resolve(fun()).then(</span><br><span class="line"> (res)&#x3D;&gt; console.log(  Promise.resolve(res).then(res&#x3D;&gt;res) )</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面解释 async 关键字做了什么：</p>
+<ul>
+<li><p>被 async 操作符修饰的函数必然返回一个 Promise</p>
+</li>
+<li><p>当 async 函数返回一个值时，Promise 的 resolve 方法负责传递这个值</p>
+</li>
+<li><p>当 async 函数抛出异常时，Promise 的 reject 方法会传递这个异常值</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">async function async2() &#123;</span><br><span class="line">    console.log(&#39;async2&#39;)</span><br><span class="line">&#125;</span><br><span class="line">等同于</span><br><span class="line">function async2()&#123;</span><br><span class="line">  console.log(&#39;async2&#39;);</span><br><span class="line">  return Promise.resolve();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+</li>
+</ul>
+<p>合规范和这篇文章，简单总结一下，对于 await v：</p>
+<ul>
+<li><p>await 后的值 v 会被转换为 Promise</p>
+</li>
+<li><p>即使 v 是一个已经 fulfilled 的 Promise，还是会新建一个 Promise，并在这个新 Promise 中 resolve(v)</p>
+</li>
+<li><p>await v 后续的代码的执行类似于传入 then() 中的回调</p>
+</li>
+</ul>
+<blockquote>
+<p><code>Promise.resolve(v)</code> 不同于 <code>new Promise(r =&gt; r(v))</code>，</p>
+<ol>
+<li><p>因为如果 v 是一个 Promise 对象，什么都不会做，只会直接把这个值返回；</p>
+<p><code>Promise.resovle(new Promise(resolve=&gt;resolve(v)))</code></p>
+</li>
+<li><p>方法返回一个以给定值解析后的<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise"><code>Promise</code></a> 对象。</p>
+<p>如果这个值是一个 promise ，那么将返回这个 promise ；</p>
+<p>如果这个值是thenable（即带有<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/then"><code>&quot;then&quot; </code></a>方法），返回的promise会“跟随”这个thenable的对象，采用它的最终状态</p>
+<p>；否则返回的promise将以此值完成。此函数将类promise对象的多层嵌套展平。</p>
+</li>
+</ol>
+</blockquote>
+<h3 id="8-回调"><a href="#8-回调" class="headerlink" title="8. 回调"></a>8. 回调</h3><p>用回调表达异步控制流程的两个关键缺陷</p>
+<ul>
+<li><p>基于回调的异步不符合大脑对任务步骤的规划方式；</p>
+</li>
+<li><p>由于控制反转，回调并不是可信任或可组合的。</p>
+</li>
+</ul>
+<h2 id="模块化"><a href="#模块化" class="headerlink" title="模块化"></a>模块化</h2><h3 id="1-闭包模式"><a href="#1-闭包模式" class="headerlink" title="1. 闭包模式"></a>1. 闭包模式</h3><p>传统的模块模式基于一个带有内部变量和函数的外层函数，以及一个被返回的“public API”，这个“public API”带有对内部数据和功能拥有闭包的方法。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Hello(name) &#123; </span><br><span class="line"> function greeting() &#123; </span><br><span class="line"> console.log( &quot;Hello &quot; + name + &quot;!&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line"> &#x2F;&#x2F; public API </span><br><span class="line"> return &#123; </span><br><span class="line"> greeting: greeting </span><br><span class="line"> &#125;; </span><br><span class="line">&#125; </span><br><span class="line">var me &#x3D; Hello( &quot;Kyle&quot; ); </span><br><span class="line">me.greeting(); &#x2F;&#x2F; Hello Kyle!</span><br></pre></td></tr></table></figure>
+
+
+
+<p>​    模块导出方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;1. 先声明后导出</span><br><span class="line">let a&#x3D;1,fun&#x3D;()&#x3D;&gt;&quot;haha&quot;</span><br><span class="line">let c&#x3D; class Test &#123;</span><br><span class="line">    constructor() &#123;</span><br><span class="line">        this.name &#x3D; &#39;hh&#39;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">export &#123;a,fun,c&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;2. 边声明边导出</span><br><span class="line">export function Test()&#123;&#125;</span><br><span class="line">export let a&#x3D;1</span><br><span class="line">export class ClassName &#123;...&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;3. 默认导出一个表达式</span><br><span class="line">export default a;</span><br><span class="line">export default function (…) &#123; … &#125; &#x2F;&#x2F; also class, function*</span><br><span class="line">export default function name1(…) &#123; … &#125; &#x2F;&#x2F; also class, function*</span><br><span class="line">export &#123; name1 as default, … &#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-export-default-导出"><a href="#1-export-default-导出" class="headerlink" title="1.export default 导出"></a>1.<strong>export default 导出</strong></h4><ul>
+<li>导出对象的方式同 ”赋值=“，是值绑定。</li>
+<li><code>export default a</code> 与<code>export &#123; a as default, … &#125;;</code>效果不同，后者是导出局部标识符的绑定。如果导出之后在模块内部修改某个值，外部导入的绑定会访问到修改后的值：</li>
+<li>模块的 export 中的关键字 default 指定了一个命名导出，名称实际上就是 default。</li>
+</ul>
+<h4 id="2-import-导入默认对象"><a href="#2-import-导入默认对象" class="headerlink" title="2. import 导入默认对象"></a>2. <strong>import 导入默认对象</strong></h4><p><code>import &#123; default as foo &#125; from &quot;foo&quot;;</code></p>
+<p><strong>import ｛｝ 导入</strong></p>
+<p><code>import &#123; foo, bar, baz &#125; from &quot;foo&quot;</code></p>
+<ul>
+<li>这里的<code>&#123;&#125;</code>不同于对象解构，是专门用于将某一API的某个特定命名成员导入到你的顶级作用域中。</li>
+<li>作为 import 结果的声明是“提升的”</li>
+<li>所有导入的绑定都是不可变和 / 或只读的。</li>
+<li>模块加载器根据 “foo”模块制定符决定去哪里找所需导入的模块命令，或者作为url路径(浏览器)或者作为本地文件系统路径(nodejs)</li>
+</ul>
+<p><strong>import 导入的基本形式</strong></p>
+<p> <code>import foo</code></p>
+<ul>
+<li><p>这种形式并没有实际导入任何一个这个模块的绑定到你的作用域。</p>
+</li>
+<li><p>它加载（如果还没有加载的话）、编译（如果还没有编译的话），并求值（如果还没有运行的话）”foo” 模块。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 导入默认对象</span><br><span class="line">import defaultExport from &quot;module-name&quot;;</span><br><span class="line"></span><br><span class="line">2. 导入命名对象</span><br><span class="line">import &#123; export &#125; from &quot;module-name&quot;;</span><br><span class="line">import &#123; export as alias &#125; from &quot;module-name&quot;;</span><br><span class="line">import &#123; export1 , export2 &#125; from &quot;module-name&quot;;</span><br><span class="line"></span><br><span class="line">3. 同时导入默认对象和命名对象</span><br><span class="line">import * as obj from &quot;module-name&quot;</span><br><span class="line">obj.default</span><br><span class="line">obj.name</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-模块依赖环"><a href="#3-模块依赖环" class="headerlink" title="3. 模块依赖环"></a>3. 模块依赖环</h4><p>模块相互依赖是可以的，但不建议</p>
+<p>下面是从粗略概念的意义上循环的 import 依赖如何生效和解析的过程。</p>
+<ul>
+<li><p>如果先加载模块 “A”，第一步是扫描这个文件分析所有的导出，这样就可以注册所有可以导入的绑定。然后处理 import .. from “B”，这表示它需要取得 “B”。</p>
+</li>
+<li><p>引擎加载 “B” 之后，会对它的导出绑定进行同样的分析。当看到 import .. from “A”，它已经了解 “A” 的 API，所以可以验证 import 是否有效。现在它了解 “B” 的 API，就可以验证等待的 “A” 模块中 import .. from “B” 的有效性。</p>
+</li>
+</ul>
+<h4 id="CommonJS-模块化"><a href="#CommonJS-模块化" class="headerlink" title="CommonJS 模块化"></a>CommonJS 模块化</h4><p>CommonJS 和 AMD 模块，都只能在运行时确定模块之间的依赖关系，以及输入输出的变量。比如， CommonJS 模块就是对象，输入时必须查找对象属性。module对象，nodejs本身使用的模块化机制。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> a =<span class="built_in">require</span>(<span class="string">&#x27;./other&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">exports</span>) <span class="comment">//模块内变量，持有module.exports 的引用</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.exports)<span class="comment">//导出的内容</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.parent) <span class="comment">//目标文件是被require文件的parent</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.children) <span class="comment">//被require的文件作为目标文件的children</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&quot;id&quot;</span>+<span class="built_in">module</span>.id) <span class="comment">//模块id，当前模块id是一个 点., 被引入的模块id等于它的filename</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.path) <span class="comment">//文件所在的目录 E:\users\Luke\Desktop\briup\7-es6\day02\src</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.paths) <span class="comment">//从当前目录的node_modules目录到根目录的node_modules路径列表</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.filename)<span class="comment">//文件完整路径E:\users\Luke\Desktop\briup\7-es6\day02\src\index.js</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">module</span>.loaded) <span class="comment">//是否被加载</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="两种模块化区别"><a href="#两种模块化区别" class="headerlink" title="两种模块化区别"></a>两种模块化区别</h4><ul>
+<li>ES6 Module 中导入模块的<code>属性或者方法是强绑定的</code>，包括基础类型；而 <code>CommonJS 则是普通的值传递或者引用传递</code>。</li>
+<li>ES6 模块是编译时输出接口，CommonJS 模块是运行时加载。</li>
+<li>ES6可以按需导入,CommonJS按需解构</li>
+</ul>
+<h2 id="ES6及更新版本"><a href="#ES6及更新版本" class="headerlink" title="ES6及更新版本"></a><code>ES6</code>及更新版本</h2><h4 id="1-块作用域"><a href="#1-块作用域" class="headerlink" title="1. 块作用域"></a>1. 块作用域</h4><ul>
+<li><p>块作用域声明</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">形如</span><br><span class="line">1.</span><br><span class="line">&#123; </span><br><span class="line"> let a &#x3D; 3; </span><br><span class="line"> console.log( a ); &#x2F;&#x2F; 3 </span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">2.</span><br><span class="line">var funcs &#x3D; []; </span><br><span class="line">for (let i &#x3D; 0; i &lt; 5; i++) &#123; </span><br><span class="line"> funcs.push( function()&#123; </span><br><span class="line"> console.log( i ); </span><br><span class="line"> &#125; ); </span><br><span class="line">&#125; </span><br><span class="line">funcs[3](); &#x2F;&#x2F; 3</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>第一个代码块。使用｛｝ 创建一个快作用域，let声明的变量只属于此代码块。let声明的变量应尽量在首部声明，避免<code>TDZ</code> 报 <code>ReferenceError</code>。</p>
+</li>
+<li><p>第二个代码块。for 循环头部的 let i 不只为 for 循环本身声明了一个 i，而是为循环的每一次迭代都重新</p>
+<p>声明了一个新的 i。这意味着 loop 迭代内部创建的闭包封闭的是每次迭代中的变量，就像</p>
+<p>期望的那样。</p>
+<blockquote>
+<ol>
+<li><p>块内let, const变量没有提升，但函数仍有提升。同时，在严格模式下函数被绑定到此作用域。</p>
+</li>
+<li><p>从ES3起try/catch 结构在 catch 分句中具有块作用域。</p>
+</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="2-扩展-收集运算符-…"><a href="#2-扩展-收集运算符-…" class="headerlink" title="2. 扩展/收集运算符 …"></a>2. 扩展/收集运算符 …</h4><ul>
+<li><p>扩展运算</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="number">1.</span>函数传参</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">x,y,z</span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( x, y, z ); </span><br><span class="line">&#125; </span><br><span class="line">foo( ...[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] ); <span class="comment">// 相当于foo(1 2 3)</span></span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 替代部分场景下concat数组函数功能</span><br><span class="line"><span class="keyword">var</span> a = [<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]; </span><br><span class="line"><span class="keyword">var</span> b = [ <span class="number">1</span>, ...a, <span class="number">5</span> ]; <span class="comment">// b=[1,2,3,4,5]</span></span><br><span class="line"></span><br><span class="line"><span class="number">3.</span> 获取对象键值对</span><br><span class="line"><span class="keyword">var</span> c=&#123; <span class="string">&quot;a&quot;</span>:<span class="number">1</span>, <span class="string">&quot;b&quot;</span>:<span class="number">2</span> &#125;</span><br><span class="line"><span class="keyword">var</span> d=&#123;<span class="string">&quot;b&quot;</span>:<span class="number">3</span>,<span class="string">&quot;d&quot;</span>:<span class="number">4</span>, ...c &#125; <span class="comment">// &#123;&quot;b&quot;:2, &quot;d&quot;:4, &quot;a&quot;:1,&#125;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>收集运算</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1.收集函数参数，简化了通过arguments获取参数的方法</span><br><span class="line">function foo(x, y, ...z) &#123; </span><br><span class="line"> console.log( x, y, z ); </span><br><span class="line">&#125;</span><br><span class="line">foo( 1, 2, 3, 4, 5 ); &#x2F;&#x2F;  x&#x3D;1 y&#x3D;2 z&#x3D;[3,4,5]</span><br><span class="line"></span><br><span class="line">2.用于解构赋值中收集</span><br><span class="line">let [a, b, ...c]&#x3D;[1, 2, 3, 4, 5] &#x2F;&#x2F; a&#x3D;1, b&#x3D;2, c&#x3D;[3,4,5] 此时..c一定是最后一个元素</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="3-默认参数值"><a href="#3-默认参数值" class="headerlink" title="3. 默认参数值"></a>3. 默认参数值</h4><ul>
+<li><p>设定默认参数的两种方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. ||方式</span><br><span class="line">function foo(x,y) &#123; </span><br><span class="line"> x &#x3D; x || 11; </span><br><span class="line"> y &#x3D; y || 31; </span><br><span class="line"> console.log( x + y ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); &#x2F;&#x2F; 42 </span><br><span class="line">foo( 5, 6 ); &#x2F;&#x2F; 11 </span><br><span class="line">foo( 5 ); &#x2F;&#x2F; 36</span><br><span class="line">但当要传入的值是一个假值时</span><br><span class="line">foo( 0, 42 ); &#x2F;&#x2F; 53 &lt;-- 并非42</span><br><span class="line"></span><br><span class="line">2. !&#x3D;&#x3D; undefined 	</span><br><span class="line">function foo(x,y) &#123; </span><br><span class="line"> x &#x3D; (x !&#x3D;&#x3D; undefined) ? x : 11; </span><br><span class="line"> y &#x3D; (y !&#x3D;&#x3D; undefined) ? y : 31; </span><br><span class="line"> console.log( x + y ); </span><br><span class="line">&#125; </span><br><span class="line">foo( 0, 42 ); &#x2F;&#x2F; 42 </span><br><span class="line">foo( undefined, 6 ); &#x2F;&#x2F; 17</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>第一种方式 当传入一个假值时会造成意外后果</li>
+<li>第二种方式 由于undefined用于判读是否传值，因此，<em>不能传递undefined</em></li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>默认值表达式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 惰性计算</span><br><span class="line">function bar(val) &#123; </span><br><span class="line"> console.log( &quot;bar called!&quot; ); </span><br><span class="line"> return y + val; </span><br><span class="line">&#125; </span><br><span class="line">function foo(x &#x3D; y + 3, z &#x3D; bar( x )) &#123; </span><br><span class="line"> console.log( x, z ); </span><br><span class="line">&#125; </span><br><span class="line">var y &#x3D; 5; </span><br><span class="line">foo(); &#x2F;&#x2F; &quot;bar called&quot; </span><br><span class="line"> &#x2F;&#x2F; 8 13 </span><br><span class="line">foo( 10 ); &#x2F;&#x2F; &quot;bar called&quot; </span><br><span class="line"> &#x2F;&#x2F; 10 15 </span><br><span class="line">y &#x3D; 6; </span><br><span class="line">foo( undefined, 10 ); &#x2F;&#x2F; 9 10</span><br><span class="line"></span><br><span class="line">2. 参数作用域</span><br><span class="line">var w &#x3D; 1, z &#x3D; 2; </span><br><span class="line">function foo( x &#x3D; w + 1, y &#x3D; x + 1, z &#x3D; z + 1 ) &#123; </span><br><span class="line"> console.log( x, y, z ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); &#x2F;&#x2F; ReferenceError</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>可以看到，默认值表达式是惰性求值的，这意味着它们只在需要的时候运行——也就是说，是在参数的值省略或者为 undefined 的时候。</li>
+<li>注意函数声明中形式参数是在它们自己的作用域中，这意味着在默认值表达式中的标识符引用首先匹配到形式参数作用域，然后才会搜索外层作用域。</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+<h4 id="小知识"><a href="#小知识" class="headerlink" title="小知识"></a>小知识</h4><ul>
+<li><p>新增** pow运算符</p>
+</li>
+<li><p>新增 <code>BigInt</code>第8种内置类型，同时也是第7个基本数据类型。用于进行大数运算。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">声明一个大数</span><br><span class="line">1. var num&#x3D;1526n</span><br><span class="line">2. var num&#x3D;new BigInt(&quot;111111111111111111111111111132&quot;)</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h4 id="4-对象字面量扩展"><a href="#4-对象字面量扩展" class="headerlink" title="4. 对象字面量扩展 {}"></a>4. 对象字面量扩展 {}</h4><ul>
+<li><p>简洁属性</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var x &#x3D; 2, y &#x3D; 3, </span><br><span class="line"> o &#x3D; &#123; </span><br><span class="line"> x, &#x2F;&#x2F; x:x</span><br><span class="line"> y 	&#x2F;&#x2F; x:x</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>简洁方法</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">runSomething( &#123; </span><br><span class="line"> something(x,y) &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line"> &#125; </span><br><span class="line">&#125; );</span><br><span class="line">相当于</span><br><span class="line">runSomething( &#123; </span><br><span class="line"> something: function something(x,y) &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line"> &#125; </span><br><span class="line">&#125; );</span><br></pre></td></tr></table></figure>
+
+<p><strong>简洁方法意味着匿名表达式</strong></p>
+</li>
+<li><p>super 对象</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var o1 &#x3D; &#123; </span><br><span class="line"> foo() &#123; </span><br><span class="line"> console.log( &quot;o1:foo&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;; </span><br><span class="line">var o2 &#x3D; &#123; </span><br><span class="line"> foo() &#123; </span><br><span class="line"> super.foo(); </span><br><span class="line"> console.log( &quot;o2:foo&quot; ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125;; </span><br><span class="line">Object.setPrototypeOf( o2, o1 ); </span><br><span class="line">o2.foo(); &#x2F;&#x2F; o1:foo </span><br><span class="line"> &#x2F;&#x2F; o2:foo</span><br></pre></td></tr></table></figure>
+
+<p>super 只允许在<strong>简洁方法</strong>中出现，而不允许在普通函数表达式属性中出现。也只允许以**super.XXX **的形式（用于属性 / 方法访问）出现，而不能以super() 的形式出现。</p>
+<blockquote>
+<p><code>o2.foo()</code> 方法中的 super 引用静态锁定到 <code>o2</code>，具体说是锁定到 <code>o2</code> 的 [[Prototype]]。基本</p>
+<p>上这里的 super 就是 <code>Object.getPrototypeOf(o2)</code>——当然会决议到 o1——这是它如何找到</p>
+<p>并调用<code> o1.foo()</code> 的过程。</p>
+</blockquote>
+</li>
+<li><p>设定prototype</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var o1 &#x3D; &#123; </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line">&#125;; </span><br><span class="line">var o2 &#x3D; &#123; </span><br><span class="line"> __proto__: o1, </span><br><span class="line"> &#x2F;&#x2F; .. </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><code>o2</code> 通过普通的对象字面量声明，但是它也 [[Prototype]] 连接到了 <code>o1</code>。这里的 <code>__proto__</code>属性名也可以是字符串 <code>&quot;__proto__&quot;</code>，但是注意它不能是计算属性名结果。</p>
+<blockquote>
+<p>要为已经存在的对象设定 [[Prototype]]，可以使用 <code>ES6 工具 Object.setPrototypeOf(..)</code>。</p>
+<p>如<code>Object.setPrototypeOf( o2, o1 );</code></p>
+</blockquote>
+</li>
+<li><p>计算属性名</p>
+<p>以前</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var prefix &#x3D; &quot;user_&quot;; </span><br><span class="line">var o &#x3D; &#123; </span><br><span class="line"> baz: function(..)&#123; .. &#125; </span><br><span class="line">&#125;; </span><br><span class="line">o[ prefix + &quot;foo&quot; ] &#x3D; function(..)&#123; .. &#125;; </span><br><span class="line">o[ prefix + &quot;bar&quot; ] &#x3D; function(..)&#123; .. &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>现在</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var prefix &#x3D; &quot;user_&quot;; </span><br><span class="line">var o &#x3D; &#123; </span><br><span class="line"> baz: function(..)&#123; .. &#125;, </span><br><span class="line"> [ prefix + &quot;foo&quot; ]: function(..)&#123; .. &#125;, </span><br><span class="line"> [ prefix + &quot;bar&quot; ]: function(..)&#123; .. &#125; </span><br><span class="line"> .. </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li><p>计算属性名最常见的用法可能就是和 Symbols 共同使用（我们将在 2.13 节中介绍）。比如：</p>
+<p>var o = {  [Symbol.toStringTag]: “really cool thing”,  .. };</p>
+</li>
+<li><p>计算属性名也可以作为简洁方法或者简洁生成器的名称出现：</p>
+<p>var o = { </p>
+<p>​     <a href="">“f” + “oo”</a> { .. } // 计算出的简洁方法</p>
+<p>​     *<a href="">“b” + “ar”</a> { .. } // 计算出的简洁生成器</p>
+<p>​    };</p>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p><code>ES5</code> Getter/Setter</p>
+<p>严格说来，ES5 定义了 getter/setter 字面量形式，但是没怎么被使用，主要是因为缺少</p>
+<p>transpiler 来处理这个新语法（实际上也是 ES5 新增的唯一主要新语法）。所以尽管这并不</p>
+<p>是一个新的 ES6 特性，我们还是简单介绍一下这种形式，因为很可能在 ES6 及以后它们会</p>
+<p>得到更广泛地使用。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var o &#x3D; &#123; </span><br><span class="line"> __id: 10, </span><br><span class="line"> get id() &#123; return this.__id++; &#125;, </span><br><span class="line"> set id(v) &#123; this.__id &#x3D; v; &#125; </span><br><span class="line">&#125; </span><br><span class="line">o.id; &#x2F;&#x2F; 10 </span><br><span class="line">o.id; &#x2F;&#x2F; 11 </span><br><span class="line">o.id &#x3D; 20;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>可能不是显而易见，实际上 setter 字面量必须有且只有一个声明参数；省略</p>
+<p>这个参数或者列出多余的都是语法错误。所需的单个参数可以使用解构和默</p>
+<p>认值（例如，set id({ id: v = 0 }) { .. }），但是 gather/rest… 是不允许</p>
+<p>的（set id(…v) { .. }）。</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="4-解构"><a href="#4-解构" class="headerlink" title="4. 解构"></a>4. 解构</h4><p>解构（<code>destructuring</code>），可以把这个功能看作是一个结构化赋值（structured assignment）方法，解构赋值面向数组和对象。</p>
+<p>使用解构赋值，相比<code>Object.assign()</code>潜复制， </p>
+<ul>
+<li><p>对象</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1 var aa &#x3D; 10, bb &#x3D; 20; </span><br><span class="line">2 var o &#x3D; &#123; x: aa, y: bb &#125;; </span><br><span class="line">3 var &#123; x: AA, y: BB &#125; &#x3D; o; </span><br><span class="line">4 console.log( AA, BB ); &#x2F;&#x2F; 10 20</span><br><span class="line"></span><br><span class="line">5 var AA,BB</span><br><span class="line">6 (&#123; x: AA, y: BB &#125;) &#x3D; o; </span><br></pre></td></tr></table></figure>
+
+<p>通常对象的赋值是 o[source]=target 方式，在解构赋值中，赋值更像是这样 target=o[source]或者<code>target=o.source</code> 如：</p>
+<p>第3行，<code>AA=o.x 或者AA=o.[x]</code>，同时允许嵌套解构，原理相同。</p>
+<blockquote>
+<ol>
+<li><p>可以使用let, const 声明时解构赋值如第三行；</p>
+</li>
+<li><p>也可以先声明后赋值， 如第5、6行，注意｛｝要被（）包裹，否则会被识别为代码块；</p>
+</li>
+<li><p>AA不仅可以是变量，也可以是任何合法标志符，如对象的属性(可以用计算属性表示)</p>
+<p>如<code>[ o2.a, o2.b, o2.c ] = [ 1, 2, 3 ]; </code>数组映射为对象</p>
+</li>
+<li><p>var x = 10, y = 20; [ y, x ] = [ x, y ];  不使用临时变量交换变量的值</p>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>数组</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var [ a,b,c,d]&#x3D;[1,2,3,4,5] &#x2F;&#x2F; a&#x3D;1,b&#x3D;2,c&#x3D;3,d&#x3D;4 按对应下标赋值</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li><p>允许重复赋值</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var &#123; a: X, a: Y &#125; &#x3D; &#123; a: 1 &#125;; </span><br><span class="line">X; &#x2F;&#x2F; 1 </span><br><span class="line">Y; &#x2F;&#x2F; 1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解构赋值表达式的完成值是所有<strong>右侧对象 / 数组的值</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var o &#x3D; &#123; a:1, b:2, c:3 &#125;, </span><br><span class="line"> p &#x3D; [4,5,6], </span><br><span class="line"> a, b, c, x, y, z; </span><br><span class="line">( &#123;a&#125; &#x3D; &#123;b,c&#125; &#x3D; o ); </span><br><span class="line">[x,y] &#x3D; [z] &#x3D; p; </span><br><span class="line">console.log( a, b, c ); &#x2F;&#x2F; 1 2 3 </span><br><span class="line">console.log( x, y, z ); &#x2F;&#x2F; 4 5 4</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>按需赋值</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var [,,b] &#x3D;[1,2,3]; </span><br><span class="line">var &#123; x, z &#125; &#x3D; &#123;x:1,y:2,z:4&#125;; </span><br><span class="line">console.log( b, x, z ); &#x2F;&#x2F; 3 1 4</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>默认值赋值</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var &#123; x, y, z, w: WW &#x3D; 20 &#125; &#x3D;&#123;x:1,y:2,z:4&#125; ;</span><br><span class="line">var [ a &#x3D; 3, b &#x3D; 6, c &#x3D; 9, d &#x3D; 12 ] &#x3D;[1,2,3];</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let [x&#x3D;1]&#x3D;[undefined]</span><br><span class="line">console.log(x)</span><br><span class="line">结果输出1，无论显示或隐式的RHS为undefind都将启动默认值赋值</span><br></pre></td></tr></table></figure>
+</blockquote>
+</li>
+<li><p>解构参数</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function f3([ x, y, ...z], ...w) &#123; </span><br><span class="line"> console.log( x, y, z, w ); </span><br><span class="line">&#125; </span><br><span class="line">f3( [] ); &#x2F;&#x2F; undefined undefined [] [] </span><br><span class="line">f3( [1,2,3,4], 5, 6 ); &#x2F;&#x2F; 1 2 [3,4] [5,6]</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>此时解构默认值与参数默认值均可设置，假设两种参数均有设置，则工作流程如下</p>
+<ul>
+<li><p>参数传递-&gt; 使用传递的参数-&gt;与解构默认值共同起作用</p>
+</li>
+<li><p>参数未传递-&gt; 使用默认的参数-&gt;与解构默认值共同起作用</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>解构重组</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> defaults = &#123;</span><br><span class="line">    options: &#123;</span><br><span class="line">        remove: <span class="literal">true</span>,</span><br><span class="line">        enable: <span class="literal">false</span>,</span><br><span class="line">        instance: &#123;&#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    log: &#123;</span><br><span class="line">        warn: <span class="literal">true</span>,</span><br><span class="line">        error: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">var</span> config = &#123;</span><br><span class="line">    options: &#123;</span><br><span class="line">        remove: <span class="literal">false</span>,</span><br><span class="line">        instance: <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// (带默认值赋值的)解构</span></span><br><span class="line"><span class="keyword">let</span> &#123;</span><br><span class="line">    options: &#123;</span><br><span class="line">        remove = defaults.options.remove,</span><br><span class="line">        enable = defaults.options.enable,</span><br><span class="line">        instance = defaults.options.instance</span><br><span class="line">    &#125; = &#123;&#125;,</span><br><span class="line">    log: &#123;</span><br><span class="line">        warn = defaults.log.warn,</span><br><span class="line">        error = defaults.log.error</span><br><span class="line">    &#125; = &#123;&#125;</span><br><span class="line">&#125; = config;</span><br><span class="line"><span class="comment">// 重组得到覆盖默认配置的config对象</span></span><br><span class="line">config = &#123;</span><br><span class="line">    options: &#123;remove, enable, instance&#125;,</span><br><span class="line">    log: &#123;warn, error&#125;</span><br><span class="line">&#125;;</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="6-数字字面量扩展"><a href="#6-数字字面量扩展" class="headerlink" title="6. 数字字面量扩展"></a>6. 数字字面量扩展</h4><h5 id="可转换的8进制"><a href="#可转换的8进制" class="headerlink" title="可转换的8进制"></a>可转换的8进制</h5><p>旧的</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Number( &quot;42&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;052&quot; ); &#x2F;&#x2F; 52 </span><br><span class="line">Number( &quot;0x2a&quot; ); &#x2F;&#x2F; 42</span><br></pre></td></tr></table></figure>
+
+<p><code>ES6</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var dec &#x3D; 42, </span><br><span class="line"> oct &#x3D; 0o52, &#x2F;&#x2F; 或者0O52 :( </span><br><span class="line"> hex &#x3D; 0x2a, &#x2F;&#x2F; 或者0X2a :&#x2F; </span><br><span class="line"> bin &#x3D; 0b101010; &#x2F;&#x2F; 或者0B101010 :&#x2F;</span><br><span class="line"> </span><br><span class="line"> Number( &quot;42&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;0o52&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;0x2a&quot; ); &#x2F;&#x2F; 42 </span><br><span class="line">Number( &quot;0b101010&quot; ); &#x2F;&#x2F; 42</span><br></pre></td></tr></table></figure>
+
+<p>唯一合法的小数形式是十进制的。八进制、十六进制和二进制都是整数形式。</p>
+<h4 id="7-箭头函数"><a href="#7-箭头函数" class="headerlink" title="7. 箭头函数"></a>7. 箭头函数</h4><h5 id="使用动机"><a href="#使用动机" class="headerlink" title="使用动机"></a>使用动机</h5><ol>
+<li><p>简单的函数表达式，且这个<strong>函数内部没有 this 引用</strong>，且<strong>没有自身引用（递归、事件绑定 / 解绑定）</strong>，且不会</p>
+<p>要求函数执行这些，那么可以安全地把它重构为 =&gt; 箭头函数。</p>
+</li>
+<li><p>如果你<strong>有一个内层函数表达式</strong>，<strong>依赖于在包含它的函数中调用var self = this hack 或 者 .bind(this)</strong> 来确保适当的 this 绑定，那么这个内层函数表达式应该可以安全地转换为 =&gt; 箭头函数。</p>
+</li>
+<li><p>如果你的<strong>内层函数表达式</strong>依赖于封装函数中某种像<code>var args = Array.prototype.slice.call(arguments)</code>**来保证 arguments 的词法复制，那么这个内层函数应该可以安全地转换为 =&gt; 箭头函数。</p>
+</li>
+</ol>
+<h5 id="this指向"><a href="#this指向" class="headerlink" title="this指向"></a>this指向</h5><p>​    <strong>永远指向外围词法作用域中的this.</strong></p>
+<h4 id="8-模版字面量"><a href="#8-模版字面量" class="headerlink" title="8. 模版字面量"></a>8. 模版字面量</h4><pre><code>##### 插入字符串</code></pre>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var name &#x3D; &quot;Kyle&quot;; </span><br><span class="line">var greeting &#x3D; &#96;Hello $&#123;name&#125;!&#96;; </span><br><span class="line">console.log( greeting ); &#x2F;&#x2F; &quot;Hello Kyle!&quot; </span><br><span class="line">console.log( typeof greeting ); &#x2F;&#x2F; &quot;string&quot;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以分散在多行,保留原格式</li>
+<li>在插入字符串字面量的 ${..} 内可以出现任何合法的表达式，包括函数调用、在线函数表达式调用，甚至其他插入字符串字面量！，任何表达式都会被立即在线解析求值。</li>
+</ul>
+<blockquote>
+<p>插入字符串字面量，在它出现的词法作用域内，没有任何形式的动态作用域。</p>
+</blockquote>
+<h5 id="标签字符串字面量"><a href="#标签字符串字面量" class="headerlink" title="标签字符串字面量"></a>标签字符串字面量</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function bar() &#123; </span><br><span class="line"> return function foo(strings, ...values) &#123; </span><br><span class="line"> console.log( strings ); </span><br><span class="line"> console.log( values ); </span><br><span class="line"> &#125; </span><br><span class="line">&#125; </span><br><span class="line">var desc &#x3D; &quot;awesome&quot;; </span><br><span class="line">bar()&#96;Everything is $&#123;desc&#125;!&#96;; </span><br><span class="line">&#x2F;&#x2F; [ &quot;Everything is &quot;, &quot;!&quot;] </span><br><span class="line">&#x2F;&#x2F; [ &quot;awesome&quot; ]</span><br></pre></td></tr></table></figure>
+
+<p>此种怪异的用法在于对``字符串自定义处理</p>
+<p><code>ES6 </code>提供了一个内建函数可以用作字符串字面量标签：<code>String.raw(..)</code>。</p>
+<blockquote>
+<p>原始版本的值保留了原始的转义码 \n 序列（\ 和 n 是独立的字符），而处理过的版本把它当作是一个单独的换行符。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">console.log( &#96;Hello\nWorld&#96; ); </span><br><span class="line">&#x2F;&#x2F; Hello </span><br><span class="line">&#x2F;&#x2F; World </span><br><span class="line"></span><br><span class="line">console.log( String.raw&#96;Hello\nWorld&#96; ); </span><br><span class="line">&#x2F;&#x2F; Hello\nWorld </span><br><span class="line"></span><br><span class="line">String.raw&#96;Hello\nWorld&#96;.length; </span><br><span class="line">&#x2F;&#x2F; 12</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="9-新数据结构"><a href="#9-新数据结构" class="headerlink" title="9.  新数据结构"></a>9.  新数据结构</h4><h5 id="1-判读电脑大小端存储方式"><a href="#1-判读电脑大小端存储方式" class="headerlink" title="1. 判读电脑大小端存储方式"></a>1. 判读电脑大小端存储方式</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var littleEndian &#x3D; (function() &#123; </span><br><span class="line"> var buffer &#x3D; new ArrayBuffer( 16); </span><br><span class="line"> new DataView( buffer ).setInt16( 0, 256, true ); </span><br><span class="line"> return  new Int8Array( buffer )[1]&#x3D;&#x3D;&#x3D;1; </span><br><span class="line">&#125;)();</span><br><span class="line">console.log(littleEndian)</span><br></pre></td></tr></table></figure>
+
+<h5 id="2-TypedArray"><a href="#2-TypedArray" class="headerlink" title="2. TypedArray"></a>2. TypedArray</h5><p>带类数组构造器</p>
+<ul>
+<li><p>Int8Array(), Int16Array(),Int32Array(),Uint8Array(), Uint16Array(),Uint32Array(),</p>
+</li>
+<li><p>Float32Array(),Floatt64Array()</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var a&#x3D; new Int32Array(3) &#x2F;&#x2F;创建一个三字节大小，用于存储32位有符号整数的数组</span><br><span class="line">a[10]&#x3D;10</span><br><span class="line">a[1]&#x3D;20</span><br><span class="line">a[2]&#x3D;30</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h5 id="3-Map"><a href="#3-Map" class="headerlink" title="3.Map"></a>3.Map</h5><p>与｛｝最大区别在于其key可以为对象</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var m&#x3D; new Map()</span><br><span class="line">var x&#x3D;[1]</span><br><span class="line">m.set(x, &quot;value1&quot;) &#x2F;&#x2F;返回值 m</span><br><span class="line">m.get(x)&#x2F;&#x2F; 返回值“value1&quot;</span><br><span class="line">m.size &#x2F;&#x2F;1</span><br><span class="line"></span><br><span class="line">m.clear() &#x2F;&#x2F;清空map</span><br><span class="line">m.has(X) &#x2F;&#x2F; true</span><br><span class="line">m.keys() &#x2F;&#x2F;得到keys迭代器</span><br><span class="line">m.values() &#x2F;&#x2F;得到values迭代器</span><br><span class="line">m.entries()&#x2F;&#x2F;得到键值对  是for of 遍历所用的迭代器</span><br><span class="line">m.delete(x)删除</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>new Map(iterator|[[key1,value1],[key2,value2]]…)</p>
+<p>Map()可以接受一个entries迭代器，或者多行两列的二维数组。</p>
+<p>打印map:Map(2) { ‘name’ =&gt; ‘zhangsan’, ‘age’ =&gt; 12 }</p>
+</blockquote>
+<h5 id="4-Set"><a href="#4-Set" class="headerlink" title="4. Set"></a>4. Set</h5><ul>
+<li><p>同Map set方法改成add，即可。</p>
+</li>
+<li><p>其keys()和values()返回结果相同。</p>
+</li>
+<li><p>entries遍历[ ‘first’, ‘first’ ] [ ‘second’, ‘second’ ]</p>
+</li>
+<li><p>使用  !Number.isNaN(x) &amp;&amp; x!==any || !Number.isNaN(any) 进行判断</p>
+</li>
+</ul>
+<h5 id="5-WeakMap，WeakSet"><a href="#5-WeakMap，WeakSet" class="headerlink" title="5. WeakMap，WeakSet"></a>5. WeakMap，WeakSet</h5><p>区别在于</p>
+<ol>
+<li>键只能是对象引用</li>
+<li>不能包含无引用的对象，否则会被自动清除出集合</li>
+<li>无发使用size属性和clear方法。</li>
+</ol>
+<h4 id="10-Symbol符号"><a href="#10-Symbol符号" class="headerlink" title="10. Symbol符号"></a>10. Symbol符号</h4><p>symbol函数用来产生一个唯一的值，使用new操作符报错</p>
+<p>symbol(desc)仅仅产生一个唯一的值,desc用来对此唯一值描述。</p>
+<ul>
+<li>symbol.for(key) 通过key产生一个位置的值注册到全局；如果已经注册过，则直接返回该symbol值</li>
+<li>symbol.keyFor(symbol) 通过symbol值查询是否在全局注册过，返回其key或者undefined</li>
+</ul>
+<p><strong>作为函数对象属性</strong></p>
+<p>不会被枚举到，但是<strong>打印该对象可以显示符号属性</strong>(不可枚举属性不会被打印)</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var o &#x3D; &#123; </span><br><span class="line"> foo: 42, </span><br><span class="line"> [ Symbol( &quot;bar&quot; ) ]: &quot;hello world&quot;, </span><br><span class="line"> baz: true </span><br><span class="line">&#125;; </span><br><span class="line">Object.getOwnPropertyNames( o ); &#x2F;&#x2F; [ &quot;foo&quot;,&quot;baz&quot; ]，for in 循环只能变量两个</span><br><span class="line">要取得对象的符号属性：</span><br><span class="line">Object.getOwnPropertySymbols( o ); &#x2F;&#x2F; [ Symbol(bar) ]</span><br></pre></td></tr></table></figure>
+
+<p><strong>内置符号</strong></p>
+<p>Symbol.iterator是把指定的Symbol值绑定到Symbol的iterator属性上</p>
+<p><strong>获取对象的所有symbol属性值</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Object.getOwnPropertySymbols(obj) &#x2F;&#x2F;得到symbol值数组</span><br></pre></td></tr></table></figure>
+
+<h4 id="11-类"><a href="#11-类" class="headerlink" title="11.类"></a>11.类</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">class Foo &#123; </span><br><span class="line"> static num&#x3D;1</span><br><span class="line"> static fun()&#123;</span><br><span class="line">	console.log(Foo.num)</span><br><span class="line">&#125;</span><br><span class="line"> constructor(a,b) &#123; </span><br><span class="line"> this.x &#x3D; a; </span><br><span class="line"> this.y &#x3D; b; </span><br><span class="line"> &#125; </span><br><span class="line"> gimmeXY() &#123; </span><br><span class="line"> return this.x * this.y; </span><br><span class="line"> &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>class 创建一个具名的Foo函数</li>
+<li>constructor指定Foo函数的签名以及函数体内容</li>
+<li>类方法使用简洁形式，同时也包括getter/setter语法，<strong>但是类方法是不可枚举的</strong>，对象方法是可枚举的</li>
+</ul>
+<p><strong>借助构造函数</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F;函数模式</span><br><span class="line">function Foo(a,b) &#123; </span><br><span class="line"> this.x &#x3D; a; </span><br><span class="line"> this.y &#x3D; b; </span><br><span class="line">&#125; </span><br><span class="line">Foo.prototype.gimmeXY &#x3D; function() &#123; </span><br><span class="line"> return this.x * this.y; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>两者的区别在于</p>
+<ul>
+<li>由于前 ES6 可用的 Foo.call(obj) 不能工作，class Foo 的 Foo(..) 调用必须通过new 来实现。</li>
+<li><strong>function可以提升，class不可以提升</strong></li>
+<li><strong>全局作用域中的 class Foo 创建了这个作用域的一个词法标识符 Foo，但是和 function Foo 不一样，并没有创建一个同名的全局对象属性。</strong></li>
+</ul>
+<p><strong>extends</strong></p>
+<p>用于继承 只能单继承</p>
+<p> <strong>super</strong></p>
+<ul>
+<li>只能用在简洁方法中，只能以 super点的形式，打印报错keyword。</li>
+<li>在静态简洁方法中super指向 Parent构造函数；<code>Child.__proto__=Parent</code></li>
+<li>在非静态方法中super指向Parent构造函数原型，即<code>Child.prototype.__proto__=Parent.prototype</code></li>
+</ul>
+<p><strong>子类构造器</strong></p>
+<ul>
+<li>默认子类构造器自动调用父类的构造器并传递所有参数。</li>
+<li>且super要放在第一行</li>
+<li>new.target元属性， 只能在构造器中使用且总是指向直接调用的构造器</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">constructor(...args) &#123; </span><br><span class="line"> super(...args); </span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>static</strong></p>
+<p>静态属性等同于定义在构造函数上的属性。</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>nginx配置信息</title>
+    <url>/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<h4 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h4><table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+<th>默认值</th>
+<th>可选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>user</td>
+<td>配置用户和用户组,指定使用对象</td>
+<td>nobody nobody</td>
+<td></td>
+</tr>
+<tr>
+<td>worker_processes</td>
+<td>最大进程数</td>
+<td>1</td>
+<td>auto(nginx自动调节)</td>
+</tr>
+<tr>
+<td>error_log</td>
+<td>指定错误文件 路径+级别</td>
+<td>/var/log/nginx/error.log warn</td>
+<td>( debug, info , notice, warn, error, crit )6个错误级别，级别越高，输出错误日志越少</td>
+</tr>
+<tr>
+<td>pid</td>
+<td>nginx进程id存放的文件</td>
+<td>/var/run/nginx.pid</td>
+<td></td>
+</tr>
+<tr>
+<td>&lt;–! more –&gt;</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h4 id="events配置"><a href="#events配置" class="headerlink" title="events配置"></a>events配置</h4><p><em>events配置nginx服务器和用户的连接网络，每个进程最大连接数，选取哪种事件驱动处理<br>请求，是否允许同时接受多个网络连接，开启多个网络连接序列化。</em></p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+<th>默认值</th>
+<th>可选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>accept_mutex</td>
+<td>设置网络连接序列化，防止惊群效应发生</td>
+<td>on</td>
+<td>off</td>
+</tr>
+<tr>
+<td>multi_accept</td>
+<td>设置一个进程是否同时接受多个网络连接</td>
+<td>off</td>
+<td>on</td>
+</tr>
+<tr>
+<td>worker_connections</td>
+<td>配置每个进程最大连接数</td>
+<td>1024</td>
+<td></td>
+</tr>
+<tr>
+<td>use</td>
+<td>配置nginx事件驱动模型</td>
+<td>epoll</td>
+<td>[ kqueue | rtsig | epoll | /dev/poll | select | poll ]</td>
+</tr>
+</tbody></table>
+<h4 id="http块配置"><a href="#http块配置" class="headerlink" title="http块配置"></a>http块配置</h4><p><em>http块可以嵌套多个server,配置代理，缓存，日志定义等大多数功能和第三方模块配置<br>如文件引入mimetype日志自定义，是否使用sendfile传输文件，连接超时，单连接请求数量。</em></p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+<th>默认值</th>
+<th>可选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>include</td>
+<td>配置nginx支持那些文件扩展名和文件类型映射表</td>
+<td>/etc/nginx/mime.types</td>
+<td></td>
+</tr>
+<tr>
+<td>default_type</td>
+<td>配置默认文件(流)类型</td>
+<td>application/octet-stream</td>
+<td></td>
+</tr>
+<tr>
+<td>log_format</td>
+<td>自定义日志格式: 引用id 格式</td>
+<td>main  ‘$remote_addr - $remote_user [$time_local] “$request” ‘’$status $body_bytes_sent “$http_referer” ‘’”$http_user_agent” “$http_x_forwarded_for”‘;</td>
+<td>可配置多个</td>
+</tr>
+<tr>
+<td>access_log</td>
+<td>指定access_log 位置及应用的格式</td>
+<td>/var/log/nginx/access.log  main</td>
+<td></td>
+</tr>
+<tr>
+<td>sendfile</td>
+<td>允许sendfile方式传输文件，开启高效传输模式</td>
+<td>on</td>
+<td></td>
+</tr>
+<tr>
+<td>gzip</td>
+<td>开启gzip压缩，在客户端解压，增加响应速度</td>
+<td>on</td>
+<td></td>
+</tr>
+<tr>
+<td>tcp_nopush</td>
+<td>防止网络阻塞，自动刷新</td>
+<td>on</td>
+<td></td>
+</tr>
+<tr>
+<td>keepalive_timeout</td>
+<td>tcp连接最长时间65秒</td>
+<td>65</td>
+<td></td>
+</tr>
+<tr>
+<td>upstream</td>
+<td>配置格式:引用id upstream对象</td>
+<td></td>
+<td>见负载均衡示例</td>
+</tr>
+<tr>
+<td>server</td>
+<td></td>
+<td></td>
+<td>见server块配置</td>
+</tr>
+</tbody></table>
+<ul>
+<li><h5 id="upstream负载均衡配置"><a href="#upstream负载均衡配置" class="headerlink" title="upstream负载均衡配置"></a>upstream负载均衡配置</h5></li>
+<li>负载均衡，默认轮询，weight为1，可以手动分配服务器weight。但单纯的轮询方式对于session不能实现共享，另一种ip_hash提供了粘性session的解决方案，但可能会丢失负载均衡对于session的处理；最佳方式通过redis实现seesion共享。*<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">简单的负载均衡配置</span><br><span class="line">http &#123;  </span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">upstream big_server_com &#123;</span><br><span class="line">   #ip_hash;#默认轮询方式,可以修改为iphash方式.</span><br><span class="line">   server 127.0.0.3:8000 weight&#x3D;5;</span><br><span class="line">   server 127.0.0.3:8001 weight&#x3D;5;</span><br><span class="line">   server 192.168.0.1:8000;</span><br><span class="line">   server 192.168.0.1:8001;&#125;</span><br><span class="line"></span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">		#proxy_pass http:&#x2F;&#x2F;big_server_com 	#后端数据传递请求到名为big_server_com 的集群</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></li>
+<li><h5 id="Server块配置"><a href="#Server块配置" class="headerlink" title="Server块配置"></a>Server块配置</h5></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> server &#123;</span><br><span class="line"> 	#配置server块，通过server_name和listen绑定tcp sockets</span><br><span class="line">   listen       80;#nginx服务监听的端口</span><br><span class="line">   server_name  localhost ;#nginx服务器所在主机ip,ip绑定的域名</span><br><span class="line"></span><br><span class="line">#静态资源处理</span><br><span class="line">	location ~ ^&#x2F;(images|javascript|js|css|flash|media|static)&#x2F;  &#123;</span><br><span class="line">#server的文件根目录，所有请求将以根目录起始</span><br><span class="line">     root   &#x2F;app;</span><br><span class="line">#配置网站默认主页</span><br><span class="line">     index  index.html;</span><br><span class="line">#当接受到一个请求时如bingyang.xyz&#x2F;aa</span><br><span class="line">#先去找aa文件是否存在，不存在就找aa目录，依旧不存在就定向到index.html，也可以是其它重定向如index.php?$args</span><br><span class="line">#$uri指的是bingyang.xyz&#x2F;后的资源，$arg指的是url问号后面的参数</span><br><span class="line">     try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">     expires 30d;#对静态文件进行缓存 单位有s,m,h,d 秒，分，时，天</span><br><span class="line">	&#125;</span><br><span class="line">   location &#x2F; &#123;</span><br><span class="line">      proxy_pass      http:&#x2F;&#x2F;127.0.0.1:8080;#后端请求</span><br><span class="line">   #  proxy_redirect     off;</span><br><span class="line">   #  proxy_set_header   Host             $host;</span><br><span class="line">   #  proxy_set_header   X-Real-IP        $remote_addr;</span><br><span class="line">   #  proxy_set_header   Forwarded        $proxy_add_forwarded;</span><br><span class="line">   #  proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</span><br><span class="line">   &#125;</span><br><span class="line">   error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">   location &#x3D; &#x2F;50x.html &#123;#&#x3D;精确匹配，发现精确匹配后立即停止匹配</span><br><span class="line">     root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><h5 id="location匹配"><a href="#location匹配" class="headerlink" title="location匹配"></a>location匹配</h5><ul>
+<li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
+</li>
+<li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
+</li>
+<li><p>对于普通字符串的匹配规律。首先将所有普通字符串按字典序进行排序。请求uri逐一扫描，当当前字符串大于请求uri时停止，并选取最后一个匹配。<em>（精确匹配除外，且所有普通字符串不能重复。）</em></p>
+</li>
+<li><p>匹配顺序</p>
+<ol start="0">
+<li>首先进行精确匹配，如果匹配到=修饰的location，停止匹配。</li>
+<li>然后检查普通字符串定义的其余location，记录最长匹配的location字符串。如果记录的最长匹配字符串用^~修饰,则停止匹配。</li>
+<li>接着按配置文件定义的顺序，进行正则location匹配.使用第一个匹配结果。</li>
+<li>如果没有正则匹配,使用前面记录的最长前缀字符串的location. </li>
+</ol>
+</li>
+<li><p>location @name 主要用于内部重定向.<strong>注意命名location中不能再嵌套其它的命名location</strong>。</p>
+</li>
+<li><p>location中的字符有没有<code>/</code>都没有影响。也就是说<code>/user/</code>和<code>/user</code>是一样的.可以使用精确匹配测试.</p>
+</li>
+<li><p>如果请求URL结构是<a href="https://domain.com/%E7%9A%84%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B0%BE%E9%83%A8%E6%9C%89%E6%B2%A1%E6%9C%89/%E9%83%BD%E4%B8%8D%E4%BC%9A%E9%80%A0%E6%88%90%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%9C%A8%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E9%BB%98%E8%AE%A4%E5%8A%A0%E4%B8%8A%E4%BA%86/">https://domain.com/的形式，尾部有没有/都不会造成重定向。因为浏览器在发起请求的时候，默认加上了/</a>.</p>
+</li>
+<li><p>如果请求URL的结构是<a href="https://domain.com/some-dir/%E3%80%82%E5%B0%BE%E9%83%A8%E5%A6%82%E6%9E%9C%E7%BC%BA%E5%B0%91/%E5%B0%86%E5%AF%BC%E8%87%B4%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%A0%B9%E6%8D%AE%E7%BA%A6%E5%AE%9A%EF%BC%8CURL%E5%B0%BE%E9%83%A8%E7%9A%84/%E8%A1%A8%E7%A4%BA%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%B2%A1%E6%9C%89/%E8%A1%A8%E7%A4%BA%E6%96%87%E4%BB%B6%E3%80%82%E6%89%80%E4%BB%A5%E8%AE%BF%E9%97%AE/some-dir/%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE/some-dir%E7%9A%84%E8%AF%9D%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E5%85%88%E5%8E%BB%E6%89%BEsome-dir%E6%96%87%E4%BB%B6%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E7%9A%84%E8%AF%9D%E4%BC%9A%E5%B0%86some-dir%E5%BD%93%E6%88%90%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0/some-dir/%EF%BC%8C%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82">https://domain.com/some-dir/。尾部如果缺少/将导致重定向。因为根据约定，URL尾部的/表示目录，没有/表示文件。所以访问/some-dir/时，服务器会自动去该目录下找对应的默认文件。如果访问/some-dir的话，服务器会先去找some-dir文件，找不到的话会将some-dir当成目录，重定向到/some-dir/，去该目录下找默认文件。</a></p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>含义</th>
+<th>其它</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>~</td>
+<td>波浪线表示执行一个正则匹配，区分大小写</td>
+<td></td>
+</tr>
+<tr>
+<td>~*</td>
+<td>表示执行一个正则匹配，不区分大小写</td>
+<td>正则匹配顺序很重要,按顺序匹配，匹配到则停止</td>
+</tr>
+<tr>
+<td>^~</td>
+<td>^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</td>
+<td></td>
+</tr>
+<tr>
+<td>=</td>
+<td>进行普通字符精确匹配</td>
+<td>使用<code>=</code>精准匹配可以加快查找的顺序，如果根域名经常被访问的话建议使用<code>=</code>。</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>其它</p>
+<ul>
+<li>nginx配置文件中相对路径从/usr/share/nginx/开始(从root 默认为html知晓)</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>服务器</category>
+      </categories>
+      <tags>
+        <tag>运维</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>nginx工作得几个重要阶段</title>
+    <url>/2020/09/13/nginx%E9%98%B6%E6%AE%B5%E6%A8%A1%E5%9D%97/</url>
+    <content><![CDATA[<h3 id="nginx常见变量"><a href="#nginx常见变量" class="headerlink" title="nginx常见变量"></a>nginx常见变量</h3><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>作用</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>$proxy_add_x_forwarded_for</td>
+<td>如果$http_x_forwarded_for不为空,等同于’$http_x_forwarded_for,$remote_addr’，否则等于$remote_addr</td>
+<td></td>
+</tr>
+<tr>
+<td>$remote_addr</td>
+<td>上一个http请求的ip</td>
+<td>有可能被realip模块修改</td>
+</tr>
+<tr>
+<td>$realip_remote_addr</td>
+<td>上一个http请求的ip</td>
+<td>realip模块提供的变量</td>
+</tr>
+<tr>
+<td>$http_x_forwarded_for</td>
+<td>http request header中的X-Forwarded-For的值</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>&lt;–! more –&gt;</p>
+<h3 id="postread阶段"><a href="#postread阶段" class="headerlink" title="postread阶段"></a>postread阶段</h3><p>对应  http-real-ip模块<br>|指令或变量| 格式|说明|<br>|—-|—-|—-|<br>|set_real_ip_from|address;CIDR;unix|定义受信地址。如CDN,内网..事先已知的反向代理。通过受信渠道的地址才会被处理，替换|<br>|real_ip_header|field;X-Real-IP;X-Forwarded-For;proxy_protocol|默认值X-Real-IP,指定用于替换$remote_addr的内容,常使用X-Forwarded-For|<br>|real_ip_recursive |可选 on;off|默认为off;off:$remote_addr将替换为real_ip_header的最后一个地址；on:$remote_addr将替换为real_ip_header最后一个非置信的ip|<br>|$realip_remote_addr||原始客户端地址|<br>|$realip_remote_port||原始客户端端口|</p>
+<h3 id="rewrite阶段"><a href="#rewrite阶段" class="headerlink" title="rewrite阶段"></a>rewrite阶段</h3><table>
+<thead>
+<tr>
+<th>指令</th>
+<th>格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>return</td>
+<td>返回值格式如 code text，或者code url 或者单独的url</td>
+<td>code 200,301等；url或text中可以包含变量</td>
+</tr>
+<tr>
+<td>rewrite</td>
+<td>regex replacement flag</td>
+<td></td>
+</tr>
+</tbody></table>
+<ul>
+<li><h4 id="return"><a href="#return" class="headerlink" title="return"></a>return</h4><ul>
+<li>返回值为单独的url时，相当于返回 302 url.</li>
+<li>As a special case, a redirect URL can be specified as a URI local to this server, in which case the full redirect URL is formed according to the request scheme ($scheme) and the server_name_in_redirect and port_in_redirect directives.</li>
+</ul>
+</li>
+<li><h4 id="rewrite"><a href="#rewrite" class="headerlink" title="rewrite"></a>rewrite</h4><ul>
+<li>rewrite flag值可取last,break,redirect,permanent.</li>
+<li>last 新的uri再次进行location匹配，</li>
+<li>break ,完成当前在location中剩余操作</li>
+<li>redirect 返回302暂时重定向；如果replacement以http(s)开头也会触发</li>
+<li>permanent 永久重定向 返回301<br>  <strong>两个重定向区别</strong>：永久重定向，相当于告诉客户端下次请求直接转发到重定向；暂时重定向每次都重复这个过程。</li>
+</ul>
+</li>
+</ul>
+<h3 id="findconfig阶段"><a href="#findconfig阶段" class="headerlink" title="findconfig阶段"></a>findconfig阶段</h3><p><em>此阶段主要是对location的匹配。</em></p>
+<ul>
+<li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
+</li>
+<li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
+</li>
+<li><p>对于普通字符串的匹配规律。首先将所有普通字符串按字典序进行排序。请求uri逐一扫描，当当前字符串大于请求uri时停止，并选取最后一个匹配。<em>（精确匹配除外，且所有普通字符串不能重复。）</em></p>
+</li>
+<li><p>匹配顺序</p>
+<ol>
+<li>首先进行精确匹配，如果匹配到=修饰的location，停止匹配。</li>
+<li>然后检查普通字符串定义的其余location，记录最长匹配的location字符串。如果记录的最长匹配字符串用^~修饰,则停止匹配。</li>
+<li>接着按配置文件定义的顺序，进行正则location匹配.使用第一个匹配结果。</li>
+<li>如果没有正则匹配,使用前面记录的最长前缀字符串的location. </li>
+</ol>
+</li>
+<li><p>location @name 主要用于内部重定向.<strong>注意命名location中不能再嵌套其它的命名location</strong>。</p>
+</li>
+<li><p>location中的字符有没有<code>/</code>都没有影响。也就是说<code>/user/</code>和<code>/user</code>是一样的.可以使用精确匹配测试.</p>
+</li>
+<li><p>如果请求URL结构是<a href="https://domain.com/%E7%9A%84%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B0%BE%E9%83%A8%E6%9C%89%E6%B2%A1%E6%9C%89/%E9%83%BD%E4%B8%8D%E4%BC%9A%E9%80%A0%E6%88%90%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%9C%A8%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E9%BB%98%E8%AE%A4%E5%8A%A0%E4%B8%8A%E4%BA%86/">https://domain.com/的形式，尾部有没有/都不会造成重定向。因为浏览器在发起请求的时候，默认加上了/</a>.</p>
+</li>
+<li><p>如果请求URL的结构是<a href="https://domain.com/some-dir/%E3%80%82%E5%B0%BE%E9%83%A8%E5%A6%82%E6%9E%9C%E7%BC%BA%E5%B0%91/%E5%B0%86%E5%AF%BC%E8%87%B4%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%A0%B9%E6%8D%AE%E7%BA%A6%E5%AE%9A%EF%BC%8CURL%E5%B0%BE%E9%83%A8%E7%9A%84/%E8%A1%A8%E7%A4%BA%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%B2%A1%E6%9C%89/%E8%A1%A8%E7%A4%BA%E6%96%87%E4%BB%B6%E3%80%82%E6%89%80%E4%BB%A5%E8%AE%BF%E9%97%AE/some-dir/%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE/some-dir%E7%9A%84%E8%AF%9D%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E5%85%88%E5%8E%BB%E6%89%BEsome-dir%E6%96%87%E4%BB%B6%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E7%9A%84%E8%AF%9D%E4%BC%9A%E5%B0%86some-dir%E5%BD%93%E6%88%90%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0/some-dir/%EF%BC%8C%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82">https://domain.com/some-dir/。尾部如果缺少/将导致重定向。因为根据约定，URL尾部的/表示目录，没有/表示文件。所以访问/some-dir/时，服务器会自动去该目录下找对应的默认文件。如果访问/some-dir的话，服务器会先去找some-dir文件，找不到的话会将some-dir当成目录，重定向到/some-dir/，去该目录下找默认文件。</a></p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>含义</th>
+<th>其它</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>~</td>
+<td>波浪线表示执行一个正则匹配，区分大小写</td>
+<td></td>
+</tr>
+<tr>
+<td>~*</td>
+<td>表示执行一个正则匹配，不区分大小写</td>
+<td>正则匹配顺序很重要,按顺序匹配，匹配到则停止</td>
+</tr>
+<tr>
+<td>^~</td>
+<td>^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</td>
+<td></td>
+</tr>
+<tr>
+<td>=</td>
+<td>进行普通字符精确匹配</td>
+<td>使用<code>=</code>精准匹配可以加快查找的顺序，如果根域名经常被访问的话建议使用<code>=</code>。</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+<h3 id="preaccess阶段"><a href="#preaccess阶段" class="headerlink" title="preaccess阶段"></a>preaccess阶段</h3><p><em>限制并发连接数</em><br>|指令|格式|默认值|说明|<br>|–|–|–|–|<br>|limit_conn_zone|key zone=name:size rate=rate||在http，用于定义共享内存,处理速度rate单位为r/s或者r/m|<br>|limt_conn|zone number||限制并发连接数,用于http,server,location|<br>|limit_conn_status|code|503|限制发生时向客户端返回的错误码，用于http,server,locacion|<br>|limit_conn_log_level|info;notice;warn;eror|error|限制发生时日志级别，用于http,server,locacion|<br>|limit_req_zone|key zone=name [burst=number] [nodelay]|burst=0,nodela立刻处理||<br>|limit_req_status|code|503|限制发生时向客户端返回的错误码，用于http,server,locacion|<br>|limit_req_log_level|info;notice;warn;eror|error|限制发生时日志级别，用于http,server,locacion|</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">limit_conn_zone $binary_remote_addr zone&#x3D;addr:10m;</span><br><span class="line">#限制download目录下一个ip的并发请求数量</span><br><span class="line">: server &#123;</span><br><span class="line">: location &#x2F;download&#x2F; &#123;</span><br><span class="line">: limit_conn   addr  1;</span><br><span class="line">: &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">limit_req_zone  $binary_remote_addr  zone&#x3D;one:10m   rate&#x3D;1r&#x2F;s;</span><br><span class="line">    server &#123;</span><br><span class="line">    #允许用户平均每秒不超过1个请求，突发情况下最多有5个，5个以内响应无延迟，大于5个有延迟。</span><br><span class="line">        location &#x2F;search&#x2F; &#123;</span><br><span class="line">            limit_req   zone&#x3D;one  burst&#x3D;5 nodelay;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="access阶段"><a href="#access阶段" class="headerlink" title="access阶段"></a>access阶段</h3><p>对ip进行限制的阶段，通过顺序为access-&gt;auth_basic-&gt;auth_request<br>|指令|格式|默认值|说明|<br>|–|–|–|–|<br>|allow| address;CIDR;unix|all||用于http,server,location,limit_except中|<br>|deny| address;CIDR;unix|all||同allow，多条指令按顺序执行，直到匹配成功，用于控制访问ip|<br>|auth_basic|string;off|off，取消从上级模块继承的结果；字符串指定一个域。|用于http,server,location,limit_except中|<br>|auth_basic_user_file|file||同auth_basic属于auth_basic模块的指令，指定验证用户的文件|<br>|auth_request|uri;off|off|用于http,server,location中，向上游服务转发请求，如返回2xx，则继续执行；若401或403则被拒绝并将响应返回客户端；其它码视为一个错误|<br>|auth_request_set|$variable value||同auth_request,用于设置变量，这两个变量属于auth_request模块，默认未编译进nginx|<br>|satisfy|all;any|all|对access阶段的各个模块结果取并或者或结果|</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location &#x2F;private&#x2F; &#123;</span><br><span class="line">    auth_request &#x2F;auth;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">location &#x3D; &#x2F;auth &#123;</span><br><span class="line">    proxy_pass ...</span><br><span class="line">    proxy_pass_request_body off;</span><br><span class="line">    proxy_set_header Content-Length &quot;&quot;;</span><br><span class="line">    proxy_set_header X-Original-URI $request_uri;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="precontent阶段"><a href="#precontent阶段" class="headerlink" title="precontent阶段"></a>precontent阶段</h3><ul>
+<li><p>try_files模块<br>  用于location中，根据请求uri进行逐个文件的匹配，返回第一个匹配项。末尾必须跟着一个fallback,它是一个命名location，或者存在的uri,如 =404状态码。 </p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location &#x2F; &#123;</span><br><span class="line"></span><br><span class="line">  try_files index.html index.htm @fallback;</span><br><span class="line">&#125;</span><br><span class="line">location @fallback &#123;</span><br><span class="line"> root  &#x2F;var&#x2F;www&#x2F;error;</span><br><span class="line"> index index.html;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="content阶段"><a href="#content阶段" class="headerlink" title="content阶段"></a>content阶段</h3></li>
+<li><p>root和alias</p>
+<ul>
+<li>root: 用于http, server, location, if in location块中.默认值 html.指定请求uri的前缀.root加作为前缀加到uri上.root与rewrite搭配实现alias的效果.</li>
+<li>alias:用于location中,alias将替换 location匹配内容,形成新的uri.对于正则location,应包含捕获从而在alias中可以引用   <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location  &#x2F;i&#x2F; &#123;</span><br><span class="line"> alias   &#x2F;spool&#x2F;w3&#x2F;images&#x2F;;</span><br><span class="line">&#125;</span><br><span class="line">#The request &quot;&#x2F;i&#x2F;top.gif&quot; will return the file &quot;&#x2F;spool&#x2F;w3&#x2F;images&#x2F;top.gif&quot;.</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>index<br>  指定目录时返回默认的文件，默认配置为index index.html;可以在serve,location,http中配置。** 注意**index会引起内部重定向，导致文件在不同的location中处理.</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#a “&#x2F;” request will actually be processed in the second location as “&#x2F;index.html”.</span><br><span class="line">location &#x3D; &#x2F; &#123;</span><br><span class="line">    index index.html;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">  location &#x2F; &#123;</span><br><span class="line">  ...</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>服务器</category>
+      </categories>
+      <tags>
+        <tag>运维</tag>
+      </tags>
+  </entry>
+</search>

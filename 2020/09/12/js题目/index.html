@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"mabingyang.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="四十四道js难题 parseInt(string, base) 1234567What is the result of this expression? (or multiple ones)          [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;].map(parseInt)        what you actually get is [1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一些有趣的js题目">
+<meta property="og:url" content="http://mabingyang.top/2020/09/12/js%E9%A2%98%E7%9B%AE/index.html">
+<meta property="og:site_name" content="马冰阳的个人博客">
+<meta property="og:description" content="四十四道js难题 parseInt(string, base) 1234567What is the result of this expression? (or multiple ones)          [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;].map(parseInt)        what you actually get is [1">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-12T10:46:21.559Z">
+<meta property="article:modified_time" content="2020-09-12T11:20:34.749Z">
+<meta property="article:author" content="马冰阳">
+<meta property="article:tag" content="js">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://mabingyang.top/2020/09/12/js%E9%A2%98%E7%9B%AE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>一些有趣的js题目 | 马冰阳的个人博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+
+      <h1 class="site-title">Wanna fly higher</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+
+      <p class="site-subtitle" itemprop="description">如果没有光 就努力成为自己的光</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>我的信息</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>成长历程</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>全站搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/12/js%E9%A2%98%E7%9B%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          一些有趣的js题目
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:20:34" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="四十四道js难题"><a href="#四十四道js难题" class="headerlink" title="四十四道js难题"></a><a target="_blank" rel="noopener" href="http://javascript-puzzlers.herokuapp.com/">四十四道js难题</a></h2><ol>
+<li><p>parseInt(string, base)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;].map(parseInt)</span><br><span class="line">        </span><br><span class="line">what you actually get is [1, NaN, NaN] because parseInt takes two parameters (val, radix) and map passes 3 (element, index, array)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>base指定string是一个多少进制的数字字符串，默认base=0,表示10进制。</p>
+<a id="more"></a>
+<ol start="2">
+<li><p>reduce，调用者为空数组时必须传递初始值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[ [3,2,1].reduce(Math.pow), [].reduce(Math.pow) ]</span><br><span class="line"></span><br><span class="line">error</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+<li><p>运算符优先级</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line"><span class="keyword">var</span> val = <span class="string">&#x27;smtg&#x27;</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;Value is &#x27;</span> + (val === <span class="string">&#x27;smtg&#x27;</span>) ? <span class="string">&#x27;Something&#x27;</span> : <span class="string">&#x27;Nothing&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Operator_Precedence">运算符优先级</a></p>
+<p>最高优先级：（）20</p>
+<p>最低优先级：， 0</p>
+<p>常见优先级顺序： 赋值运算&lt; 三目运算符&lt;逻辑运算&lt;位运算 &lt;等不等运算符&lt;比较运算符&lt; 位左右移&lt; 加减&lt;乘除&lt;幂运算&lt;前置递增与其它单目运算 &lt;后置递增   &lt;new(无参)运算符&lt;  .成员访问</p>
+<p>右关联运算符： 赋值运算，三目运算，幂运算，所有单目运算</p>
+</li>
+<li><p>.fitter,map 对空元素不起作用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">var ary &#x3D; [0,1,2];</span><br><span class="line">ary[10] &#x3D; 10;</span><br><span class="line">ary.filter(function(x) &#123; return x &#x3D;&#x3D;&#x3D; undefined;&#125;);</span><br><span class="line"></span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+
+<p>空元素并非指值为undefined的元素</p>
+</li>
+<li><p>小数运算不可信</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var two   &#x3D; 0.2</span><br><span class="line">var one   &#x3D; 0.1</span><br><span class="line">var eight &#x3D; 0.8</span><br><span class="line">var six   &#x3D; 0.6</span><br><span class="line">[two - one &#x3D;&#x3D; one, eight - six &#x3D;&#x3D; two]</span><br><span class="line"></span><br><span class="line">0.2-0.1&#x3D;0.1 0.8-0.6&#x3D;0.2000000007</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>大数运算也不可信</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">var a &#x3D; 111111111111111110000,</span><br><span class="line">    b &#x3D; 1111;</span><br><span class="line">a + b;</span><br><span class="line">        </span><br><span class="line">&#x3D;111111111111111110000</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="7">
+<li><p>全局变量提升</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">(function()&#123;</span><br><span class="line">  var x &#x3D; y &#x3D; 1;</span><br><span class="line">&#125;)();</span><br><span class="line">console.log(y);</span><br><span class="line">console.log(x);</span><br><span class="line">      </span><br><span class="line">      1 error</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>负负得正</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">1 + - + + + - + 1</span><br><span class="line">&#x3D;2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>正则表达式字面量形式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">var a &#x3D; &#x2F;123&#x2F;,</span><br><span class="line">    b &#x3D; &#x2F;123&#x2F;;</span><br><span class="line">a &#x3D;&#x3D; b</span><br><span class="line">a &#x3D;&#x3D;&#x3D; b</span><br><span class="line">        false false a与b是对象</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>属性具有不可writable的特性 并且<strong>赋值不保错</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">function foo() &#123; &#125;</span><br><span class="line">var oldName &#x3D; foo.name;</span><br><span class="line">foo.name &#x3D; &quot;bar&quot;;</span><br><span class="line">[oldName, foo.name]</span><br><span class="line">[foo,foo]</span><br><span class="line">   </span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>2^53=2^53+1 </code>for循环中会造成死循环 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var END &#x3D; Math.pow(2, 53);</span><br><span class="line">var START &#x3D; END - 100;</span><br><span class="line">var count &#x3D; 0;</span><br><span class="line">for (var i &#x3D; START; i &lt;&#x3D; END; i++) &#123;</span><br><span class="line">    count++;</span><br><span class="line">&#125;</span><br><span class="line">console.log(count);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>非严格模式下arguments会和函数参数绑定</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">function sidEffecting(ary) &#123;</span><br><span class="line">  ary[0] &#x3D; ary[2];</span><br><span class="line">&#125;</span><br><span class="line">function bar(a,b,c) &#123;</span><br><span class="line">  c &#x3D; 10</span><br><span class="line">  sidEffecting(arguments);</span><br><span class="line">  return a + b + c;</span><br><span class="line">&#125;</span><br><span class="line">bar(1,1,1) </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>​    这里总结一下：严格模式和非严格模式  </p>
+<p>  （1）严格模式arguments对象是传入函数内实参列表的静态副本；非严格模式下，指向同一个值的引用   </p>
+<p>  （2）严格模式变量必须先声明，才能使用    </p>
+<p>  （3）严格模式中 call apply传入null undefined保持原样不被转换为window</p>
+</blockquote>
+</li>
+<li><p>reverse()函数现在是严格函数编写，this指向 undefined,null时，不会默认为window</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var x &#x3D; [].reverse;</span><br><span class="line">x();</span><br><span class="line">&#x2F;&#x2F;报错</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<h2 id="第二次考试题及复习题"><a href="#第二次考试题及复习题" class="headerlink" title="第二次考试题及复习题"></a>第二次考试题及复习题</h2><p>JavaScript</p>
+<ol>
+<li><p><strong>JS组成(ECMAScript，DOM，BOM)</strong></p>
+<p>javaScript包括European Computer Manufacturers Association-262标准实现和扩展的一门脚本语言‘</p>
+<p>DOM document object model 文档对象模型</p>
+<p>Brower Object Model 浏览器对象模型</p>
+</li>
+<li><p><strong>数据类型(基本数据类型和引用数据类型)</strong></p>
+<p>基本数据类型，string,number,boolean,null,undefined,bigint(es 10)   复合数据类型 object</p>
+</li>
+<li><p><strong>对象属性定义(Object. defineProperty())</strong></p>
+<ul>
+<li>查看 Object.getOwnPropertyDescriptors(obj)  (es 8)，Object.getOwnPropertyDescriptor(obj，prop) </li>
+<li>修改 Object.defineProperty(obj,prop)   Object.defineProperties(obj)</li>
+<li>可配置的属性 enumerable, writable, configurable</li>
+</ul>
+</li>
+<li><p><strong>闭包的理解及解决方案</strong></p>
+<p>在函数的当前词法作用域外执行函数，函数与其引用的外部变量就形成了闭包。</p>
+<p>let, forEach, IEEF 解决闭包函数执行时共用同一一个外部变量导致的问题。</p>
+</li>
+<li><p><strong>递归实现某个功能</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">function factorial(n)&#123;</span><br><span class="line"></span><br><span class="line">if(n&#x3D;&#x3D;1 ) return 1;</span><br><span class="line"></span><br><span class="line">return n * factorial(n-1)</span><br><span class="line"></span><br><span class="line">&#125;&#x2F;&#x2F;递归求阶乘</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="6">
+<li><p>JS继承有几种？如何实现继承？</p>
+<ul>
+<li><p>原型链继承 将子对象原型指向另一个类型的实例实现的继承。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">function Parent() &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Parent.prototype.color &#x3D; &quot;blue&quot;;</span><br><span class="line">Parent.prototype.sayColor &#x3D; function () &#123;</span><br><span class="line">    alert(this.color);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">function Child() &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype &#x3D; new Parent();</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>优点：子类公用父类中的属性</p>
+<p>缺点：在创建子类型的实例时,不能向超类型的构造函数传递参数;</p>
+</blockquote>
+</li>
+<li><p>函数构造继承</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function Parent(name)&#123;</span><br><span class="line">	this.name&#x3D;name</span><br><span class="line">	this.sayHello&#x3D;function()&#123;console.log(&#39;hi&#39;);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child(name)&#123;</span><br><span class="line">	Parent.call(this,name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>优点：每个子对象都拥有父对象的方法和属性</p>
+<p>缺点：子对象无法共用属性</p>
+</blockquote>
+</li>
+<li><p>混合继承</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function Parent(name)&#123;</span><br><span class="line">	this.name&#x3D;name</span><br><span class="line">	this.sayHello&#x3D;function()&#123;console.log(&#39;hi&#39;);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child(name)&#123;</span><br><span class="line">	Parent.call(this,name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype&#x3D;new Patent()</span><br><span class="line">Child.prototype.constructor&#x3D;Parent;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>可以向超类中传参，也可以公用超类的方法，这种方式被广泛使用</p>
+</blockquote>
+</li>
+<li><p>行为委托</p>
+<p>利用this隐式绑定与原型链查找，将公共行为写到被委托者，而状态存储在委托者。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">let parent&#x3D;&#123;</span><br><span class="line">	setName(name)&#123;this.name&#x3D;name&#125;</span><br><span class="line">	sayHello()&#123;console.log(&#39;hi &#39;+this.name)&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let child&#x3D;Object.create(parent)</span><br><span class="line"></span><br><span class="line">child.init&#x3D;function(name)&#123; </span><br><span class="line">this.setName(name)</span><br><span class="line">this.flag&#x3D;&#39;beautiful&#39;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">child.init(&#39;huahua&#39;)</span><br><span class="line">child.sayHello()</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>对象创建和初始化分离。所有状态放在委托者身上，类似与构造函数继承</li>
+<li>公共行为通过<strong>不同名的方法属性</strong>，合理调用被委托者完成</li>
+</ol>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>类数组转数组</strong></p>
+<ul>
+<li>Array.from(arrLike)</li>
+<li>Array.prototype.slice.call(arrLike)</li>
+</ul>
+</li>
+<li><p>至少一种排序算法</p>
+<p>插入排序</p>
+</li>
+<li><p><strong>数组的10个方法，String的10个方法</strong></p>
+<p>数组</p>
+<p>push(),pop(),shift(),unshift(),splice()改变自身的方法</p>
+<p>forEach,map,filter,reduce,some,every 遍历数组的方法</p>
+<p>find(cb),findIndex(cb),IndexOf(value,start=0),includes(value,start)查找元素\下标\元素是否存在</p>
+<p>slice()切片操作、concat()链接多个数组</p>
+<p>字符串</p>
+<p>search，match, matchAll, replace ，split可以使用正则的字符串方法</p>
+<p>charAt, charAtCode, indexOf(), startWith(),endWith() 不用药正则的查找方法</p>
+<p>slice,substr,sbstring 子串截取</p>
+<p>trim, toLowerCase,toUpperCase 字符串转换</p>
+<p>concat 字符串拼接 repeat() 字符串赋值</p>
+</li>
+</ol>
+<ol start="10">
+<li><p><strong>页面跳转的几种方式，并且分别实现</strong></p>
+<ul>
+<li>a标签跳转</li>
+<li>history在历史记录中跳转页面</li>
+<li>location.assign, replace,跳转</li>
+<li>window.open 在窗口打开</li>
+</ul>
+</li>
+<li><p><strong>http协议的理解，及编写代码实现数据交互(ajax)</strong></p>
+<p>http Hyper text transmission protocol 超文本传输协议，当前广泛流行的http/1.1版本，它是一个基于Tcp/ip应用层协议，采用客户端到服务器模式。</p>
+<ul>
+<li>限制每次连接只能处理一个请求。服务器处理完客户端的请求，并收到客户端的应答后，就断开连接</li>
+<li>HTTP允许传输任意类型的数据对象。传输的类型由content-type标记；</li>
+<li>HTTP是无记忆能力的协议，如果后面的处理需要前面的信息，则它必须重传</li>
+</ul>
+<p>状态码</p>
+<ul>
+<li>1xx 请求正在处理</li>
+<li>2xx成功请求正常处理</li>
+<li>3xx 重定向，需进行附加操作完成请求</li>
+<li>4xx 客户端错误码 服务器无法处理客户端请求</li>
+<li>5xx 服务器错误码 服务器处理请求出错</li>
+</ul>
+<p>ajax</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">let xhr&#x3D;XMLHttpRequest()</span><br><span class="line">xhr.open(’get&#39;,&#39;http:&#x2F;&#x2F;www.baidu.com&#39;)</span><br><span class="line"></span><br><span class="line">xhr.send()</span><br><span class="line">xhr.onStateChanged&#x3D;function(e)&#123;</span><br><span class="line"> xhr.readyState&#x3D;&#x3D;4 &amp;&amp; console.log(xhr.responseText)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="12">
+<li><p><strong>如何创建正则表达式对象、数组对象、Obeject对象</strong></p>
+<p>正则表达式 //或 new RegExp()</p>
+<p>数组 [], Array.of, Array.from, new Array()</p>
+<p>Object对象 ｛｝/ new Object()</p>
+</li>
+<li><p><strong>更改函数内部this指向的几种方式，写出代码实现</strong></p>
+<p>fun.call(obj)</p>
+<p>fun.apply(obj)</p>
+<p>fun.bind(obj)()</p>
+<p>obj=new fun()</p>
+</li>
+<li><p><strong>事件的三要素是什么?如何绑定事件及解绑</strong></p>
+<p>事件源，事件，事件驱动程序</p>
+<p> dom0 ,html行内绑定，js属性绑定；通过js事件属性=null解绑</p>
+<p>如 <code>dom.onclick=function()&#123;&#125;</code></p>
+<p>dom2通过，addEventListener(),removeEventListner()</p>
+<p>如 <code>dom.addEventListenr(&#39;click&#39;,function()&#123;&#125;)</code></p>
+</li>
+<li><p>如<strong>何停止事件冒泡和阻止默认行为？</strong></p>
+<p>el.stopPropagation() el.preventDefault()</p>
+</li>
+<li><p><strong>如何操作DOM节点的属性和内容</strong></p>
+<p>自身属性</p>
+<pre><code>el.prop获取， el.prop=&quot;content&quot;赋值</code></pre>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">closeBanner.className+&#x3D;&quot;hide&quot; &#x2F;&#x2F;保留原类名，添加新类名</span><br><span class="line">closeBanner.className&#x3D;&quot;hide&quot; &#x2F;&#x2F;替换旧类名</span><br></pre></td></tr></table></figure>
+
+<p>自定义属性</p>
+<pre><code>el.getAtrribute(prop), el.setAttribute(prop,value)</code></pre>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/js/" rel="tag"># js</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/12/js%E9%9A%BE%E7%82%B9/" rel="prev" title="js中重点难点">
+      <i class="fa fa-chevron-left"></i> js中重点难点
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/12/js%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" rel="next" title="JavaScript中的类型转换">
+      JavaScript中的类型转换 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+    <div class="toggle sidebar-toggle">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-inner">
+
+            <ul class="sidebar-nav motion-element"  >
+                <li class="sidebar-nav-toc">
+                    文章目录
+                </li>
+                <li class="sidebar-nav-overview">
+                    站点概览
+                </li>
+            </ul>
+
+            <!--noindex-->
+            <div class="post-toc-wrap sidebar-panel">
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E5%8D%81%E5%9B%9B%E9%81%93js%E9%9A%BE%E9%A2%98"><span class="nav-text">四十四道js难题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AC%A1%E8%80%83%E8%AF%95%E9%A2%98%E5%8F%8A%E5%A4%8D%E4%B9%A0%E9%A2%98"><span class="nav-text">第二次考试题及复习题</span></a></li></ol></div>
+            </div>
+            <!--/noindex-->
+
+            <div class="site-overview-wrap sidebar-panel">
+                <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马冰阳"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">马冰阳</p>
+  <div class="site-description" itemprop="description">记录成长的点点滴滴</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/likemby" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;likemby" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:mabingyangh@163.com" title="E-Mail → mailto:mabingyangh@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+            </div>
+
+
+          
+          <div class="widget-wrap">
+            <h3 class="widget-title">笔记分类</h3>
+            <div class="category-all-page">
+              <div class="category-all">
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li></ul>
+              </div>
+            </div>
+          </div>
+          
+
+
+          
+            <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+            <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+            <div class="widget-wrap">
+              <h3 class="widget-title">标签云</h3>
+              <div id="myCanvasContainer" class="widget tagcloud">
+                <canvas width="250" height="100" id="resCanvas" style="width:100%">
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">2</span></li></ul>
+                </canvas>
+              </div>
+            </div>
+          
+        </div>
+    </aside>
+
+    <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马冰阳</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

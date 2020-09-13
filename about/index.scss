@@ -1,0 +1,146 @@
+
+.my-resume {
+  font-size: 14px;
+
+  .delimiter {
+    position: relative;
+    width: 100%;
+    font-weight: 700;
+    //height: 16px;
+    //margin: 15px 0;
+    &::before {
+      content: '\2606 ';
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0px;
+      bottom: 0px;
+      height: 2px;
+      width: 100%;
+      background-color: black;
+
+    }
+  }
+
+  .strong {
+    font-weight: 700;
+  }
+
+  ul, ol {
+    padding: 0 0 0 5px;
+
+    list-style: none;
+  }
+
+  .ab-header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: baseline;
+    font-size: 24px;
+    margin: 0 0 20px;
+
+    .title {
+      //display: inline-block;
+    }
+
+    .sub-title {
+      //display: inline-block;
+      font-size: 0.5em;
+      margin-left: 20px;
+    }
+  }
+
+  .award-detail {
+
+    li {
+
+      .time {
+        display: inline-block;
+      }
+
+      .award {
+        margin-left: 20px;
+        display: inline-block;
+      }
+    }
+  }
+
+
+  .profile {
+    overflow: hidden;
+
+    ul {
+      vertical-align: baseline;
+      display: inline-block;
+      float: left;
+      margin-right: 80px;
+      padding: 0 5px;
+    }
+
+    ul:last-child {
+      float: right;
+
+      img {
+        display: block;
+        margin: 0;
+      }
+    }
+  }
+
+  .project-experience {
+    li {
+      margin-left: 20px;
+      list-style: outside decimal none;
+
+      .content {
+        padding: 0;
+
+      }
+    }
+
+  }
+
+
+}
+
+.my-video-container {
+  box-shadow: -5px 5px 5px grey;
+  border-radius: 5px;
+
+
+  & > .title {
+    position: relative;
+    width: 75%;
+    height: 40px;
+    border-radius-topleft: 5px;
+    background-color: orangered;
+    line-height: 40px;
+    font-style: italic;
+
+    & > a {
+      padding-left: 20px;
+      text-decoration: none;
+      color: white;
+    }
+
+    &::after {
+      box-sizing: border-box;
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 40px;
+      right: 0;
+      top: 0;
+      background-color: blue;
+      border: 20px solid orangered;
+      border-right: 40px solid white;
+
+
+    }
+
+  }
+
+}
