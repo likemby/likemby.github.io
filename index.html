@@ -184,7 +184,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -198,7 +198,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" class="post-title-link" itemprop="url">nginx配置信息</a>
+            <a href="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/" class="post-title-link" itemprop="url">数据规模与时间复杂度</a>
         </h2>
 
         <div class="post-meta">
@@ -209,7 +209,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-09-13 23:54:39 / 修改时间：23:59:56" itemprop="dateCreated datePublished" datetime="2020-09-13T23:54:39+08:00">2020-09-13</time>
+              <time title="创建时间：2020-09-14 23:13:35 / 修改时间：23:26:17" itemprop="dateCreated datePublished" datetime="2020-09-14T23:13:35+08:00">2020-09-14</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -217,7 +217,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/" itemprop="url" rel="index"><span itemprop="name">服务器</span></a>
+                  <a href="/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" itemprop="url" rel="index"><span itemprop="name">算法与数据结构</span></a>
                 </span>
             </span>
 
@@ -232,222 +232,248 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h4><table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-<th>默认值</th>
-<th>可选项</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>user</td>
-<td>配置用户和用户组,指定使用对象</td>
-<td>nobody nobody</td>
-<td></td>
-</tr>
-<tr>
-<td>worker_processes</td>
-<td>最大进程数</td>
-<td>1</td>
-<td>auto(nginx自动调节)</td>
-</tr>
-<tr>
-<td>error_log</td>
-<td>指定错误文件 路径+级别</td>
-<td>/var/log/nginx/error.log warn</td>
-<td>( debug, info , notice, warn, error, crit )6个错误级别，级别越高，输出错误日志越少</td>
-</tr>
-<tr>
-<td>pid</td>
-<td>nginx进程id存放的文件</td>
-<td>/var/run/nginx.pid</td>
-<td></td>
-</tr>
-<tr>
-<td>&lt;–! more –&gt;</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table>
-<h4 id="events配置"><a href="#events配置" class="headerlink" title="events配置"></a>events配置</h4><p><em>events配置nginx服务器和用户的连接网络，每个进程最大连接数，选取哪种事件驱动处理<br>请求，是否允许同时接受多个网络连接，开启多个网络连接序列化。</em></p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-<th>默认值</th>
-<th>可选项</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>accept_mutex</td>
-<td>设置网络连接序列化，防止惊群效应发生</td>
-<td>on</td>
-<td>off</td>
-</tr>
-<tr>
-<td>multi_accept</td>
-<td>设置一个进程是否同时接受多个网络连接</td>
-<td>off</td>
-<td>on</td>
-</tr>
-<tr>
-<td>worker_connections</td>
-<td>配置每个进程最大连接数</td>
-<td>1024</td>
-<td></td>
-</tr>
-<tr>
-<td>use</td>
-<td>配置nginx事件驱动模型</td>
-<td>epoll</td>
-<td>[ kqueue | rtsig | epoll | /dev/poll | select | poll ]</td>
-</tr>
-</tbody></table>
-<h4 id="http块配置"><a href="#http块配置" class="headerlink" title="http块配置"></a>http块配置</h4><p><em>http块可以嵌套多个server,配置代理，缓存，日志定义等大多数功能和第三方模块配置<br>如文件引入mimetype日志自定义，是否使用sendfile传输文件，连接超时，单连接请求数量。</em></p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-<th>默认值</th>
-<th>可选项</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>include</td>
-<td>配置nginx支持那些文件扩展名和文件类型映射表</td>
-<td>/etc/nginx/mime.types</td>
-<td></td>
-</tr>
-<tr>
-<td>default_type</td>
-<td>配置默认文件(流)类型</td>
-<td>application/octet-stream</td>
-<td></td>
-</tr>
-<tr>
-<td>log_format</td>
-<td>自定义日志格式: 引用id 格式</td>
-<td>main  ‘$remote_addr - $remote_user [$time_local] “$request” ‘’$status $body_bytes_sent “$http_referer” ‘’”$http_user_agent” “$http_x_forwarded_for”‘;</td>
-<td>可配置多个</td>
-</tr>
-<tr>
-<td>access_log</td>
-<td>指定access_log 位置及应用的格式</td>
-<td>/var/log/nginx/access.log  main</td>
-<td></td>
-</tr>
-<tr>
-<td>sendfile</td>
-<td>允许sendfile方式传输文件，开启高效传输模式</td>
-<td>on</td>
-<td></td>
-</tr>
-<tr>
-<td>gzip</td>
-<td>开启gzip压缩，在客户端解压，增加响应速度</td>
-<td>on</td>
-<td></td>
-</tr>
-<tr>
-<td>tcp_nopush</td>
-<td>防止网络阻塞，自动刷新</td>
-<td>on</td>
-<td></td>
-</tr>
-<tr>
-<td>keepalive_timeout</td>
-<td>tcp连接最长时间65秒</td>
-<td>65</td>
-<td></td>
-</tr>
-<tr>
-<td>upstream</td>
-<td>配置格式:引用id upstream对象</td>
-<td></td>
-<td>见负载均衡示例</td>
-</tr>
-<tr>
-<td>server</td>
-<td></td>
-<td></td>
-<td>见server块配置</td>
-</tr>
-</tbody></table>
-<ul>
-<li><h5 id="upstream负载均衡配置"><a href="#upstream负载均衡配置" class="headerlink" title="upstream负载均衡配置"></a>upstream负载均衡配置</h5></li>
-<li>负载均衡，默认轮询，weight为1，可以手动分配服务器weight。但单纯的轮询方式对于session不能实现共享，另一种ip_hash提供了粘性session的解决方案，但可能会丢失负载均衡对于session的处理；最佳方式通过redis实现seesion共享。*<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">简单的负载均衡配置</span><br><span class="line">http &#123;  </span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">upstream big_server_com &#123;</span><br><span class="line">   #ip_hash;#默认轮询方式,可以修改为iphash方式.</span><br><span class="line">   server 127.0.0.3:8000 weight&#x3D;5;</span><br><span class="line">   server 127.0.0.3:8001 weight&#x3D;5;</span><br><span class="line">   server 192.168.0.1:8000;</span><br><span class="line">   server 192.168.0.1:8001;&#125;</span><br><span class="line"></span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">		#proxy_pass http:&#x2F;&#x2F;big_server_com 	#后端数据传递请求到名为big_server_com 的集群</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></li>
-<li><h5 id="Server块配置"><a href="#Server块配置" class="headerlink" title="Server块配置"></a>Server块配置</h5></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"> server &#123;</span><br><span class="line"> 	#配置server块，通过server_name和listen绑定tcp sockets</span><br><span class="line">   listen       80;#nginx服务监听的端口</span><br><span class="line">   server_name  localhost ;#nginx服务器所在主机ip,ip绑定的域名</span><br><span class="line"></span><br><span class="line">#静态资源处理</span><br><span class="line">	location ~ ^&#x2F;(images|javascript|js|css|flash|media|static)&#x2F;  &#123;</span><br><span class="line">#server的文件根目录，所有请求将以根目录起始</span><br><span class="line">     root   &#x2F;app;</span><br><span class="line">#配置网站默认主页</span><br><span class="line">     index  index.html;</span><br><span class="line">#当接受到一个请求时如bingyang.xyz&#x2F;aa</span><br><span class="line">#先去找aa文件是否存在，不存在就找aa目录，依旧不存在就定向到index.html，也可以是其它重定向如index.php?$args</span><br><span class="line">#$uri指的是bingyang.xyz&#x2F;后的资源，$arg指的是url问号后面的参数</span><br><span class="line">     try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">     expires 30d;#对静态文件进行缓存 单位有s,m,h,d 秒，分，时，天</span><br><span class="line">	&#125;</span><br><span class="line">   location &#x2F; &#123;</span><br><span class="line">      proxy_pass      http:&#x2F;&#x2F;127.0.0.1:8080;#后端请求</span><br><span class="line">   #  proxy_redirect     off;</span><br><span class="line">   #  proxy_set_header   Host             $host;</span><br><span class="line">   #  proxy_set_header   X-Real-IP        $remote_addr;</span><br><span class="line">   #  proxy_set_header   Forwarded        $proxy_add_forwarded;</span><br><span class="line">   #  proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</span><br><span class="line">   &#125;</span><br><span class="line">   error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">   location &#x3D; &#x2F;50x.html &#123;#&#x3D;精确匹配，发现精确匹配后立即停止匹配</span><br><span class="line">     root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><h5 id="location匹配"><a href="#location匹配" class="headerlink" title="location匹配"></a>location匹配</h5><ul>
-<li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
-</li>
-<li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
-</li>
-<li><p>对于普通字符串的匹配规律。首先将所有普通字符串按字典序进行排序。请求uri逐一扫描，当当前字符串大于请求uri时停止，并选取最后一个匹配。<em>（精确匹配除外，且所有普通字符串不能重复。）</em></p>
-</li>
-<li><p>匹配顺序</p>
-<ol start="0">
-<li>首先进行精确匹配，如果匹配到=修饰的location，停止匹配。</li>
-<li>然后检查普通字符串定义的其余location，记录最长匹配的location字符串。如果记录的最长匹配字符串用^~修饰,则停止匹配。</li>
-<li>接着按配置文件定义的顺序，进行正则location匹配.使用第一个匹配结果。</li>
-<li>如果没有正则匹配,使用前面记录的最长前缀字符串的location. </li>
-</ol>
-</li>
-<li><p>location @name 主要用于内部重定向.<strong>注意命名location中不能再嵌套其它的命名location</strong>。</p>
-</li>
-<li><p>location中的字符有没有<code>/</code>都没有影响。也就是说<code>/user/</code>和<code>/user</code>是一样的.可以使用精确匹配测试.</p>
-</li>
-<li><p>如果请求URL结构是<a target="_blank" rel="noopener" href="https://domain.com/%E7%9A%84%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B0%BE%E9%83%A8%E6%9C%89%E6%B2%A1%E6%9C%89/%E9%83%BD%E4%B8%8D%E4%BC%9A%E9%80%A0%E6%88%90%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%9C%A8%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E9%BB%98%E8%AE%A4%E5%8A%A0%E4%B8%8A%E4%BA%86/">https://domain.com/的形式，尾部有没有/都不会造成重定向。因为浏览器在发起请求的时候，默认加上了/</a>.</p>
-</li>
-<li><p>如果请求URL的结构是<a target="_blank" rel="noopener" href="https://domain.com/some-dir/%E3%80%82%E5%B0%BE%E9%83%A8%E5%A6%82%E6%9E%9C%E7%BC%BA%E5%B0%91/%E5%B0%86%E5%AF%BC%E8%87%B4%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%A0%B9%E6%8D%AE%E7%BA%A6%E5%AE%9A%EF%BC%8CURL%E5%B0%BE%E9%83%A8%E7%9A%84/%E8%A1%A8%E7%A4%BA%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%B2%A1%E6%9C%89/%E8%A1%A8%E7%A4%BA%E6%96%87%E4%BB%B6%E3%80%82%E6%89%80%E4%BB%A5%E8%AE%BF%E9%97%AE/some-dir/%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE/some-dir%E7%9A%84%E8%AF%9D%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E5%85%88%E5%8E%BB%E6%89%BEsome-dir%E6%96%87%E4%BB%B6%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E7%9A%84%E8%AF%9D%E4%BC%9A%E5%B0%86some-dir%E5%BD%93%E6%88%90%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0/some-dir/%EF%BC%8C%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82">https://domain.com/some-dir/。尾部如果缺少/将导致重定向。因为根据约定，URL尾部的/表示目录，没有/表示文件。所以访问/some-dir/时，服务器会自动去该目录下找对应的默认文件。如果访问/some-dir的话，服务器会先去找some-dir文件，找不到的话会将some-dir当成目录，重定向到/some-dir/，去该目录下找默认文件。</a></p>
-<table>
-<thead>
-<tr>
-<th>修饰符</th>
-<th>含义</th>
-<th>其它</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>~</td>
-<td>波浪线表示执行一个正则匹配，区分大小写</td>
-<td></td>
-</tr>
-<tr>
-<td>~*</td>
-<td>表示执行一个正则匹配，不区分大小写</td>
-<td>正则匹配顺序很重要,按顺序匹配，匹配到则停止</td>
-</tr>
-<tr>
-<td>^~</td>
-<td>^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</td>
-<td></td>
-</tr>
-<tr>
-<td>=</td>
-<td>进行普通字符精确匹配</td>
-<td>使用<code>=</code>精准匹配可以加快查找的顺序，如果根域名经常被访问的话建议使用<code>=</code>。</td>
-</tr>
-</tbody></table>
-</li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><p>其它</p>
-<ul>
-<li>nginx配置文件中相对路径从/usr/share/nginx/开始(从root 默认为html知晓)</li>
-</ul>
-</li>
-</ul>
+          <p>有时做习题时要根据数据规模的大小估算采用的算法，下面是我搜集的一些资料总结。</p>
+<p>1GHz = 10^9 cycles/s 纯计算的话每个操作在10个cycle以内，一些容器的方法可能需要几十个cycle，如果cache miss需要访问内存的就需要上百个cycle，hashtable of string什么的就更复杂了可能需要上千个cycle。所以对于主频2G HZ（2*10^9 cycles/second 每秒产生多少个脉冲周期) 单核单线程CPU一秒内接受的数据规模 10^6~10^7 。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
 
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/14/this%E7%9A%84%E6%8C%87%E5%90%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/14/this%E7%9A%84%E6%8C%87%E5%90%91/" class="post-title-link" itemprop="url">JavaScript中this指向总结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-14 21:31:17 / 修改时间：21:41:50" itemprop="dateCreated datePublished" datetime="2020-09-14T21:31:17+08:00">2020-09-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="1-为什么用this"><a href="#1-为什么用this" class="headerlink" title="1.为什么用this"></a>1.为什么用this</h4><p>this 提供了一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计,得更加简洁并且易于复用。它被自动定义在所有函数的作用域中。</p>
+<h4 id="2-this是什么"><a href="#2-this是什么" class="headerlink" title="2. this是什么"></a>2. this是什么</h4><p><strong>× this并非指向函数自身</strong></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/09/14/this%E7%9A%84%E6%8C%87%E5%90%91/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/" class="post-title-link" itemprop="url">浅谈docker中数据管理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-14 19:44:46 / 修改时间：21:40:45" itemprop="dateCreated datePublished" datetime="2020-09-14T19:44:46+08:00">2020-09-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>docker进行数据交互的方式有bind mount, volume, tmpfs三种，其中bind mount常用于绑定配置文件到docker容器，volume常用于接受从容器内部产生的数据如日志等，tmpfs不太常见，适用于存储短暂的中间数据，当容器停止，数据便消失。下面对这三种方式做了粗略的总结。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" class="post-title-link" itemprop="url">nginx如何配置</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-09-13 23:54:39" itemprop="dateCreated datePublished" datetime="2020-09-13T23:54:39+08:00">2020-09-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-14 20:15:51" itemprop="dateModified" datetime="2020-09-14T20:15:51+08:00">2020-09-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">运维</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>nginx.conf配置文件总体分三个部分，全局配置块、events配置块、http块，入门时更多配置操作是在http块，尤其是对http块下的server块和location的配置, 需要多多实践才行，下面是我对其配置项的粗略总结。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -686,7 +712,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/09/12/web%E5%AD%98%E5%82%A8/" class="post-title-link" itemprop="url">浏览器存储机制</a>
+            <a href="/2020/09/12/web%E5%AD%98%E5%82%A8/" class="post-title-link" itemprop="url">浏览器存储机制与WebSocket协议</a>
         </h2>
 
         <div class="post-meta">
@@ -695,10 +721,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:22:54" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+              <time title="创建时间：2020-09-12 18:46:21" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-14 22:13:59" itemprop="dateModified" datetime="2020-09-14T22:13:59+08:00">2020-09-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -766,7 +798,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/09/12/unicode%E4%B8%8Ejs/" class="post-title-link" itemprop="url">从阮一峰老师学习总结</a>
+            <a href="/2020/09/12/unicode%E4%B8%8Ejs/" class="post-title-link" itemprop="url">js中使用的字符集</a>
         </h2>
 
         <div class="post-meta">
@@ -775,10 +807,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:22:54" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+              <time title="创建时间：2020-09-12 18:46:21" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-14 21:59:50" itemprop="dateModified" datetime="2020-09-14T21:59:50+08:00">2020-09-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -800,7 +838,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="Unicode字符集"><a href="#Unicode字符集" class="headerlink" title="Unicode字符集"></a>Unicode字符集</h2><p>起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。</p>
+          <p>本篇文章是从阮一峰老师文章<a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2014/12/unicode.html">&lt;&lt;Unicode与JavaScript详解&gt;&gt;</a>学习总结得到的。</p>
+<h2 id="Unicode字符集"><a href="#Unicode字符集" class="headerlink" title="Unicode字符集"></a>Unicode字符集</h2><p>起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。</p>
 <p><strong>它从0开始，为每个符号指定一个编号，这叫做”码点”（code point）</strong>,如<code>u+0000=null</code></p>
 <p>基本平面BMP(Basic Mutillingual Plane)包含可能看到的和接触到的所有标准打印字符，<code>U+0000~U+FFFF</code>。</p>
           <!--noindex-->
@@ -852,9 +891,24 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:02:08" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+              <time title="创建时间：2020-09-12 18:46:21" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-14 22:05:38" itemprop="dateModified" datetime="2020-09-14T22:05:38+08:00">2020-09-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
+                </span>
             </span>
 
           
@@ -928,10 +982,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:20:34" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+              <time title="创建时间：2020-09-12 18:46:21" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-14 22:49:58" itemprop="dateModified" datetime="2020-09-14T22:49:58+08:00">2020-09-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -955,7 +1015,7 @@
       
           <h2 id="四十四道js难题"><a href="#四十四道js难题" class="headerlink" title="四十四道js难题"></a><a target="_blank" rel="noopener" href="http://javascript-puzzlers.herokuapp.com/">四十四道js难题</a></h2><ol>
 <li><p>parseInt(string, base)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;].map(parseInt)</span><br><span class="line">        </span><br><span class="line">what you actually get is [1, NaN, NaN] because parseInt takes two parameters (val, radix) and map passes 3 (element, index, array)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>].map(<span class="built_in">parseInt</span>)</span><br><span class="line">        </span><br><span class="line">what you actually get is [<span class="number">1</span>, <span class="literal">NaN</span>, <span class="literal">NaN</span>] because <span class="built_in">parseInt</span> takes two parameters (val, radix) and map passes <span class="number">3</span> (element, index, array)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>base指定string是一个多少进制的数字字符串，默认base=0,表示10进制。</p>
           <!--noindex-->
@@ -1007,10 +1067,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:20:13" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+              <time title="创建时间：2020-09-12 18:46:21" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-14 22:52:17" itemprop="dateModified" datetime="2020-09-14T22:52:17+08:00">2020-09-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1040,30 +1106,6 @@
 <li><p><strong>js引擎</strong>负责从头到尾负责整个 JavaScript 程序的编译及执行过程。</p>
 </li>
 <li><p><strong>编译器</strong>负责语法分析及代码生成等</p>
-<blockquote>
-<p>传统的编译</p>
-</blockquote>
-<ul>
-<li><p><em>分词/词法分析</em>（Tokenizing/Lexing）</p>
-<p>考虑程序 var a = 2;。这段程序通常会被分解成为下面这些<strong>词法单元</strong>：var、a、=、2 、;</p>
-</li>
-<li><p><em>解析/语法分析</em>（Parsing）</p>
-<p>这个过程是将词法单元流（数组）转换成一个由元素逐级嵌套所组成的代表了程序语法结构的树。这个树被称为“抽象语法树”（Abstract Syntax Tree，AST）</p>
-</li>
-<li><p><em>代码生成</em></p>
-<p>将 AST 转换为可执行代码的过程被称为代码生成。这个过程与语言、目标平台等息息相关</p>
-</li>
-</ul>
-<blockquote>
-<p>js编译</p>
-</blockquote>
-<ol>
-<li>比起那些编译过程只有三个步骤的语言的编译器，JavaScript 引擎要复杂得多。例如，在语法分析和代码生成阶段有特定的步骤来对运行性能进行优化，包括对冗余元素进行优化等。</li>
-</ol>
-</li>
-</ul>
-<ol start="2">
-<li>JavaScript 引擎不会有大量的（像其他语言编译器那么多的）时间用来进行优化，因为与其他语言不同，JavaScript 的编译过程不是发生在构建之前的。
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/09/12/js%E9%9A%BE%E7%82%B9/#more" rel="contents">
@@ -1086,99 +1128,11 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/12/js/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="马冰阳">
-      <meta itemprop="description" content="记录成长的点点滴滴">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="马冰阳的个人博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/09/12/js/" class="post-title-link" itemprop="url">js基础知识总结</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:19:49" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%89%8D%E7%AB%AF/" itemprop="url" rel="index"><span itemprop="name">前端</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
-<li><p><input disabled="" type="checkbox">  回调函数如何递归执行</p>
-</li>
-<li><p><input disabled="" type="checkbox">  递归函数传入Dom对象引用丢失问题</p>
-</li>
-<li><p><input disabled="" type="checkbox">  如何检测数组中某一元素是否为空元素 </p>
-<p>使用  index in arr ，判断下标是否为数组属性</p>
-</li>
-</ul>
-<h2 id="语言"><a href="#语言" class="headerlink" title="语言"></a>语言</h2><ul>
-<li>代码解释 当程序运行时，对命令的翻译是自上而下执行的。</li>
-<li>代码编译 程序运行前事先编译</li>
-<li>静态类型，强类型 指定变量存放指定类型的值，避免不想要的值转换</li>
-<li>动态类型，弱类型 允许一个变量在任意时刻存放任意类型的值</li>
-</ul>
-<p>基本上可以说 JavaScript 是解释型的，因为每次执行 JavaScript 源码时都需要进行处理。但这</p>
-<p>么说并不完全精确。JavaScript 引擎实际上是动态编译程序，然后立即执行编译后的代码。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/09/12/js/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 
@@ -1259,7 +1213,7 @@
             <h3 class="widget-title">笔记分类</h3>
             <div class="category-all-page">
               <div class="category-all">
-                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li></ul>
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">算法与数据结构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">2</span></li></ul>
               </div>
             </div>
           </div>
@@ -1273,7 +1227,7 @@
               <h3 class="widget-title">标签云</h3>
               <div id="myCanvasContainer" class="widget tagcloud">
                 <canvas width="250" height="100" id="resCanvas" style="width:100%">
-                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">2</span></li></ul>
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javaScript/" rel="tag">javaScript</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js-%E7%AC%94%E8%AE%B0/" rel="tag">js 笔记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">1</span></li></ul>
                 </canvas>
               </div>
             </div>

@@ -22,7 +22,7 @@
 
   <meta name="description" content="Cookie存储1. cookie起源, 特点Cookie 的本职工作并非本地存储，而是“维持状态”。因为HTTP协议是无状态的，HTTP协议自身不对请求和响应之间的通信状态进行保存，通俗来说，服务器不知道用户上一次做了什么，这严重阻碍了交互式Web应用程序的实现。  Cookie指某些网站为了辨别用户身份而储存在用户本地终端上的数据(通常经过加密)。 cookie是服务端生成，客户端进行维护和存">
 <meta property="og:type" content="article">
-<meta property="og:title" content="浏览器存储机制">
+<meta property="og:title" content="浏览器存储机制与WebSocket协议">
 <meta property="og:url" content="http://mabingyang.top/2020/09/12/web%E5%AD%98%E5%82%A8/index.html">
 <meta property="og:site_name" content="马冰阳的个人博客">
 <meta property="og:description" content="Cookie存储1. cookie起源, 特点Cookie 的本职工作并非本地存储，而是“维持状态”。因为HTTP协议是无状态的，HTTP协议自身不对请求和响应之间的通信状态进行保存，通俗来说，服务器不知道用户上一次做了什么，这严重阻碍了交互式Web应用程序的实现。  Cookie指某些网站为了辨别用户身份而储存在用户本地终端上的数据(通常经过加密)。 cookie是服务端生成，客户端进行维护和存">
@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://pic2.zhimg.com/v2-9d22446bd1c422fbab68276bd0440e44_r.jpg">
 <meta property="og:image" content="https://pic4.zhimg.com/v2-a7269b1ae24fb52bfcb678450d2f0e63_r.jpg">
 <meta property="article:published_time" content="2020-09-12T10:46:21.631Z">
-<meta property="article:modified_time" content="2020-09-12T11:22:54.006Z">
+<meta property="article:modified_time" content="2020-09-14T14:13:59.537Z">
 <meta property="article:author" content="马冰阳">
 <meta property="article:tag" content="浏览器">
 <meta name="twitter:card" content="summary">
@@ -49,7 +49,7 @@
   };
 </script>
 
-  <title>浏览器存储机制 | 马冰阳的个人博客</title>
+  <title>浏览器存储机制与WebSocket协议 | 马冰阳的个人博客</title>
   
 
 
@@ -203,7 +203,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          浏览器存储机制
+          浏览器存储机制与WebSocket协议
         </h1>
 
         <div class="post-meta">
@@ -212,10 +212,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2020-09-12 18:46:21 / 修改时间：19:22:54" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+              <time title="创建时间：2020-09-12 18:46:21" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-09-14 22:13:59" itemprop="dateModified" datetime="2020-09-14T22:13:59+08:00">2020-09-14</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -251,7 +257,7 @@
 <ul>
 <li><p>生成方式一：http response header中的set-cookie</p>
 <p>我们可以通过响应头里的 Set-Cookie 指定要存储的 Cookie 值。默认情况下，domain 被设置为设置 Cookie 页面的主机名，我们也可以手动设置 domain 的值。</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2018 07:28:00 GMT;//可以指定一个特定的过期时间（Expires）或有效期（Max-Age）</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Set</span>-Cookie: id=a3fWa; Expires=Wed, <span class="number">21</span> Oct <span class="number">2018</span> <span class="number">07</span>:<span class="number">28</span>:<span class="number">00</span> GMT;</span><br><span class="line"><span class="comment">//可以指定一个特定的过期时间（Expires）或有效期（Max-Age）</span></span><br></pre></td></tr></table></figure>
 
 <p>当Cookie的过期时间被设定时，设定的日期和时间只与客户端相关，而不是服务端。</p>
 </li>
@@ -261,7 +267,7 @@
 </ul>
 <p><img src="https://pic2.zhimg.com/v2-9d22446bd1c422fbab68276bd0440e44_r.jpg" alt="preview"></p>
 <h3 id="3-cookie安全性"><a href="#3-cookie安全性" class="headerlink" title="3.cookie安全性"></a>3.cookie安全性</h3><p>  HttpOnly 不支持读写，浏览器不允许脚本操作document.cookie去更改cookie， 所以为避免跨域脚本 (XSS) 攻击，通过JavaScript的 Document.cookie API无法访问带有 HttpOnly 标记的Cookie，它们只应该发送给服务端。如果包含服务端 Session 信息的 Cookie 不想被客户端 JavaScript 脚本调用，那么就应该为其设置 HttpOnly 标记。</p>
-  <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly</span><br></pre></td></tr></table></figure>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Set</span>-Cookie: id=a3fWa; Expires=Wed, <span class="number">21</span> Oct <span class="number">2015</span> <span class="number">07</span>:<span class="number">28</span>:<span class="number">00</span> GMT; Secure; HttpOnly</span><br></pre></td></tr></table></figure>
 
 <p>  标记为 Secure 的Cookie只应通过被HTTPS协议加密过的请求发送给服务端。但即便设置了 Secure 标记，敏感信息也不应该通过Cookie传输，因为Cookie有其固有的不安全性，Secure 标记也无法提供确实的安全保障。</p>
 <p>  <img src="https://pic4.zhimg.com/v2-a7269b1ae24fb52bfcb678450d2f0e63_r.jpg" alt="preview"></p>
@@ -302,19 +308,18 @@
 <blockquote>
 <p>相比cookie 它存储容量更大，时间更久(除非刻意删除)</p>
 </blockquote>
-<h2 id="indexDB"><a href="#indexDB" class="headerlink" title="indexDB"></a>indexDB</h2><ul>
+<h2 id="indexDB"><a href="#indexDB" class="headerlink" title="indexDB"></a>indexDB</h2><p>  indexDBIndexedDB 是一个事务型, 基于 JavaScript 的面向对象数据库，用于在客户端存储大量的结构化数据。目前使用不是很深入，不进行更多探讨。</p>
+<h2 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h2><ul>
 <li>Cookie 的本职工作并非本地存储，而是“维持状态”</li>
 <li>Web Storage 是 HTML5 专门为浏览器存储而提供的数据存储机制，不与服务端发生通信</li>
 <li>IndexedDB 用于客户端存储大量结构化数据</li>
 </ul>
-<h2 id="WebSQL"><a href="#WebSQL" class="headerlink" title="WebSQL"></a>WebSQL</h2><h2 id="Websocket协议"><a href="#Websocket协议" class="headerlink" title="Websocket协议"></a>Websocket协议</h2><p>使用websocket可以在服务器与客户端之间建立一个<strong>非HTTP的双向连接</strong>，这个连接<strong>是实时的也是永久的</strong>，除非被显示关闭。服务器可以随时将消息推送到客户端，客户端也可以随时发送消息到服务端。</p>
-<ul>
-<li>ActiveMQ推送消息队列，是一个封装后的websocket客户端。</li>
-</ul>
+<h2 id="Websocket协议"><a href="#Websocket协议" class="headerlink" title="Websocket协议"></a>Websocket协议</h2><p>使用websocket可以在服务器与客户端之间建立一个<strong>非HTTP的双向连接</strong>，这个连接<strong>是实时的也是永久的</strong>，除非被显示关闭。服务器可以随时将消息推送到客户端，客户端也可以随时发送消息到服务端。</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> webServerUrl=<span class="string">&#x27;ws://47.102.96.246:5001/imserver/1&#x27;</span></span><br><span class="line"><span class="keyword">let</span> ws=<span class="keyword">new</span> WebSocket(webServerUrl)<span class="comment">//建立链接</span></span><br><span class="line">ws.onopen=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; 	<span class="comment">//监听链接打开</span></span><br><span class="line">    <span class="built_in">console</span>.log(e,<span class="string">&#x27;链接&#x27;</span>)</span><br><span class="line">    ws.send(<span class="string">&#x27;ourdta&#x27;</span>)</span><br><span class="line">&#125; </span><br><span class="line">ws.onmessage=<span class="function"><span class="keyword">function</span> (<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.body.innerHtml+=e.data <span class="comment">//监听消息推送</span></span><br><span class="line">    <span class="built_in">console</span>.log(e.data)</span><br><span class="line">&#125;</span><br><span class="line">ws.onclose=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e+<span class="string">&#x27;over&#x27;</span>) <span class="comment">//监听链接关闭</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>ws,close()和刷新页面、断网都会关闭链接。 一般websocket不关闭</li>
+<li>ActiveMQ插件推送消息队列，是一个封装后的websocket客户端。</li>
 </ul>
 
     </div>
@@ -334,8 +339,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/09/12/unicode%E4%B8%8Ejs/" rel="prev" title="从阮一峰老师学习总结">
-      <i class="fa fa-chevron-left"></i> 从阮一峰老师学习总结
+    <a href="/2020/09/12/unicode%E4%B8%8Ejs/" rel="prev" title="js中使用的字符集">
+      <i class="fa fa-chevron-left"></i> js中使用的字符集
     </a></div>
       <div class="post-nav-item">
     <a href="/2020/09/13/nginx%E9%98%B6%E6%AE%B5%E6%A8%A1%E5%9D%97/" rel="next" title="nginx工作得几个重要阶段">
@@ -399,7 +404,7 @@
 
             <!--noindex-->
             <div class="post-toc-wrap sidebar-panel">
-                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cookie%E5%AD%98%E5%82%A8"><span class="nav-text">Cookie存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-cookie%E8%B5%B7%E6%BA%90-%E7%89%B9%E7%82%B9"><span class="nav-text">1. cookie起源, 特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-cookie%E5%8E%9F%E7%90%86"><span class="nav-text">2. cookie原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-cookie%E5%AE%89%E5%85%A8%E6%80%A7"><span class="nav-text">3.cookie安全性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">4. 使用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WEB%E5%AD%98%E5%82%A8"><span class="nav-text">WEB存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-sessionStorage"><span class="nav-text">1. sessionStorage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-localStorage"><span class="nav-text">2. localStorage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#indexDB"><span class="nav-text">indexDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebSQL"><span class="nav-text">WebSQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Websocket%E5%8D%8F%E8%AE%AE"><span class="nav-text">Websocket协议</span></a></li></ol></div>
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Cookie%E5%AD%98%E5%82%A8"><span class="nav-text">Cookie存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-cookie%E8%B5%B7%E6%BA%90-%E7%89%B9%E7%82%B9"><span class="nav-text">1. cookie起源, 特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-cookie%E5%8E%9F%E7%90%86"><span class="nav-text">2. cookie原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-cookie%E5%AE%89%E5%85%A8%E6%80%A7"><span class="nav-text">3.cookie安全性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">4. 使用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WEB%E5%AD%98%E5%82%A8"><span class="nav-text">WEB存储</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-sessionStorage"><span class="nav-text">1. sessionStorage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-localStorage"><span class="nav-text">2. localStorage</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#indexDB"><span class="nav-text">indexDB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AF%94%E8%BE%83"><span class="nav-text">比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Websocket%E5%8D%8F%E8%AE%AE"><span class="nav-text">Websocket协议</span></a></li></ol></div>
             </div>
             <!--/noindex-->
 
@@ -429,7 +434,7 @@
             <h3 class="widget-title">笔记分类</h3>
             <div class="category-all-page">
               <div class="category-all">
-                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li></ul>
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">算法与数据结构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">2</span></li></ul>
               </div>
             </div>
           </div>
@@ -443,7 +448,7 @@
               <h3 class="widget-title">标签云</h3>
               <div id="myCanvasContainer" class="widget tagcloud">
                 <canvas width="250" height="100" id="resCanvas" style="width:100%">
-                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">2</span></li></ul>
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javaScript/" rel="tag">javaScript</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js-%E7%AC%94%E8%AE%B0/" rel="tag">js 笔记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag">运维</a><span class="tag-list-count">1</span></li></ul>
                 </canvas>
               </div>
             </div>

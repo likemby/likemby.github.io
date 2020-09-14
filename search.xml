@@ -77,8 +77,8 @@
 <blockquote>
 <ul>
 <li>获得时间戳 <code>var timeStamp= +new Date()</code> </li>
-<li>截断小数 <code>~~-49.6 == -49</code></li>
-<li><del>x取得x补码  `</del>str.index(“a”)=0或1`</li>
+<li>利用~32位整数取反，截断小数 <code>~~-49.6 == -49</code></li>
+<li>利用~x取得x补码处理-1  <code>~str.index(&quot;a&quot;)=0或1</code></li>
 </ul>
 </blockquote>
 </li>
@@ -140,41 +140,44 @@
 <li>不能转为数字类型</li>
 </ul>
 ]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>javaScript</tag>
+      </tags>
   </entry>
   <entry>
     <title>一些有趣的js题目</title>
     <url>/2020/09/12/js%E9%A2%98%E7%9B%AE/</url>
     <content><![CDATA[<h2 id="四十四道js难题"><a href="#四十四道js难题" class="headerlink" title="四十四道js难题"></a><a href="http://javascript-puzzlers.herokuapp.com/">四十四道js难题</a></h2><ol>
 <li><p>parseInt(string, base)</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">[&quot;1&quot;, &quot;2&quot;, &quot;3&quot;].map(parseInt)</span><br><span class="line">        </span><br><span class="line">what you actually get is [1, NaN, NaN] because parseInt takes two parameters (val, radix) and map passes 3 (element, index, array)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">[<span class="string">&quot;1&quot;</span>, <span class="string">&quot;2&quot;</span>, <span class="string">&quot;3&quot;</span>].map(<span class="built_in">parseInt</span>)</span><br><span class="line">        </span><br><span class="line">what you actually get is [<span class="number">1</span>, <span class="literal">NaN</span>, <span class="literal">NaN</span>] because <span class="built_in">parseInt</span> takes two parameters (val, radix) and map passes <span class="number">3</span> (element, index, array)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>base指定string是一个多少进制的数字字符串，默认base=0,表示10进制。</p>
-<a id="more"></a>
-<ol start="2">
+<a id="more"></a></li>
 <li><p>reduce，调用者为空数组时必须传递初始值</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[ [3,2,1].reduce(Math.pow), [].reduce(Math.pow) ]</span><br><span class="line"></span><br><span class="line">error</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
+ <figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[ [<span class="number">3</span>,<span class="number">2</span>,<span class="number">1</span>].reduce(<span class="built_in">Math</span>.pow), [].reduce(<span class="built_in">Math</span>.pow) ]</span><br><span class="line"></span><br><span class="line">error</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>运算符优先级</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line"><span class="keyword">var</span> val = <span class="string">&#x27;smtg&#x27;</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;Value is &#x27;</span> + (val === <span class="string">&#x27;smtg&#x27;</span>) ? <span class="string">&#x27;Something&#x27;</span> : <span class="string">&#x27;Nothing&#x27;</span>);</span><br></pre></td></tr></table></figure>
 
 <p><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Operator_Precedence">运算符优先级</a></p>
-<p>最高优先级：（）20</p>
-<p>最低优先级：， 0</p>
+<p>最高优先级：<code>() </code></p>
+<p>最低优先级：<code>,</code></p>
 <p>常见优先级顺序： 赋值运算&lt; 三目运算符&lt;逻辑运算&lt;位运算 &lt;等不等运算符&lt;比较运算符&lt; 位左右移&lt; 加减&lt;乘除&lt;幂运算&lt;前置递增与其它单目运算 &lt;后置递增   &lt;new(无参)运算符&lt;  .成员访问</p>
 <p>右关联运算符： 赋值运算，三目运算，幂运算，所有单目运算</p>
 </li>
 <li><p>.fitter,map 对空元素不起作用</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var ary &#x3D; [0,1,2];</span><br><span class="line">ary[10] &#x3D; 10;</span><br><span class="line">ary.filter(function(x) &#123; return x &#x3D;&#x3D;&#x3D; undefined;&#125;);</span><br><span class="line"></span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> ary = [<span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>];</span><br><span class="line">ary[<span class="number">10</span>] = <span class="number">10</span>;</span><br><span class="line">ary.filter(<span class="function"><span class="keyword">function</span>(<span class="params">x</span>) </span>&#123; <span class="keyword">return</span> x === <span class="literal">undefined</span>;&#125;);</span><br><span class="line"></span><br><span class="line">[]</span><br></pre></td></tr></table></figure>
 
-<p>空元素并非指值为undefined的元素</p>
+<p><strong>空元素并非指值为undefined的元素</strong></p>
 </li>
 <li><p>小数运算不可信</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var two   &#x3D; 0.2</span><br><span class="line">var one   &#x3D; 0.1</span><br><span class="line">var eight &#x3D; 0.8</span><br><span class="line">var six   &#x3D; 0.6</span><br><span class="line">[two - one &#x3D;&#x3D; one, eight - six &#x3D;&#x3D; two]</span><br><span class="line"></span><br><span class="line">0.2-0.1&#x3D;0.1 0.8-0.6&#x3D;0.2000000007</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> two   = <span class="number">0.2</span></span><br><span class="line"><span class="keyword">var</span> one   = <span class="number">0.1</span></span><br><span class="line"><span class="keyword">var</span> eight = <span class="number">0.8</span></span><br><span class="line"><span class="keyword">var</span> six   = <span class="number">0.6</span></span><br><span class="line">[two - one == one, eight - six == two]</span><br><span class="line"></span><br><span class="line"><span class="number">0.2</span><span class="number">-0.1</span>=<span class="number">0.1</span> <span class="number">0.8</span><span class="number">-0.6</span>=<span class="number">0.2000000007</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>大数运算也不可信</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">var a &#x3D; 111111111111111110000,</span><br><span class="line">    b &#x3D; 1111;</span><br><span class="line">a + b;</span><br><span class="line">        </span><br><span class="line">&#x3D;111111111111111110000</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line"><span class="keyword">var</span> a = <span class="number">111111111111111110000</span>,</span><br><span class="line">    b = <span class="number">1111</span>;</span><br><span class="line">a + b;<span class="comment">//111111111111111110000</span></span><br></pre></td></tr></table></figure>
 
 
 
@@ -182,22 +185,22 @@
 </ol>
 <ol start="7">
 <li><p>全局变量提升</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">(function()&#123;</span><br><span class="line">  var x &#x3D; y &#x3D; 1;</span><br><span class="line">&#125;)();</span><br><span class="line">console.log(y);</span><br><span class="line">console.log(x);</span><br><span class="line">      </span><br><span class="line">      1 error</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> x = y = <span class="number">1</span>;</span><br><span class="line">&#125;)();</span><br><span class="line"><span class="built_in">console</span>.log(y);</span><br><span class="line"><span class="built_in">console</span>.log(x);<span class="comment">//1 error</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>负负得正</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">1 + - + + + - + 1</span><br><span class="line">&#x3D;2</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)           </span><br><span class="line"><span class="number">1</span> + - + + + - + <span class="number">1</span></span><br><span class="line">=<span class="number">2</span></span><br></pre></td></tr></table></figure>
 </li>
 <li><p>正则表达式字面量形式</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var a &#x3D; &#x2F;123&#x2F;,</span><br><span class="line">    b &#x3D; &#x2F;123&#x2F;;</span><br><span class="line">a &#x3D;&#x3D; b</span><br><span class="line">a &#x3D;&#x3D;&#x3D; b</span><br><span class="line">        false false a与b是对象</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="regexp">/123/</span>,</span><br><span class="line">    b = <span class="regexp">/123/</span>;</span><br><span class="line">a == b</span><br><span class="line">a === b</span><br><span class="line">        <span class="literal">false</span> <span class="literal">false</span> a与b是对象</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>属性具有不可writable的特性 并且<strong>赋值不保错</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">What is the result of this expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">function foo() &#123; &#125;</span><br><span class="line">var oldName &#x3D; foo.name;</span><br><span class="line">foo.name &#x3D; &quot;bar&quot;;</span><br><span class="line">[oldName, foo.name]</span><br><span class="line">[foo,foo]</span><br><span class="line">   </span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">What is the result <span class="keyword">of</span> <span class="built_in">this</span> expression? (or multiple ones)</span><br><span class="line"></span><br><span class="line">          </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; &#125;</span><br><span class="line"><span class="keyword">var</span> oldName = foo.name;</span><br><span class="line">foo.name = <span class="string">&quot;bar&quot;</span>;</span><br><span class="line">[oldName, foo.name]</span><br><span class="line">[foo,foo]</span><br><span class="line">   </span><br></pre></td></tr></table></figure>
 </li>
 <li><p><code>2^53=2^53+1 </code>for循环中会造成死循环 </p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var END &#x3D; Math.pow(2, 53);</span><br><span class="line">var START &#x3D; END - 100;</span><br><span class="line">var count &#x3D; 0;</span><br><span class="line">for (var i &#x3D; START; i &lt;&#x3D; END; i++) &#123;</span><br><span class="line">    count++;</span><br><span class="line">&#125;</span><br><span class="line">console.log(count);</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> END = <span class="built_in">Math</span>.pow(<span class="number">2</span>, <span class="number">53</span>);</span><br><span class="line"><span class="keyword">var</span> START = END - <span class="number">100</span>;</span><br><span class="line"><span class="keyword">var</span> count = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = START; i &lt;= END; i++) &#123;</span><br><span class="line">    count++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(count);</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>非严格模式下arguments会和函数参数绑定</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function sidEffecting(ary) &#123;</span><br><span class="line">  ary[0] &#x3D; ary[2];</span><br><span class="line">&#125;</span><br><span class="line">function bar(a,b,c) &#123;</span><br><span class="line">  c &#x3D; 10</span><br><span class="line">  sidEffecting(arguments);</span><br><span class="line">  return a + b + c;</span><br><span class="line">&#125;</span><br><span class="line">bar(1,1,1) </span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sidEffecting</span>(<span class="params">ary</span>) </span>&#123;</span><br><span class="line">  ary[<span class="number">0</span>] = ary[<span class="number">2</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params">a,b,c</span>) </span>&#123;</span><br><span class="line">  c = <span class="number">10</span></span><br><span class="line">  sidEffecting(<span class="built_in">arguments</span>);</span><br><span class="line">  <span class="keyword">return</span> a + b + c;</span><br><span class="line">&#125;</span><br><span class="line">bar(<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>) </span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>​    这里总结一下：严格模式和非严格模式  </p>
@@ -207,14 +210,13 @@
 </blockquote>
 </li>
 <li><p>reverse()函数现在是严格函数编写，this指向 undefined,null时，不会默认为window</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">var x &#x3D; [].reverse;</span><br><span class="line">x();</span><br><span class="line">&#x2F;&#x2F;报错</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> x = [].reverse;</span><br><span class="line">x();</span><br><span class="line"><span class="comment">//报错</span></span><br></pre></td></tr></table></figure>
 
 
 
 </li>
 </ol>
-<h2 id="第二次考试题及复习题"><a href="#第二次考试题及复习题" class="headerlink" title="第二次考试题及复习题"></a>第二次考试题及复习题</h2><p>JavaScript</p>
-<ol>
+<h2 id="第二次考试题及复习题"><a href="#第二次考试题及复习题" class="headerlink" title="第二次考试题及复习题"></a>第二次考试题及复习题</h2><ol>
 <li><p><strong>JS组成(ECMAScript，DOM，BOM)</strong></p>
 <p>javaScript包括European Computer Manufacturers Association-262标准实现和扩展的一门脚本语言‘</p>
 <p>DOM document object model 文档对象模型</p>
@@ -225,7 +227,7 @@
 </li>
 <li><p><strong>对象属性定义(Object. defineProperty())</strong></p>
 <ul>
-<li>查看 Object.getOwnPropertyDescriptors(obj)  (es 8)，Object.getOwnPropertyDescriptor(obj，prop) </li>
+<li>查看 Object.getOwnPropertyDescriptors(obj) Object.getOwnPropertyDescriptor(obj，prop) </li>
 <li>修改 Object.defineProperty(obj,prop)   Object.defineProperties(obj)</li>
 <li>可配置的属性 enumerable, writable, configurable</li>
 </ul>
@@ -235,7 +237,7 @@
 <p>let, forEach, IEEF 解决闭包函数执行时共用同一一个外部变量导致的问题。</p>
 </li>
 <li><p><strong>递归实现某个功能</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function factorial(n)&#123;</span><br><span class="line"></span><br><span class="line">if(n&#x3D;&#x3D;1 ) return 1;</span><br><span class="line"></span><br><span class="line">return n * factorial(n-1)</span><br><span class="line"></span><br><span class="line">&#125;&#x2F;&#x2F;递归求阶乘</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">factorial</span>(<span class="params">n</span>)</span>&#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(n==<span class="number">1</span> ) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> n * factorial(n<span class="number">-1</span>)</span><br><span class="line"></span><br><span class="line">&#125;<span class="comment">//递归求阶乘</span></span><br></pre></td></tr></table></figure>
 
 
 
@@ -245,7 +247,7 @@
 <li><p>JS继承有几种？如何实现继承？</p>
 <ul>
 <li><p>原型链继承 将子对象原型指向另一个类型的实例实现的继承。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Parent() &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Parent.prototype.color &#x3D; &quot;blue&quot;;</span><br><span class="line">Parent.prototype.sayColor &#x3D; function () &#123;</span><br><span class="line">    alert(this.color);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">function Child() &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype &#x3D; new Parent();</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Parent</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Parent.prototype.color = <span class="string">&quot;blue&quot;</span>;</span><br><span class="line">Parent.prototype.sayColor = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    alert(<span class="built_in">this</span>.color);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Child</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype = <span class="keyword">new</span> Parent();</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>优点：子类公用父类中的属性</p>
@@ -253,7 +255,7 @@
 </blockquote>
 </li>
 <li><p>函数构造继承</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Parent(name)&#123;</span><br><span class="line">	this.name&#x3D;name</span><br><span class="line">	this.sayHello&#x3D;function()&#123;console.log(&#39;hi&#39;);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child(name)&#123;</span><br><span class="line">	Parent.call(this,name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Parent</span>(<span class="params">name</span>)</span>&#123;</span><br><span class="line">	<span class="built_in">this</span>.name=name</span><br><span class="line">	<span class="built_in">this</span>.sayHello=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="built_in">console</span>.log(<span class="string">&#x27;hi&#x27;</span>);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Child</span>(<span class="params">name</span>)</span>&#123;</span><br><span class="line">	Parent.call(<span class="built_in">this</span>,name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>优点：每个子对象都拥有父对象的方法和属性</p>
@@ -261,7 +263,7 @@
 </blockquote>
 </li>
 <li><p>混合继承</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">function Parent(name)&#123;</span><br><span class="line">	this.name&#x3D;name</span><br><span class="line">	this.sayHello&#x3D;function()&#123;console.log(&#39;hi&#39;);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child(name)&#123;</span><br><span class="line">	Parent.call(this,name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype&#x3D;new Patent()</span><br><span class="line">Child.prototype.constructor&#x3D;Parent;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Parent</span>(<span class="params">name</span>)</span>&#123;</span><br><span class="line">	<span class="built_in">this</span>.name=name</span><br><span class="line">	<span class="built_in">this</span>.sayHello=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;<span class="built_in">console</span>.log(<span class="string">&#x27;hi&#x27;</span>);&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Child</span>(<span class="params">name</span>)</span>&#123;</span><br><span class="line">	Parent.call(<span class="built_in">this</span>,name)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Child.prototype=<span class="keyword">new</span> Patent()</span><br><span class="line">Child.prototype.constructor=Parent;</span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <p>可以向超类中传参，也可以公用超类的方法，这种方式被广泛使用</p>
@@ -269,7 +271,7 @@
 </li>
 <li><p>行为委托</p>
 <p>利用this隐式绑定与原型链查找，将公共行为写到被委托者，而状态存储在委托者。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">let parent&#x3D;&#123;</span><br><span class="line">	setName(name)&#123;this.name&#x3D;name&#125;</span><br><span class="line">	sayHello()&#123;console.log(&#39;hi &#39;+this.name)&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let child&#x3D;Object.create(parent)</span><br><span class="line"></span><br><span class="line">child.init&#x3D;function(name)&#123; </span><br><span class="line">this.setName(name)</span><br><span class="line">this.flag&#x3D;&#39;beautiful&#39;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">child.init(&#39;huahua&#39;)</span><br><span class="line">child.sayHello()</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> parent=&#123;</span><br><span class="line">	setName(name)&#123;<span class="built_in">this</span>.name=name&#125;</span><br><span class="line">	sayHello()&#123;<span class="built_in">console</span>.log(<span class="string">&#x27;hi &#x27;</span>+<span class="built_in">this</span>.name)&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> child=<span class="built_in">Object</span>.create(parent)</span><br><span class="line"></span><br><span class="line">child.init=<span class="function"><span class="keyword">function</span>(<span class="params">name</span>)</span>&#123; </span><br><span class="line"><span class="built_in">this</span>.setName(name)</span><br><span class="line"><span class="built_in">this</span>.flag=<span class="string">&#x27;beautiful&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">child.init(<span class="string">&#x27;huahua&#x27;</span>)</span><br><span class="line">child.sayHello()</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
 
 <blockquote>
 <ol>
@@ -286,21 +288,20 @@
 <li>Array.prototype.slice.call(arrLike)</li>
 </ul>
 </li>
-<li><p>至少一种排序算法</p>
-<p>插入排序</p>
-</li>
+</ol>
+<ol start="9">
 <li><p><strong>数组的10个方法，String的10个方法</strong></p>
 <p>数组</p>
-<p>push(),pop(),shift(),unshift(),splice()改变自身的方法</p>
-<p>forEach,map,filter,reduce,some,every 遍历数组的方法</p>
-<p>find(cb),findIndex(cb),IndexOf(value,start=0),includes(value,start)查找元素\下标\元素是否存在</p>
+<p>改变自身的方法: push(),pop(),shift(),unshift(),splice(),flat()</p>
+<p>改变自身的方法：forEach,map,filter,reduce,some,every </p>
+<p>查找元素、下标、元素存在：find(cb),findIndex(cb),IndexOf(value,start=0),includes(value,start)</p>
 <p>slice()切片操作、concat()链接多个数组</p>
 <p>字符串</p>
-<p>search，match, matchAll, replace ，split可以使用正则的字符串方法</p>
-<p>charAt, charAtCode, indexOf(), startWith(),endWith() 不用药正则的查找方法</p>
-<p>slice,substr,sbstring 子串截取</p>
-<p>trim, toLowerCase,toUpperCase 字符串转换</p>
-<p>concat 字符串拼接 repeat() 字符串赋值</p>
+<p>可以使用正则的字符串方法：search，match, matchAll, replace ，split</p>
+<p>不用正则的查找方法：charAt, charAtCode, indexOf(), startWith(),endWith() </p>
+<p>子串截取：slice,substr,sbstring</p>
+<p>字符串转换：trim, toLowerCase,toUpperCase </p>
+<p>字符串拼接 concat 字符串赋值 repeat()</p>
 </li>
 </ol>
 <ol start="10">
@@ -347,22 +348,28 @@
 <p>obj=new fun()</p>
 </li>
 <li><p><strong>事件的三要素是什么?如何绑定事件及解绑</strong></p>
-<p>事件源，事件，事件驱动程序</p>
-<p> dom0 ,html行内绑定，js属性绑定；通过js事件属性=null解绑</p>
+<p><strong>事件源，事件，事件驱动程序</strong></p>
+<ol>
+<li><p>dom0 ,html行内绑定，js属性绑定；通过js事件属性=null解绑</p>
 <p>如 <code>dom.onclick=function()&#123;&#125;</code></p>
-<p>dom2通过，addEventListener(),removeEventListner()</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>dom2通过，addEventListener(),removeEventListner()</p>
 <p>如 <code>dom.addEventListenr(&#39;click&#39;,function()&#123;&#125;)</code></p>
+</li>
+</ol>
 </li>
 <li><p>如<strong>何停止事件冒泡和阻止默认行为？</strong></p>
 <p>el.stopPropagation() el.preventDefault()</p>
 </li>
 <li><p><strong>如何操作DOM节点的属性和内容</strong></p>
 <p>自身属性</p>
-<pre><code>el.prop获取， el.prop=&quot;content&quot;赋值</code></pre>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">closeBanner.className+&#x3D;&quot;hide&quot; &#x2F;&#x2F;保留原类名，添加新类名</span><br><span class="line">closeBanner.className&#x3D;&quot;hide&quot; &#x2F;&#x2F;替换旧类名</span><br></pre></td></tr></table></figure>
+<p>el.prop获取,el.prop=”content”赋值</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">closeBanner.className+=<span class="string">&quot;hide&quot;</span> <span class="comment">//保留原类名，添加新类名</span></span><br><span class="line">closeBanner.className=<span class="string">&quot;hide&quot;</span> <span class="comment">//替换旧类名</span></span><br></pre></td></tr></table></figure>
 
 <p>自定义属性</p>
-<pre><code>el.getAtrribute(prop), el.setAttribute(prop,value)</code></pre>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">el.getAtrribute(prop), el.setAttribute(prop,value)</span><br></pre></td></tr></table></figure>
 </li>
 </ol>
 ]]></content>
@@ -374,9 +381,10 @@
       </tags>
   </entry>
   <entry>
-    <title>从阮一峰老师学习总结</title>
+    <title>js中使用的字符集</title>
     <url>/2020/09/12/unicode%E4%B8%8Ejs/</url>
-    <content><![CDATA[<h2 id="Unicode字符集"><a href="#Unicode字符集" class="headerlink" title="Unicode字符集"></a>Unicode字符集</h2><p>起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。</p>
+    <content><![CDATA[<p>本篇文章是从阮一峰老师文章<a href="https://www.ruanyifeng.com/blog/2014/12/unicode.html">&lt;&lt;Unicode与JavaScript详解&gt;&gt;</a>学习总结得到的。</p>
+<h2 id="Unicode字符集"><a href="#Unicode字符集" class="headerlink" title="Unicode字符集"></a>Unicode字符集</h2><p>起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。</p>
 <p><strong>它从0开始，为每个符号指定一个编号，这叫做”码点”（code point）</strong>,如<code>u+0000=null</code></p>
 <p>基本平面BMP(Basic Mutillingual Plane)包含可能看到的和接触到的所有标准打印字符，<code>U+0000~U+FFFF</code>。</p>
 <a id="more"></a>
@@ -411,8 +419,8 @@
 </tr>
 </tbody></table>
 <h3 id="UTF-16"><a href="#UTF-16" class="headerlink" title="UTF-16"></a>UTF-16</h3><p>它的编码规则很简单：基本平面的字符占用2个字节，辅助平面的字符占用4个字节。<strong>也就是说，UTF-16的编码长度要么是2个字节（U+0000到U+FFFF），要么是4个字节（U+010000到U+10FFFF）。</strong></p>
-<p>于是就有一个问题，当我们遇到两个字节，怎么看出它本身是一个字符，还是需要跟其他两个字节放在一起解读？</p>
-<p>说来很巧妙，我也不知道是不是故意的设计，在基本平面内，从U+D800到U+DFFF是一个空段，即这些码点不对应任何字符。因此，这个空段可以用来映射辅助平面的字符。</p>
+<p>当我们遇到两个字节，怎么看出它本身是一个字符，还是需要跟其他两个字节放在一起解读？</p>
+<p>由于在基本平面内，从U+D800到U+DFFF是一个空段，即这些码点不对应任何字符。因此，这个空段可以用来映射辅助平面的字符。</p>
 <p>具体来说，辅助平面的字符位共有220个，也就是说，对应这些字符至少需要20个二进制位。UTF-16将这20位拆成两半，前10位映射在U+D800到U+DBFF（空间大小210），称为高位（H），后10位映射在U+DC00到U+DFFF（空间大小210），称为低位（L）。这意味着，一个辅助平面的字符，被拆成两个基本平面的字符表示。</p>
 <p><strong>所以，当我们遇到两个字节，发现它的码点在U+D800到U+DBFF之间，就可以断定，紧跟在后面的两个字节的码点，应该在U+DC00到U+DFFF之间，这四个字节必须放在一起解读。</strong></p>
 <p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121106.png" alt="img"></p>
@@ -428,9 +436,7 @@
 <li><p>ES6可以自动识别4字节的码点。因此，遍历字符串就简单多了。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">for (let s of string ) &#123;</span><br><span class="line">  &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Array</span>.from(string).length</span><br><span class="line">但是，为了保持兼容，length属性还是原来的行为方式。为了得到字符串的正确长度，可以用下面的方式</span><br></pre></td></tr></table></figure>
-</blockquote>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"> <span class="built_in">Array</span>.from(string).length</span><br><span class="line">但是,为了保持兼容,length属性还是原来的行为方式。为了得到字符串的正确长度，可以用下面的方式</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>JavaScript允许直接用码点表示Unicode字符，写法是”反斜杠+u+码点”。</p>
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;好&#x27;</span> === <span class="string">&#x27;\u597D&#x27;</span> <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
@@ -439,9 +445,9 @@
 </li>
 <li><p>新增字符串处理函数</p>
 <ul>
-<li>**String.fromCodePoint()**：从Unicode码点返回对应字符</li>
-<li>**String.prototype.codePointAt()**：从字符返回对应的码点</li>
-<li>**String.prototype.at()**：返回字符串给定位置的字符</li>
+<li>String.fromCodePoint() ：从Unicode码点返回对应字符</li>
+<li>String.prototype.codePointAt() ：从字符返回对应的码点</li>
+<li>String.prototype.at() ：返回字符串给定位置的字符</li>
 </ul>
 </li>
 <li><p>ES6提供了u修饰符，对正则表达式添加4字节码点的支持。</p>
@@ -456,7 +462,7 @@
       </tags>
   </entry>
   <entry>
-    <title>浏览器存储机制</title>
+    <title>浏览器存储机制与WebSocket协议</title>
     <url>/2020/09/12/web%E5%AD%98%E5%82%A8/</url>
     <content><![CDATA[<h2 id="Cookie存储"><a href="#Cookie存储" class="headerlink" title="Cookie存储"></a>Cookie存储</h2><h3 id="1-cookie起源-特点"><a href="#1-cookie起源-特点" class="headerlink" title="1. cookie起源, 特点"></a>1. cookie起源, 特点</h3><p><strong>Cookie 的本职工作并非本地存储，而是“维持状态”</strong>。因为<strong>HTTP协议是无状态的，HTTP协议自身不对请求和响应之间的通信状态进行保存</strong>，通俗来说，服务器不知道用户上一次做了什么，这严重阻碍了交互式Web应用程序的实现。</p>
 <ul>
@@ -472,7 +478,7 @@
 <ul>
 <li><p>生成方式一：http response header中的set-cookie</p>
 <p>我们可以通过响应头里的 Set-Cookie 指定要存储的 Cookie 值。默认情况下，domain 被设置为设置 Cookie 页面的主机名，我们也可以手动设置 domain 的值。</p>
-<figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2018 07:28:00 GMT;//可以指定一个特定的过期时间（Expires）或有效期（Max-Age）</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Set</span>-Cookie: id=a3fWa; Expires=Wed, <span class="number">21</span> Oct <span class="number">2018</span> <span class="number">07</span>:<span class="number">28</span>:<span class="number">00</span> GMT;</span><br><span class="line"><span class="comment">//可以指定一个特定的过期时间（Expires）或有效期（Max-Age）</span></span><br></pre></td></tr></table></figure>
 
 <p>当Cookie的过期时间被设定时，设定的日期和时间只与客户端相关，而不是服务端。</p>
 </li>
@@ -482,7 +488,7 @@
 </ul>
 <p><img src="https://pic2.zhimg.com/v2-9d22446bd1c422fbab68276bd0440e44_r.jpg" alt="preview"></p>
 <h3 id="3-cookie安全性"><a href="#3-cookie安全性" class="headerlink" title="3.cookie安全性"></a>3.cookie安全性</h3><p>  HttpOnly 不支持读写，浏览器不允许脚本操作document.cookie去更改cookie， 所以为避免跨域脚本 (XSS) 攻击，通过JavaScript的 Document.cookie API无法访问带有 HttpOnly 标记的Cookie，它们只应该发送给服务端。如果包含服务端 Session 信息的 Cookie 不想被客户端 JavaScript 脚本调用，那么就应该为其设置 HttpOnly 标记。</p>
-  <figure class="highlight text"><table><tr><td class="code"><pre><span class="line">Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure; HttpOnly</span><br></pre></td></tr></table></figure>
+  <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">Set</span>-Cookie: id=a3fWa; Expires=Wed, <span class="number">21</span> Oct <span class="number">2015</span> <span class="number">07</span>:<span class="number">28</span>:<span class="number">00</span> GMT; Secure; HttpOnly</span><br></pre></td></tr></table></figure>
 
 <p>  标记为 Secure 的Cookie只应通过被HTTPS协议加密过的请求发送给服务端。但即便设置了 Secure 标记，敏感信息也不应该通过Cookie传输，因为Cookie有其固有的不安全性，Secure 标记也无法提供确实的安全保障。</p>
 <p>  <img src="https://pic4.zhimg.com/v2-a7269b1ae24fb52bfcb678450d2f0e63_r.jpg" alt="preview"></p>
@@ -523,19 +529,18 @@
 <blockquote>
 <p>相比cookie 它存储容量更大，时间更久(除非刻意删除)</p>
 </blockquote>
-<h2 id="indexDB"><a href="#indexDB" class="headerlink" title="indexDB"></a>indexDB</h2><ul>
+<h2 id="indexDB"><a href="#indexDB" class="headerlink" title="indexDB"></a>indexDB</h2><p>  indexDBIndexedDB 是一个事务型, 基于 JavaScript 的面向对象数据库，用于在客户端存储大量的结构化数据。目前使用不是很深入，不进行更多探讨。</p>
+<h2 id="比较"><a href="#比较" class="headerlink" title="比较"></a>比较</h2><ul>
 <li>Cookie 的本职工作并非本地存储，而是“维持状态”</li>
 <li>Web Storage 是 HTML5 专门为浏览器存储而提供的数据存储机制，不与服务端发生通信</li>
 <li>IndexedDB 用于客户端存储大量结构化数据</li>
 </ul>
-<h2 id="WebSQL"><a href="#WebSQL" class="headerlink" title="WebSQL"></a>WebSQL</h2><h2 id="Websocket协议"><a href="#Websocket协议" class="headerlink" title="Websocket协议"></a>Websocket协议</h2><p>使用websocket可以在服务器与客户端之间建立一个<strong>非HTTP的双向连接</strong>，这个连接<strong>是实时的也是永久的</strong>，除非被显示关闭。服务器可以随时将消息推送到客户端，客户端也可以随时发送消息到服务端。</p>
-<ul>
-<li>ActiveMQ推送消息队列，是一个封装后的websocket客户端。</li>
-</ul>
+<h2 id="Websocket协议"><a href="#Websocket协议" class="headerlink" title="Websocket协议"></a>Websocket协议</h2><p>使用websocket可以在服务器与客户端之间建立一个<strong>非HTTP的双向连接</strong>，这个连接<strong>是实时的也是永久的</strong>，除非被显示关闭。服务器可以随时将消息推送到客户端，客户端也可以随时发送消息到服务端。</p>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> webServerUrl=<span class="string">&#x27;ws://47.102.96.246:5001/imserver/1&#x27;</span></span><br><span class="line"><span class="keyword">let</span> ws=<span class="keyword">new</span> WebSocket(webServerUrl)<span class="comment">//建立链接</span></span><br><span class="line">ws.onopen=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123; 	<span class="comment">//监听链接打开</span></span><br><span class="line">    <span class="built_in">console</span>.log(e,<span class="string">&#x27;链接&#x27;</span>)</span><br><span class="line">    ws.send(<span class="string">&#x27;ourdta&#x27;</span>)</span><br><span class="line">&#125; </span><br><span class="line">ws.onmessage=<span class="function"><span class="keyword">function</span> (<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">document</span>.body.innerHtml+=e.data <span class="comment">//监听消息推送</span></span><br><span class="line">    <span class="built_in">console</span>.log(e.data)</span><br><span class="line">&#125;</span><br><span class="line">ws.onclose=<span class="function"><span class="keyword">function</span>(<span class="params">e</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(e+<span class="string">&#x27;over&#x27;</span>) <span class="comment">//监听链接关闭</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
 <li>ws,close()和刷新页面、断网都会关闭链接。 一般websocket不关闭</li>
+<li>ActiveMQ插件推送消息队列，是一个封装后的websocket客户端。</li>
 </ul>
 ]]></content>
       <categories>
@@ -1326,7 +1331,7 @@ parseInt(&quot;10 years&quot;);   // returns 10
         <category>前端</category>
       </categories>
       <tags>
-        <tag>js</tag>
+        <tag>js 笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -1340,6 +1345,7 @@ parseInt(&quot;10 years&quot;);   // returns 10
 <li><p><strong>js引擎</strong>负责从头到尾负责整个 JavaScript 程序的编译及执行过程。</p>
 </li>
 <li><p><strong>编译器</strong>负责语法分析及代码生成等</p>
+<a id="more"></a>
 <blockquote>
 <p>传统的编译</p>
 </blockquote>
@@ -1363,10 +1369,9 @@ parseInt(&quot;10 years&quot;);   // returns 10
 </li>
 </ul>
 <ol start="2">
-<li>JavaScript 引擎不会有大量的（像其他语言编译器那么多的）时间用来进行优化，因为与其他语言不同，JavaScript 的编译过程不是发生在构建之前的。<a id="more"></a>
-<h4 id="1-作用域内声明提升"><a href="#1-作用域内声明提升" class="headerlink" title="1.作用域内声明提升"></a>1.作用域内声明提升</h4></li>
+<li>JavaScript 引擎不会有大量的（像其他语言编译器那么多的）时间用来进行优化，因为与其他语言不同，JavaScript 的编译过程不是发生在构建之前的。</li>
 </ol>
-<p>针对var变量和函数类型</p>
+<h4 id="1-作用域内声明提升"><a href="#1-作用域内声明提升" class="headerlink" title="1.作用域内声明提升"></a>1.作用域内声明提升</h4><p>针对var变量和函数类型</p>
 <ul>
 <li>包括变量和函数在内的所有声明都会在任何代码被执行前首先被处理。</li>
 <li>函数优先于变量</li>
@@ -2192,9 +2197,11 @@ parseInt(&quot;10 years&quot;);   // returns 10
       </tags>
   </entry>
   <entry>
-    <title>nginx配置信息</title>
+    <title>nginx如何配置</title>
     <url>/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<h4 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h4><table>
+    <content><![CDATA[<p>nginx.conf配置文件总体分三个部分，全局配置块、events配置块、http块，入门时更多配置操作是在http块，尤其是对http块下的server块和location的配置, 需要多多实践才行，下面是我对其配置项的粗略总结。</p>
+<a id="more"></a>
+<h3 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h3><table>
 <thead>
 <tr>
 <th>选项</th>
@@ -2227,14 +2234,8 @@ parseInt(&quot;10 years&quot;);   // returns 10
 <td>/var/run/nginx.pid</td>
 <td></td>
 </tr>
-<tr>
-<td>&lt;–! more –&gt;</td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
 </tbody></table>
-<h4 id="events配置"><a href="#events配置" class="headerlink" title="events配置"></a>events配置</h4><p><em>events配置nginx服务器和用户的连接网络，每个进程最大连接数，选取哪种事件驱动处理<br>请求，是否允许同时接受多个网络连接，开启多个网络连接序列化。</em></p>
+<h3 id="events配置"><a href="#events配置" class="headerlink" title="events配置"></a>events配置</h3><p><em>events配置nginx服务器和用户的连接网络，每个进程最大连接数，选取哪种事件驱动处理<br>请求，是否允许同时接受多个网络连接，开启多个网络连接序列化。</em></p>
 <table>
 <thead>
 <tr>
@@ -2269,7 +2270,7 @@ parseInt(&quot;10 years&quot;);   // returns 10
 <td>[ kqueue | rtsig | epoll | /dev/poll | select | poll ]</td>
 </tr>
 </tbody></table>
-<h4 id="http块配置"><a href="#http块配置" class="headerlink" title="http块配置"></a>http块配置</h4><p><em>http块可以嵌套多个server,配置代理，缓存，日志定义等大多数功能和第三方模块配置<br>如文件引入mimetype日志自定义，是否使用sendfile传输文件，连接超时，单连接请求数量。</em></p>
+<h3 id="http块配置"><a href="#http块配置" class="headerlink" title="http块配置"></a>http块配置</h3><p><em>http块可以嵌套多个server,配置代理，缓存，日志定义等大多数功能和第三方模块配置<br>如文件引入mimetype日志自定义，是否使用sendfile传输文件，连接超时，单连接请求数量。</em></p>
 <table>
 <thead>
 <tr>
@@ -2340,14 +2341,10 @@ parseInt(&quot;10 years&quot;);   // returns 10
 <td>见server块配置</td>
 </tr>
 </tbody></table>
-<ul>
-<li><h5 id="upstream负载均衡配置"><a href="#upstream负载均衡配置" class="headerlink" title="upstream负载均衡配置"></a>upstream负载均衡配置</h5></li>
-<li>负载均衡，默认轮询，weight为1，可以手动分配服务器weight。但单纯的轮询方式对于session不能实现共享，另一种ip_hash提供了粘性session的解决方案，但可能会丢失负载均衡对于session的处理；最佳方式通过redis实现seesion共享。*<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">简单的负载均衡配置</span><br><span class="line">http &#123;  </span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">upstream big_server_com &#123;</span><br><span class="line">   #ip_hash;#默认轮询方式,可以修改为iphash方式.</span><br><span class="line">   server 127.0.0.3:8000 weight&#x3D;5;</span><br><span class="line">   server 127.0.0.3:8001 weight&#x3D;5;</span><br><span class="line">   server 192.168.0.1:8000;</span><br><span class="line">   server 192.168.0.1:8001;&#125;</span><br><span class="line"></span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">		#proxy_pass http:&#x2F;&#x2F;big_server_com 	#后端数据传递请求到名为big_server_com 的集群</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure></li>
-<li><h5 id="Server块配置"><a href="#Server块配置" class="headerlink" title="Server块配置"></a>Server块配置</h5></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> server &#123;</span><br><span class="line"> 	#配置server块，通过server_name和listen绑定tcp sockets</span><br><span class="line">   listen       80;#nginx服务监听的端口</span><br><span class="line">   server_name  localhost ;#nginx服务器所在主机ip,ip绑定的域名</span><br><span class="line"></span><br><span class="line">#静态资源处理</span><br><span class="line">	location ~ ^&#x2F;(images|javascript|js|css|flash|media|static)&#x2F;  &#123;</span><br><span class="line">#server的文件根目录，所有请求将以根目录起始</span><br><span class="line">     root   &#x2F;app;</span><br><span class="line">#配置网站默认主页</span><br><span class="line">     index  index.html;</span><br><span class="line">#当接受到一个请求时如bingyang.xyz&#x2F;aa</span><br><span class="line">#先去找aa文件是否存在，不存在就找aa目录，依旧不存在就定向到index.html，也可以是其它重定向如index.php?$args</span><br><span class="line">#$uri指的是bingyang.xyz&#x2F;后的资源，$arg指的是url问号后面的参数</span><br><span class="line">     try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">     expires 30d;#对静态文件进行缓存 单位有s,m,h,d 秒，分，时，天</span><br><span class="line">	&#125;</span><br><span class="line">   location &#x2F; &#123;</span><br><span class="line">      proxy_pass      http:&#x2F;&#x2F;127.0.0.1:8080;#后端请求</span><br><span class="line">   #  proxy_redirect     off;</span><br><span class="line">   #  proxy_set_header   Host             $host;</span><br><span class="line">   #  proxy_set_header   X-Real-IP        $remote_addr;</span><br><span class="line">   #  proxy_set_header   Forwarded        $proxy_add_forwarded;</span><br><span class="line">   #  proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</span><br><span class="line">   &#125;</span><br><span class="line">   error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">   location &#x3D; &#x2F;50x.html &#123;#&#x3D;精确匹配，发现精确匹配后立即停止匹配</span><br><span class="line">     root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><h5 id="location匹配"><a href="#location匹配" class="headerlink" title="location匹配"></a>location匹配</h5><ul>
+<h5 id="1-upstream负载均衡配置"><a href="#1-upstream负载均衡配置" class="headerlink" title="1. upstream负载均衡配置"></a>1. upstream负载均衡配置</h5><p><em>负载均衡，默认轮询，weight为1，可以手动分配服务器weight。但单纯的轮询方式对于session不能实现共享，另一种ip_hash提供了粘性session的解决方案，但可能会丢失负载均衡对于session的处理；最佳方式通过redis实现seesion共享。</em></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">简单的负载均衡配置</span><br><span class="line">http &#123;  </span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">upstream big_server_com &#123;</span><br><span class="line">   #ip_hash;#默认轮询方式,可以修改为iphash方式.</span><br><span class="line">   server 127.0.0.3:8000 weight&#x3D;5;</span><br><span class="line">   server 127.0.0.3:8001 weight&#x3D;5;</span><br><span class="line">   server 192.168.0.1:8000;</span><br><span class="line">   server 192.168.0.1:8001;&#125;</span><br><span class="line"></span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">		#proxy_pass http:&#x2F;&#x2F;big_server_com 	#后端数据传递请求到名为big_server_com 的集群</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-Server块配置"><a href="#2-Server块配置" class="headerlink" title="2. Server块配置"></a>2. Server块配置</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> server &#123;</span><br><span class="line"> 	#配置server块，通过server_name和listen绑定tcp sockets</span><br><span class="line">   listen       80;#nginx服务监听的端口</span><br><span class="line">   server_name  localhost ;#nginx服务器所在主机ip,ip绑定的域名</span><br><span class="line"></span><br><span class="line">#静态资源处理</span><br><span class="line">	location ~ ^&#x2F;(images|javascript|js|css|flash|media|static)&#x2F;  &#123;</span><br><span class="line">#server的文件根目录，所有请求将以根目录起始</span><br><span class="line">     root   &#x2F;app;</span><br><span class="line">#配置网站默认主页</span><br><span class="line">     index  index.html;</span><br><span class="line">#当接受到一个请求时如bingyang.xyz&#x2F;aa</span><br><span class="line">#先去找aa文件是否存在，不存在就找aa目录，依旧不存在就定向到index.html，也可以是其它重定向如index.php?$args</span><br><span class="line">#$uri指的是bingyang.xyz&#x2F;后的资源，$arg指的是url问号后面的参数</span><br><span class="line">     try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">     expires 30d;#对静态文件进行缓存 单位有s,m,h,d 秒，分，时，天</span><br><span class="line">	&#125;</span><br><span class="line">   location &#x2F; &#123;</span><br><span class="line">      proxy_pass      http:&#x2F;&#x2F;127.0.0.1:8080;#后端请求</span><br><span class="line">   #  proxy_redirect     off;</span><br><span class="line">   #  proxy_set_header   Host             $host;</span><br><span class="line">   #  proxy_set_header   X-Real-IP        $remote_addr;</span><br><span class="line">   #  proxy_set_header   Forwarded        $proxy_add_forwarded;</span><br><span class="line">   #  proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</span><br><span class="line">   &#125;</span><br><span class="line">   error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">   location &#x3D; &#x2F;50x.html &#123;#&#x3D;精确匹配，发现精确匹配后立即停止匹配</span><br><span class="line">     root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-location匹配"><a href="#2-location匹配" class="headerlink" title="2. location匹配"></a>2. location匹配</h5><ul>
 <li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
 </li>
 <li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
@@ -2400,21 +2397,12 @@ parseInt(&quot;10 years&quot;);   // returns 10
 </tbody></table>
 </li>
 </ul>
-</li>
-</ul>
-<ul>
-<li><p>其它</p>
-<ul>
-<li>nginx配置文件中相对路径从/usr/share/nginx/开始(从root 默认为html知晓)</li>
-</ul>
-</li>
-</ul>
 ]]></content>
       <categories>
-        <category>服务器</category>
+        <category>运维</category>
       </categories>
       <tags>
-        <tag>运维</tag>
+        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -2565,6 +2553,258 @@ parseInt(&quot;10 years&quot;);   // returns 10
       </categories>
       <tags>
         <tag>运维</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浅谈docker中数据管理</title>
+    <url>/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/</url>
+    <content><![CDATA[<p>docker进行数据交互的方式有bind mount, volume, tmpfs三种，其中bind mount常用于绑定配置文件到docker容器，volume常用于接受从容器内部产生的数据如日志等，tmpfs不太常见，适用于存储短暂的中间数据，当容器停止，数据便消失。下面对这三种方式做了粗略的总结。</p>
+<a id="more"></a>
+
+<h4 id="bind-mount"><a href="#bind-mount" class="headerlink" title="bind mount"></a>bind mount</h4><ul>
+<li><p>缺点：依赖于特定目录结构的主机文件系统</p>
+</li>
+<li><p>优点：有效从主机绑定数据到容器</p>
+</li>
+<li><p>特点：使用绝对路径、文件或目录不存在时将默认**<em>作为目录创建**</em>或者报错、主机路径文件或目录将覆盖挂载点、不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
+</li>
+<li><p>相比volume：当挂载内容不存在时，先生成空目录去覆盖挂载点，容易导致错误</p>
+</li>
+<li><p>实现方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-v 只有三个参数 主机目录或文件：容器内对应目录或文件：模式(ro,rw) consistent, delegated, cached只适用于mac系统</span><br><span class="line">默认容器具有可读可写的权限rw，当主机路径不存在时将作为目录创建</span><br><span class="line">支持z或Z修改selinux labels ，小写z允许挂载内容呗多个容器共享、大写Z相反</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v &quot;$(pwd)&quot;&#x2F;target:&#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">--mount 键值对组成、当主机路径不存在时报错、不支持z或Z修改selinux labels</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,tmpfs,volume 指定类型</span><br><span class="line">source或者src&#x3D; 主机文件或目录绝对路径</span><br><span class="line">destination 或者 target&#x3D; 容器内挂载点路径</span><br><span class="line">readonly 如果存在，容器只读</span><br><span class="line">consistency&#x3D;consistent, delegated, cached只适用于mac系统</span><br><span class="line">bind-propagation&#x3D;rprivate, private, rshared, shared, rslave5, slave. 默认rprivate暂未涉及到</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount type&#x3D;bind,source&#x3D;&quot;$(pwd)&quot;&#x2F;target,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="volume"><a href="#volume" class="headerlink" title="volume"></a>volume</h4><ul>
+<li><p>缺点：使用rprivate绑定传播且不可修改、配置复杂</p>
+</li>
+<li><p>优点：</p>
+<ul>
+<li>完全有docker管理，不依赖主机目录结构。</li>
+<li>适合备份、转移</li>
+<li>安全的在多个容器共享</li>
+<li>允许存储volume在远程主机、进行加密编码或其它功能</li>
+</ul>
+</li>
+<li><p>特点：不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
+</li>
+<li><p>与bindmount相比：挂载内容不存在时，使用容器内目录填充</p>
+</li>
+<li><p>实现方式：</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">创建卷</span><br><span class="line">$ docker volume create my-vol</span><br><span class="line">举例卷</span><br><span class="line">$ docker volume ls</span><br><span class="line">检查卷</span><br><span class="line">$ docker volume inspect my-vol</span><br><span class="line">移除卷</span><br><span class="line">$ docker volume rm my-vol</span><br><span class="line">移除所有未使用的卷</span><br><span class="line">$ docker volume prune</span><br><span class="line"></span><br><span class="line">-v 格式 命名卷或忽略：容器挂载点,文件或目录：模式（rw,ro) 默认rw</span><br><span class="line">不能指定driver选项，不支持services</span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v myvol2:&#x2F;app \</span><br><span class="line">  nginx:latest  </span><br><span class="line"></span><br><span class="line">启用匿名卷 --rm 指定当容器被移除时，自动移除匿名卷 (--rm指定后 当容器被stop，会自动移除)</span><br><span class="line">$ docker run --rm -v &#x2F;app  nginx:latest  </span><br><span class="line">**********************************************************************</span><br><span class="line"></span><br><span class="line">--mount 多个键值对,指定driver选项，支持services</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,volume,tmpfs</span><br><span class="line">src、source&#x3D;卷名或被忽略</span><br><span class="line">destination,dst,target&#x3D;容器内挂载点，目录或文件</span><br><span class="line">readonly</span><br><span class="line">volume-opt&#x3D;key&#x3D;value，可以被指定多次，注意多个逗号分隔的value需要转义，如下</span><br><span class="line">)</span><br><span class="line"> 进行转义</span><br><span class="line"> --mount &#39;type&#x3D;volume,src&#x3D;&lt;VOLUME-NAME&gt;,dst&#x3D;&lt;CONTAINER-PATH&gt;,volume-driver&#x3D;local,volume-opt&#x3D;type&#x3D;nfs,volume-opt&#x3D;device&#x3D;&lt;nfs-server&gt;:&lt;nfs-path&gt;,&quot;volume-opt&#x3D;o&#x3D;addr&#x3D;&lt;nfs-address&gt;,vers&#x3D;4,soft,timeo&#x3D;180,bg,tcp,rw&quot;&#39;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount source&#x3D;myvol2,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用volume driver实现集群读写文件存储、加密。 不太懂</p>
+</li>
+<li><p>使用nfs volume创建service</p>
+</li>
+<li><p>备份容器</p>
+</li>
+<li><p>从备份还原容器</p>
+</li>
+</ul>
+<h4 id="tmpfs"><a href="#tmpfs" class="headerlink" title="tmpfs"></a>tmpfs</h4><ul>
+<li><p>缺点：只适用linux系统；只存在于内存中，随容器停止消失</p>
+</li>
+<li><p>优点：适合敏感数据</p>
+</li>
+<li><p>实现方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">--tmpfs: 简单指明挂载点、不能配置参数、只用于单个容器</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --tmpfs &#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line">--mount 更加冗长、可选的配置项tmpfs-size and tmpfs-mode、可用于单个容器和集群服务</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --mount type&#x3D;tmpfs,destination&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4>]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JavaScript中this指向总结</title>
+    <url>/2020/09/14/this%E7%9A%84%E6%8C%87%E5%90%91/</url>
+    <content><![CDATA[<h4 id="1-为什么用this"><a href="#1-为什么用this" class="headerlink" title="1.为什么用this"></a>1.为什么用this</h4><p>this 提供了一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计,得更加简洁并且易于复用。它被自动定义在所有函数的作用域中。</p>
+<h4 id="2-this是什么"><a href="#2-this是什么" class="headerlink" title="2. this是什么"></a>2. this是什么</h4><p><strong>× this并非指向函数自身</strong></p>
+<a id="more"></a>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"><span class="keyword">var</span> a=<span class="number">4</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">this</span>.a++)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo() <span class="comment">// NaN，非严格模式下 ; 严格模式下报错</span></span><br></pre></td></tr></table></figure>
+
+<p>从这里看并非指向函数本身</p>
+<blockquote>
+<p>实际上this是指向全局对象，<code>this.a++</code>相当于<code>this.a=this.a+1</code></p>
+<p>非严格模式下，lHS 查找a失败，在全局对象创建a,默认值为undefined, undefined+1=NaN</p>
+<p>严格模式下将报错，lHS查找不到报错，同时this指向undefined 而非全局对象</p>
+</blockquote>
+<p><strong>× this也不可能指向它的作用域</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line"> <span class="built_in">this</span>.bar();  <span class="comment">//this并非指向当前作用域，而是全局对象</span></span><br><span class="line">&#125; </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); <span class="comment">// ReferenceError: a is not defined</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>this 在任何情况下都不指向函数的词法作用域。在 JavaScript 内部，作用域确实和对象类似，可见的标识符都是它的属性。但是作用域“对象”无法通过 JavaScript代码访问，它存在于 JavaScript 引擎内部。</p>
+</blockquote>
+<p><strong>√ this 是在运行时进行绑定的</strong>，并不是在编写时绑定，它的上下文取决于函数调用时的各种条件。this 的绑定和函数声明的位置没有任何关系，只取决于函数的调用方式,它指向什么完全取决于函数在哪里被调用.</p>
+<h4 id="3-this调用"><a href="#3-this调用" class="headerlink" title="3. this调用"></a>3. this调用</h4><p><strong>调用位置</strong>：调用位置就是函数在代码中被调用的位置（而不是声明的位置）。最重要的是要分析调用栈(就是为了到达当前执行位置所调用的所有函数)。我们关心的调用位置就在当前正在<strong>执行的函数的前一个调用</strong>中。</p>
+<h4 id="4-this绑定规则"><a href="#4-this绑定规则" class="headerlink" title="4. this绑定规则"></a>4. this绑定规则</h4><ul>
+<li><strong>默认绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line">foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>严格模式下的默认绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"><span class="meta"> &quot;use strict&quot;</span></span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line">foo(); <span class="comment">//  TypeError: Cannot read property &#x27;a&#x27; of undefined</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 声明在全局作用域中的变量（比如 var a = 2）就是全局对象的一个同名属性, 函数也是。</p>
+<p> 严格模式下调用foo函数不受影响，但如果foo书写在严格模式下，this指向为undefined。</p>
+</blockquote>
+<ul>
+<li><strong>隐式绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a: <span class="number">2</span>, </span><br><span class="line"> foo: foo </span><br><span class="line">&#125;; </span><br><span class="line">obj.foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>当函数引用有上下文对象时，隐式绑定规则会把函数调用中的 this 绑定到这个上下文对象。</li>
+<li>对象属性引用链中只有上一层或者说最后一层在调用位置中起作用。</li>
+</ol>
+</blockquote>
+<ul>
+<li><strong>显示绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a:<span class="number">2</span> </span><br><span class="line">&#125;; </span><br><span class="line">foo.call( obj ); <span class="comment">// 2</span></span><br><span class="line">foo.apply(obj)</span><br><span class="line">foo.bind(obj)()</span><br><span class="line"><span class="comment">//foo.softBind(obj)()</span></span><br></pre></td></tr></table></figure>
+
+<p><code>Function.prototype</code>原型上有call, apply,bind 方法，可以直接或间接绑定this对象</p>
+<blockquote>
+<p>如果你传入了一个原始值（字符串类型、布尔类型或者数字类型）来当作 this 的绑定对象，这个原始值会被转换成它的对象形式（也就是 new String(..)、new Boolean(..) 或者new Number(..)）。这通常被称为“装箱”</p>
+</blockquote>
+<ul>
+<li><strong>new绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">a</span>) </span>&#123; </span><br><span class="line"> <span class="built_in">this</span>.a = a; </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> foo(<span class="number">2</span>); </span><br><span class="line"><span class="built_in">console</span>.log( bar.a ); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p>​    使用new操作符用来调用函数，会进行特殊的步骤。在第三步会执行this的绑定</p>
+<blockquote>
+<p>使用 new 来调用函数，或者说发生构造函数调用时，会自动执行下面的操作。</p>
+<ol>
+<li>创建（或者说构造）一个全新的对象。</li>
+<li>这个新对象会被执行 [[Prototype]] 连接。</li>
+<li>这个新对象会绑定到函数调用的 this。</li>
+<li>如果函数没有返回其他对象，那么 new 表达式中的函数调用会自动返回这个新对象。</li>
+</ol>
+</blockquote>
+<h4 id="6-判断this顺序"><a href="#6-判断this顺序" class="headerlink" title="6. 判断this顺序"></a>6. 判断this顺序</h4><p>​    首先要清楚this绑定优先级: new绑定 &gt; 显示绑定 &gt; 隐式绑定 &gt; 默认绑定<br>接着按以下次序进行判定。</p>
+<ol>
+<li><p>函数是否在 new 中调用（new 绑定）？如果是的话 this 绑定的是新创建的对象。</p>
+<p><code>var bar = new foo()</code></p>
+</li>
+<li><p>函数是否通过 call、apply（显式绑定）或者硬绑定调用？如果是的话，this 绑定的是指定的对象。</p>
+<p><code>var bar = foo.call(obj2)</code></p>
+</li>
+<li><p>函数是否在某个上下文对象中调用（隐式绑定）？如果是的话，this 绑定的是那个上下文对象。</p>
+<p><code>var bar = obj1.foo()</code></p>
+</li>
+<li><p>如果都不是的话，使用默认绑定。如果在严格模式下，就绑定到 undefined，否则绑定到全局对象。</p>
+<p><code>var bar = foo()</code></p>
+</li>
+</ol>
+<h4 id="7-忽略this"><a href="#7-忽略this" class="headerlink" title="7. 忽略this"></a>7. 忽略this</h4><p>​    如果函数并不关心 this 的话，你仍然需要传入一个占位值，这时 null 可能是一个不错的选择，就像代码所示的那样。</p>
+<p>​    当你把 null 或者 undefined 作为 this 的绑定对象传入 call、apply 或者 bind，这些值在调用时会被忽略，实际应用的是默认绑定规则：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">foo.call( <span class="literal">null</span> );</span><br><span class="line">foo.apply( <span class="literal">null</span>, [<span class="number">2</span>, <span class="number">3</span>] );</span><br><span class="line"><span class="keyword">var</span> bar = foo.bind( <span class="literal">null</span>, <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
+
+<p>​    此时 foo函数中的this有可能会被绑定到全局对象，这样可能会照成意外。所以可以传入一个空对象</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> ø = <span class="built_in">Object</span>.create( <span class="literal">null</span> ); </span><br><span class="line"><span class="comment">// 把数组展开成参数</span></span><br><span class="line">foo.apply( ø, [<span class="number">2</span>, <span class="number">3</span>] ); <span class="comment">// a:2, b:3 </span></span><br><span class="line"><span class="comment">// 使用 bind(..) 进行柯里化</span></span><br><span class="line"><span class="keyword">var</span> bar = foo.bind( ø, <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>Object.create( null )</code>没有绑定的原型对象，比｛｝更空</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据规模与时间复杂度</title>
+    <url>/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/</url>
+    <content><![CDATA[<p>有时做习题时要根据数据规模的大小估算采用的算法，下面是我搜集的一些资料总结。</p>
+<p>1GHz = 10^9 cycles/s 纯计算的话每个操作在10个cycle以内，一些容器的方法可能需要几十个cycle，如果cache miss需要访问内存的就需要上百个cycle，hashtable of string什么的就更复杂了可能需要上千个cycle。所以对于主频2G HZ（2*10^9 cycles/second 每秒产生多少个脉冲周期) 单核单线程CPU一秒内接受的数据规模 10^6~10^7 。</p>
+<a id="more"></a>
+<table>
+<thead>
+<tr>
+<th>数据规模</th>
+<th>要求算法时间复杂度</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>13</td>
+<td>n!</td>
+<td>排列</td>
+</tr>
+<tr>
+<td>23</td>
+<td>2^n</td>
+<td>组合</td>
+</tr>
+<tr>
+<td>50</td>
+<td>n^4</td>
+<td>暴力循环</td>
+</tr>
+<tr>
+<td>10^2</td>
+<td>n^3</td>
+<td>暴力循环</td>
+</tr>
+<tr>
+<td>10^3</td>
+<td>n^2</td>
+<td>DP、循环</td>
+</tr>
+<tr>
+<td>10^4</td>
+<td>n*sqrt(n)</td>
+<td>双层循环</td>
+</tr>
+<tr>
+<td>10^6</td>
+<td>n*log(n)</td>
+<td>排序、堆、分治</td>
+</tr>
+<tr>
+<td>10^7</td>
+<td>n</td>
+<td>DP 树、图遍历</td>
+</tr>
+<tr>
+<td>10^12</td>
+<td>sqrt(n)</td>
+<td>素数、平方和</td>
+</tr>
+<tr>
+<td>10^18</td>
+<td>log(n)</td>
+<td>二分查找</td>
+</tr>
+<tr>
+<td>10^21</td>
+<td>O(1)</td>
+<td>数学方法，一些规律</td>
+</tr>
+</tbody></table>
+<ul>
+<li>常见数据规模与时间复杂度<br><img src="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/al1.png"></li>
+<li>常见非记忆化递归函数时间复杂度（倒数第三行equation缺少O(n))<br><img src="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/al2.png"></li>
+<li>对于记忆化递归 时间复杂度=子问题规模<em>解决每个子问题的时间；空间复杂度=最大调用深度</em>每个子问题额外使用空间</li>
+</ul>
+]]></content>
+      <categories>
+        <category>算法与数据结构</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
       </tags>
   </entry>
 </search>

@@ -20,28 +20,20 @@
     var CONFIG = {"hostname":"mabingyang.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="本篇文章是从阮一峰老师文章&lt;&lt;Unicode与JavaScript详解&gt;&gt;学习总结得到的。 Unicode字符集起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。 它从0开始，为每个符号指定一个编号，这叫做”码点”（code point）,如u+0000&#x3D;null 基本平面BMP(Basic Mutillingual">
+  <meta name="description" content="docker进行数据交互的方式有bind mount, volume, tmpfs三种，其中bind mount常用于绑定配置文件到docker容器，volume常用于接受从容器内部产生的数据如日志等，tmpfs不太常见，适用于存储短暂的中间数据，当容器停止，数据便消失。下面对这三种方式做了粗略的总结。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="js中使用的字符集">
-<meta property="og:url" content="http://mabingyang.top/2020/09/12/unicode%E4%B8%8Ejs/index.html">
+<meta property="og:title" content="浅谈docker中数据管理">
+<meta property="og:url" content="http://mabingyang.top/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/index.html">
 <meta property="og:site_name" content="马冰阳的个人博客">
-<meta property="og:description" content="本篇文章是从阮一峰老师文章&lt;&lt;Unicode与JavaScript详解&gt;&gt;学习总结得到的。 Unicode字符集起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。 它从0开始，为每个符号指定一个编号，这叫做”码点”（code point）,如u+0000&#x3D;null 基本平面BMP(Basic Mutillingual">
+<meta property="og:description" content="docker进行数据交互的方式有bind mount, volume, tmpfs三种，其中bind mount常用于绑定配置文件到docker容器，volume常用于接受从容器内部产生的数据如日志等，tmpfs不太常见，适用于存储短暂的中间数据，当容器停止，数据便消失。下面对这三种方式做了粗略的总结。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121104.png">
-<meta property="og:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121115.png">
-<meta property="og:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121116.png">
-<meta property="og:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121106.png">
-<meta property="og:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121117.png">
-<meta property="og:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121120.png">
-<meta property="og:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121123.png">
-<meta property="article:published_time" content="2020-09-12T10:46:21.604Z">
-<meta property="article:modified_time" content="2020-09-14T13:59:50.016Z">
+<meta property="article:published_time" content="2020-09-14T11:44:46.159Z">
+<meta property="article:modified_time" content="2020-09-14T13:40:45.088Z">
 <meta property="article:author" content="马冰阳">
-<meta property="article:tag" content="js">
+<meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121104.png">
 
-<link rel="canonical" href="http://mabingyang.top/2020/09/12/unicode%E4%B8%8Ejs/">
+<link rel="canonical" href="http://mabingyang.top/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -54,7 +46,7 @@
   };
 </script>
 
-  <title>js中使用的字符集 | 马冰阳的个人博客</title>
+  <title>浅谈docker中数据管理 | 马冰阳的个人博客</title>
   
 
 
@@ -195,7 +187,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/12/unicode%E4%B8%8Ejs/">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -208,7 +200,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          js中使用的字符集
+          浅谈docker中数据管理
         </h1>
 
         <div class="post-meta">
@@ -217,23 +209,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2020-09-12 18:46:21" itemprop="dateCreated datePublished" datetime="2020-09-12T18:46:21+08:00">2020-09-12</time>
+              <time title="创建时间：2020-09-14 19:44:46 / 修改时间：21:40:45" itemprop="dateCreated datePublished" datetime="2020-09-14T19:44:46+08:00">2020-09-14</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-14 21:59:50" itemprop="dateModified" datetime="2020-09-14T21:59:50+08:00">2020-09-14</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+                  <a href="/categories/%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">运维</span></a>
                 </span>
             </span>
 
@@ -248,77 +234,61 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>本篇文章是从阮一峰老师文章<a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2014/12/unicode.html">&lt;&lt;Unicode与JavaScript详解&gt;&gt;</a>学习总结得到的。</p>
-<h2 id="Unicode字符集"><a href="#Unicode字符集" class="headerlink" title="Unicode字符集"></a>Unicode字符集</h2><p>起源：将全世界所有的字符包含在一个集合里，计算机只要支持这一个字符集，就能显示所有的字符，再也不会有乱码了。</p>
-<p><strong>它从0开始，为每个符号指定一个编号，这叫做”码点”（code point）</strong>,如<code>u+0000=null</code></p>
-<p>基本平面BMP(Basic Mutillingual Plane)包含可能看到的和接触到的所有标准打印字符，<code>U+0000~U+FFFF</code>。</p>
+        <p>docker进行数据交互的方式有bind mount, volume, tmpfs三种，其中bind mount常用于绑定配置文件到docker容器，volume常用于接受从容器内部产生的数据如日志等，tmpfs不太常见，适用于存储短暂的中间数据，当容器停止，数据便消失。下面对这三种方式做了粗略的总结。</p>
 <a id="more"></a>
-<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121104.png" alt="img"></p>
-<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121115.png" alt="img"></p>
-<h2 id="Unicode字符编码"><a href="#Unicode字符编码" class="headerlink" title="Unicode字符编码"></a>Unicode字符编码</h2><p>Unicode只规定了每个字符的码点，到底用什么样的字节序表示这个码点，就涉及到编码方法。</p>
-<h3 id="UTF-32"><a href="#UTF-32" class="headerlink" title="UTF-32"></a>UTF-32</h3><p><strong>最直观的编码方法是，每个码点使用四个字节表示，字节内容一一对应码点。这种编码方法就叫做UTF-32</strong></p>
-<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121116.png" alt="img"></p>
-<h3 id="UTF-8"><a href="#UTF-8" class="headerlink" title="UTF-8"></a>UTF-8</h3><p>人们真正需要的是一种节省空间的编码方法，这导致了UTF-8的诞生。<strong>UTF-8是一种变长的编码方法，字符长度从1个字节到4个字节不等。</strong>越是常用的字符，字节越短，最前面的128个字符，只使用1个字节表示，与ASCII码完全相同。</p>
-<table>
-<thead>
-<tr>
-<th>编号范围</th>
-<th>字节</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0x0000 - 0x007F</td>
-<td>1</td>
-</tr>
-<tr>
-<td>0x0080 - 0x07FF</td>
-<td>2</td>
-</tr>
-<tr>
-<td>0x0800 - 0xFFFF</td>
-<td>3</td>
-</tr>
-<tr>
-<td>0x010000 - 0x10FFFF</td>
-<td>4</td>
-</tr>
-</tbody></table>
-<h3 id="UTF-16"><a href="#UTF-16" class="headerlink" title="UTF-16"></a>UTF-16</h3><p>它的编码规则很简单：基本平面的字符占用2个字节，辅助平面的字符占用4个字节。<strong>也就是说，UTF-16的编码长度要么是2个字节（U+0000到U+FFFF），要么是4个字节（U+010000到U+10FFFF）。</strong></p>
-<p>当我们遇到两个字节，怎么看出它本身是一个字符，还是需要跟其他两个字节放在一起解读？</p>
-<p>由于在基本平面内，从U+D800到U+DFFF是一个空段，即这些码点不对应任何字符。因此，这个空段可以用来映射辅助平面的字符。</p>
-<p>具体来说，辅助平面的字符位共有220个，也就是说，对应这些字符至少需要20个二进制位。UTF-16将这20位拆成两半，前10位映射在U+D800到U+DBFF（空间大小210），称为高位（H），后10位映射在U+DC00到U+DFFF（空间大小210），称为低位（L）。这意味着，一个辅助平面的字符，被拆成两个基本平面的字符表示。</p>
-<p><strong>所以，当我们遇到两个字节，发现它的码点在U+D800到U+DBFF之间，就可以断定，紧跟在后面的两个字节的码点，应该在U+DC00到U+DFFF之间，这四个字节必须放在一起解读。</strong></p>
-<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121106.png" alt="img"></p>
-<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121117.png" alt="img"></p>
-<h2 id="JS字符串使用的字符编码"><a href="#JS字符串使用的字符编码" class="headerlink" title="JS字符串使用的字符编码"></a>JS字符串使用的字符编码</h2><p>JavaScript语言采用Unicode字符集，但是只支持一种编码方法。</p>
-<p>这种编码既不是UTF-16，也不是UTF-8，更不是UTF-32。上面那些编码方法，JavaScript都不用。</p>
-<p><strong>JavaScript用的是UCS-2！</strong></p>
-<p>UCS团队和Unicode团队都想统一字符集，且UCS动作优先于Unicode团队，先发布了UCS-2编码方法，使用两个字节表示已有的码点(就是基本平面)。后来UTF-16 取代了UCS-2成为其超集(加入了辅助平面)。</p>
-<p><strong>在JavaScript语言出现的时候，还没有UTF-16编码。所以使用UCS2</strong></p>
-<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121120.png" alt="img"></p>
-<p>因此js字符串对应非基本平面会当成两个基本平面字符，导致长度、解析出错，这存在所有的字符串相关函数中</p>
-<h2 id="ES6字符串"><a href="#ES6字符串" class="headerlink" title="ES6字符串"></a>ES6字符串</h2><ul>
-<li><p>ES6可以自动识别4字节的码点。因此，遍历字符串就简单多了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">for (let s of string ) &#123;</span><br><span class="line">  &#x2F;&#x2F; ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> <span class="built_in">Array</span>.from(string).length</span><br><span class="line">但是,为了保持兼容,length属性还是原来的行为方式。为了得到字符串的正确长度，可以用下面的方式</span><br></pre></td></tr></table></figure>
+<h4 id="bind-mount"><a href="#bind-mount" class="headerlink" title="bind mount"></a>bind mount</h4><ul>
+<li><p>缺点：依赖于特定目录结构的主机文件系统</p>
 </li>
-<li><p>JavaScript允许直接用码点表示Unicode字符，写法是”反斜杠+u+码点”。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;好&#x27;</span> === <span class="string">&#x27;\u597D&#x27;</span> <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<li><p>优点：有效从主机绑定数据到容器</p>
+</li>
+<li><p>特点：使用绝对路径、文件或目录不存在时将默认**<em>作为目录创建**</em>或者报错、主机路径文件或目录将覆盖挂载点、不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
+</li>
+<li><p>相比volume：当挂载内容不存在时，先生成空目录去覆盖挂载点，容易导致错误</p>
+</li>
+<li><p>实现方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">-v 只有三个参数 主机目录或文件：容器内对应目录或文件：模式(ro,rw) consistent, delegated, cached只适用于mac系统</span><br><span class="line">默认容器具有可读可写的权限rw，当主机路径不存在时将作为目录创建</span><br><span class="line">支持z或Z修改selinux labels ，小写z允许挂载内容呗多个容器共享、大写Z相反</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v &quot;$(pwd)&quot;&#x2F;target:&#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">--mount 键值对组成、当主机路径不存在时报错、不支持z或Z修改selinux labels</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,tmpfs,volume 指定类型</span><br><span class="line">source或者src&#x3D; 主机文件或目录绝对路径</span><br><span class="line">destination 或者 target&#x3D; 容器内挂载点路径</span><br><span class="line">readonly 如果存在，容器只读</span><br><span class="line">consistency&#x3D;consistent, delegated, cached只适用于mac系统</span><br><span class="line">bind-propagation&#x3D;rprivate, private, rshared, shared, rslave5, slave. 默认rprivate暂未涉及到</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount type&#x3D;bind,source&#x3D;&quot;$(pwd)&quot;&#x2F;target,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://www.ruanyifeng.com/blogimg/asset/2014/bg2014121123.png" alt="img"></p>
 </li>
-<li><p>新增字符串处理函数</p>
+</ul>
+<h4 id="volume"><a href="#volume" class="headerlink" title="volume"></a>volume</h4><ul>
+<li><p>缺点：使用rprivate绑定传播且不可修改、配置复杂</p>
+</li>
+<li><p>优点：</p>
 <ul>
-<li>String.fromCodePoint() ：从Unicode码点返回对应字符</li>
-<li>String.prototype.codePointAt() ：从字符返回对应的码点</li>
-<li>String.prototype.at() ：返回字符串给定位置的字符</li>
+<li>完全有docker管理，不依赖主机目录结构。</li>
+<li>适合备份、转移</li>
+<li>安全的在多个容器共享</li>
+<li>允许存储volume在远程主机、进行加密编码或其它功能</li>
 </ul>
 </li>
-<li><p>ES6提供了u修饰符，对正则表达式添加4字节码点的支持。</p>
+<li><p>特点：不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
+</li>
+<li><p>与bindmount相比：挂载内容不存在时，使用容器内目录填充</p>
+</li>
+<li><p>实现方式：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">创建卷</span><br><span class="line">$ docker volume create my-vol</span><br><span class="line">举例卷</span><br><span class="line">$ docker volume ls</span><br><span class="line">检查卷</span><br><span class="line">$ docker volume inspect my-vol</span><br><span class="line">移除卷</span><br><span class="line">$ docker volume rm my-vol</span><br><span class="line">移除所有未使用的卷</span><br><span class="line">$ docker volume prune</span><br><span class="line"></span><br><span class="line">-v 格式 命名卷或忽略：容器挂载点,文件或目录：模式（rw,ro) 默认rw</span><br><span class="line">不能指定driver选项，不支持services</span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v myvol2:&#x2F;app \</span><br><span class="line">  nginx:latest  </span><br><span class="line"></span><br><span class="line">启用匿名卷 --rm 指定当容器被移除时，自动移除匿名卷 (--rm指定后 当容器被stop，会自动移除)</span><br><span class="line">$ docker run --rm -v &#x2F;app  nginx:latest  </span><br><span class="line">**********************************************************************</span><br><span class="line"></span><br><span class="line">--mount 多个键值对,指定driver选项，支持services</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,volume,tmpfs</span><br><span class="line">src、source&#x3D;卷名或被忽略</span><br><span class="line">destination,dst,target&#x3D;容器内挂载点，目录或文件</span><br><span class="line">readonly</span><br><span class="line">volume-opt&#x3D;key&#x3D;value，可以被指定多次，注意多个逗号分隔的value需要转义，如下</span><br><span class="line">)</span><br><span class="line"> 进行转义</span><br><span class="line"> --mount &#39;type&#x3D;volume,src&#x3D;&lt;VOLUME-NAME&gt;,dst&#x3D;&lt;CONTAINER-PATH&gt;,volume-driver&#x3D;local,volume-opt&#x3D;type&#x3D;nfs,volume-opt&#x3D;device&#x3D;&lt;nfs-server&gt;:&lt;nfs-path&gt;,&quot;volume-opt&#x3D;o&#x3D;addr&#x3D;&lt;nfs-address&gt;,vers&#x3D;4,soft,timeo&#x3D;180,bg,tcp,rw&quot;&#39;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount source&#x3D;myvol2,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用volume driver实现集群读写文件存储、加密。 不太懂</p>
+</li>
+<li><p>使用nfs volume创建service</p>
+</li>
+<li><p>备份容器</p>
+</li>
+<li><p>从备份还原容器</p>
 </li>
 </ul>
+<h4 id="tmpfs"><a href="#tmpfs" class="headerlink" title="tmpfs"></a>tmpfs</h4><ul>
+<li><p>缺点：只适用linux系统；只存在于内存中，随容器停止消失</p>
+</li>
+<li><p>优点：适合敏感数据</p>
+</li>
+<li><p>实现方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">--tmpfs: 简单指明挂载点、不能配置参数、只用于单个容器</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --tmpfs &#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line">--mount 更加冗长、可选的配置项tmpfs-size and tmpfs-mode、可用于单个容器和集群服务</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --mount type&#x3D;tmpfs,destination&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
 
+</li>
+</ul>
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4>
     </div>
 
     
@@ -327,7 +297,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/js/" rel="tag"># js</a>
+              <a href="/tags/docker/" rel="tag"># docker</a>
           </div>
 
         
@@ -336,12 +306,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/09/12/js%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" rel="prev" title="JavaScript中的类型转换">
-      <i class="fa fa-chevron-left"></i> JavaScript中的类型转换
+    <a href="/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/" rel="prev" title="nginx如何配置">
+      <i class="fa fa-chevron-left"></i> nginx如何配置
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/09/12/web%E5%AD%98%E5%82%A8/" rel="next" title="浏览器存储机制与WebSocket协议">
-      浏览器存储机制与WebSocket协议 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/09/14/this%E7%9A%84%E6%8C%87%E5%90%91/" rel="next" title="JavaScript中this指向总结">
+      JavaScript中this指向总结 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -401,7 +371,7 @@
 
             <!--noindex-->
             <div class="post-toc-wrap sidebar-panel">
-                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Unicode%E5%AD%97%E7%AC%A6%E9%9B%86"><span class="nav-text">Unicode字符集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unicode%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81"><span class="nav-text">Unicode字符编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-32"><span class="nav-text">UTF-32</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-8"><span class="nav-text">UTF-8</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UTF-16"><span class="nav-text">UTF-16</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JS%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%BD%BF%E7%94%A8%E7%9A%84%E5%AD%97%E7%AC%A6%E7%BC%96%E7%A0%81"><span class="nav-text">JS字符串使用的字符编码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ES6%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-text">ES6字符串</span></a></li></ol></div>
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#bind-mount"><span class="nav-text">bind mount</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#volume"><span class="nav-text">volume</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#tmpfs"><span class="nav-text">tmpfs</span></a></li><li class="nav-item nav-level-4"><a class="nav-link"><span class="nav-text"></span></a></li></ol></div>
             </div>
             <!--/noindex-->
 
