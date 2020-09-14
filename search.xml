@@ -1,6 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>浅谈docker中数据管理</title>
+    <url>/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/</url>
+    <content><![CDATA[<p>docker进行数据交互的方式有bind mount, volume, tmpfs三种，其中bind mount常用于绑定配置文件到docker容器，volume常用于接受从容器内部产生的数据如日志等，tmpfs不太常见，适用于存储短暂的中间数据，当容器停止，数据便消失。下面对这三种方式做了粗略的总结。</p>
+<a id="more"></a>
+
+<h4 id="bind-mount"><a href="#bind-mount" class="headerlink" title="bind mount"></a>bind mount</h4><ul>
+<li><p>缺点：依赖于特定目录结构的主机文件系统</p>
+</li>
+<li><p>优点：有效从主机绑定数据到容器</p>
+</li>
+<li><p>特点：使用绝对路径、文件或目录不存在时将默认**<em>作为目录创建**</em>或者报错、主机路径文件或目录将覆盖挂载点、不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
+</li>
+<li><p>相比volume：当挂载内容不存在时，先生成空目录去覆盖挂载点，容易导致错误</p>
+</li>
+<li><p>实现方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-v 只有三个参数 主机目录或文件：容器内对应目录或文件：模式(ro,rw) consistent, delegated, cached只适用于mac系统</span><br><span class="line">默认容器具有可读可写的权限rw，当主机路径不存在时将作为目录创建</span><br><span class="line">支持z或Z修改selinux labels ，小写z允许挂载内容呗多个容器共享、大写Z相反</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v &quot;$(pwd)&quot;&#x2F;target:&#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">--mount 键值对组成、当主机路径不存在时报错、不支持z或Z修改selinux labels</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,tmpfs,volume 指定类型</span><br><span class="line">source或者src&#x3D; 主机文件或目录绝对路径</span><br><span class="line">destination 或者 target&#x3D; 容器内挂载点路径</span><br><span class="line">readonly 如果存在，容器只读</span><br><span class="line">consistency&#x3D;consistent, delegated, cached只适用于mac系统</span><br><span class="line">bind-propagation&#x3D;rprivate, private, rshared, shared, rslave5, slave. 默认rprivate暂未涉及到</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount type&#x3D;bind,source&#x3D;&quot;$(pwd)&quot;&#x2F;target,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="volume"><a href="#volume" class="headerlink" title="volume"></a>volume</h4><ul>
+<li><p>缺点：使用rprivate绑定传播且不可修改、配置复杂</p>
+</li>
+<li><p>优点：</p>
+<ul>
+<li>完全有docker管理，不依赖主机目录结构。</li>
+<li>适合备份、转移</li>
+<li>安全的在多个容器共享</li>
+<li>允许存储volume在远程主机、进行加密编码或其它功能</li>
+</ul>
+</li>
+<li><p>特点：不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
+</li>
+<li><p>与bindmount相比：挂载内容不存在时，使用容器内目录填充</p>
+</li>
+<li><p>实现方式：</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">创建卷</span><br><span class="line">$ docker volume create my-vol</span><br><span class="line">举例卷</span><br><span class="line">$ docker volume ls</span><br><span class="line">检查卷</span><br><span class="line">$ docker volume inspect my-vol</span><br><span class="line">移除卷</span><br><span class="line">$ docker volume rm my-vol</span><br><span class="line">移除所有未使用的卷</span><br><span class="line">$ docker volume prune</span><br><span class="line"></span><br><span class="line">-v 格式 命名卷或忽略：容器挂载点,文件或目录：模式（rw,ro) 默认rw</span><br><span class="line">不能指定driver选项，不支持services</span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v myvol2:&#x2F;app \</span><br><span class="line">  nginx:latest  </span><br><span class="line"></span><br><span class="line">启用匿名卷 --rm 指定当容器被移除时，自动移除匿名卷 (--rm指定后 当容器被stop，会自动移除)</span><br><span class="line">$ docker run --rm -v &#x2F;app  nginx:latest  </span><br><span class="line">**********************************************************************</span><br><span class="line"></span><br><span class="line">--mount 多个键值对,指定driver选项，支持services</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,volume,tmpfs</span><br><span class="line">src、source&#x3D;卷名或被忽略</span><br><span class="line">destination,dst,target&#x3D;容器内挂载点，目录或文件</span><br><span class="line">readonly</span><br><span class="line">volume-opt&#x3D;key&#x3D;value，可以被指定多次，注意多个逗号分隔的value需要转义，如下</span><br><span class="line">)</span><br><span class="line"> 进行转义</span><br><span class="line"> --mount &#39;type&#x3D;volume,src&#x3D;&lt;VOLUME-NAME&gt;,dst&#x3D;&lt;CONTAINER-PATH&gt;,volume-driver&#x3D;local,volume-opt&#x3D;type&#x3D;nfs,volume-opt&#x3D;device&#x3D;&lt;nfs-server&gt;:&lt;nfs-path&gt;,&quot;volume-opt&#x3D;o&#x3D;addr&#x3D;&lt;nfs-address&gt;,vers&#x3D;4,soft,timeo&#x3D;180,bg,tcp,rw&quot;&#39;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount source&#x3D;myvol2,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用volume driver实现集群读写文件存储、加密。 不太懂</p>
+</li>
+<li><p>使用nfs volume创建service</p>
+</li>
+<li><p>备份容器</p>
+</li>
+<li><p>从备份还原容器</p>
+</li>
+</ul>
+<h4 id="tmpfs"><a href="#tmpfs" class="headerlink" title="tmpfs"></a>tmpfs</h4><ul>
+<li><p>缺点：只适用linux系统；只存在于内存中，随容器停止消失</p>
+</li>
+<li><p>优点：适合敏感数据</p>
+</li>
+<li><p>实现方式</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">--tmpfs: 简单指明挂载点、不能配置参数、只用于单个容器</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --tmpfs &#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line">--mount 更加冗长、可选的配置项tmpfs-size and tmpfs-mode、可用于单个容器和集群服务</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --mount type&#x3D;tmpfs,destination&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id=""><a href="#" class="headerlink" title=""></a></h4>]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JavaScript中的类型转换</title>
     <url>/2020/09/12/js%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%88%B6%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/</url>
     <content><![CDATA[<h2 id="JavaScript中的类型转换"><a href="#JavaScript中的类型转换" class="headerlink" title="JavaScript中的类型转换"></a>JavaScript中的类型转换</h2><h4 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h4><p>值类型转换有显式与隐式之分。</p>
@@ -145,6 +210,215 @@
       </categories>
       <tags>
         <tag>javaScript</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>nginx如何配置</title>
+    <url>/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
+    <content><![CDATA[<p>nginx.conf配置文件总体分三个部分，全局配置块、events配置块、http块，入门时更多配置操作是在http块，尤其是对http块下的server块和location的配置, 需要多多实践才行，下面是我对其配置项的粗略总结。</p>
+<a id="more"></a>
+<h3 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h3><table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+<th>默认值</th>
+<th>可选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>user</td>
+<td>配置用户和用户组,指定使用对象</td>
+<td>nobody nobody</td>
+<td></td>
+</tr>
+<tr>
+<td>worker_processes</td>
+<td>最大进程数</td>
+<td>1</td>
+<td>auto(nginx自动调节)</td>
+</tr>
+<tr>
+<td>error_log</td>
+<td>指定错误文件 路径+级别</td>
+<td>/var/log/nginx/error.log warn</td>
+<td>( debug, info , notice, warn, error, crit )6个错误级别，级别越高，输出错误日志越少</td>
+</tr>
+<tr>
+<td>pid</td>
+<td>nginx进程id存放的文件</td>
+<td>/var/run/nginx.pid</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="events配置"><a href="#events配置" class="headerlink" title="events配置"></a>events配置</h3><p><em>events配置nginx服务器和用户的连接网络，每个进程最大连接数，选取哪种事件驱动处理<br>请求，是否允许同时接受多个网络连接，开启多个网络连接序列化。</em></p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+<th>默认值</th>
+<th>可选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>accept_mutex</td>
+<td>设置网络连接序列化，防止惊群效应发生</td>
+<td>on</td>
+<td>off</td>
+</tr>
+<tr>
+<td>multi_accept</td>
+<td>设置一个进程是否同时接受多个网络连接</td>
+<td>off</td>
+<td>on</td>
+</tr>
+<tr>
+<td>worker_connections</td>
+<td>配置每个进程最大连接数</td>
+<td>1024</td>
+<td></td>
+</tr>
+<tr>
+<td>use</td>
+<td>配置nginx事件驱动模型</td>
+<td>epoll</td>
+<td>[ kqueue | rtsig | epoll | /dev/poll | select | poll ]</td>
+</tr>
+</tbody></table>
+<h3 id="http块配置"><a href="#http块配置" class="headerlink" title="http块配置"></a>http块配置</h3><p><em>http块可以嵌套多个server,配置代理，缓存，日志定义等大多数功能和第三方模块配置<br>如文件引入mimetype日志自定义，是否使用sendfile传输文件，连接超时，单连接请求数量。</em></p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>作用</th>
+<th>默认值</th>
+<th>可选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>include</td>
+<td>配置nginx支持那些文件扩展名和文件类型映射表</td>
+<td>/etc/nginx/mime.types</td>
+<td></td>
+</tr>
+<tr>
+<td>default_type</td>
+<td>配置默认文件(流)类型</td>
+<td>application/octet-stream</td>
+<td></td>
+</tr>
+<tr>
+<td>log_format</td>
+<td>自定义日志格式: 引用id 格式</td>
+<td>main  ‘$remote_addr - $remote_user [$time_local] “$request” ‘’$status $body_bytes_sent “$http_referer” ‘’”$http_user_agent” “$http_x_forwarded_for”‘;</td>
+<td>可配置多个</td>
+</tr>
+<tr>
+<td>access_log</td>
+<td>指定access_log 位置及应用的格式</td>
+<td>/var/log/nginx/access.log  main</td>
+<td></td>
+</tr>
+<tr>
+<td>sendfile</td>
+<td>允许sendfile方式传输文件，开启高效传输模式</td>
+<td>on</td>
+<td></td>
+</tr>
+<tr>
+<td>gzip</td>
+<td>开启gzip压缩，在客户端解压，增加响应速度</td>
+<td>on</td>
+<td></td>
+</tr>
+<tr>
+<td>tcp_nopush</td>
+<td>防止网络阻塞，自动刷新</td>
+<td>on</td>
+<td></td>
+</tr>
+<tr>
+<td>keepalive_timeout</td>
+<td>tcp连接最长时间65秒</td>
+<td>65</td>
+<td></td>
+</tr>
+<tr>
+<td>upstream</td>
+<td>配置格式:引用id upstream对象</td>
+<td></td>
+<td>见负载均衡示例</td>
+</tr>
+<tr>
+<td>server</td>
+<td></td>
+<td></td>
+<td>见server块配置</td>
+</tr>
+</tbody></table>
+<h5 id="1-upstream负载均衡配置"><a href="#1-upstream负载均衡配置" class="headerlink" title="1. upstream负载均衡配置"></a>1. upstream负载均衡配置</h5><p><em>负载均衡，默认轮询，weight为1，可以手动分配服务器weight。但单纯的轮询方式对于session不能实现共享，另一种ip_hash提供了粘性session的解决方案，但可能会丢失负载均衡对于session的处理；最佳方式通过redis实现seesion共享。</em></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">简单的负载均衡配置</span><br><span class="line">http &#123;  </span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">upstream big_server_com &#123;</span><br><span class="line">   #ip_hash;#默认轮询方式,可以修改为iphash方式.</span><br><span class="line">   server 127.0.0.3:8000 weight&#x3D;5;</span><br><span class="line">   server 127.0.0.3:8001 weight&#x3D;5;</span><br><span class="line">   server 192.168.0.1:8000;</span><br><span class="line">   server 192.168.0.1:8001;&#125;</span><br><span class="line"></span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">		#proxy_pass http:&#x2F;&#x2F;big_server_com 	#后端数据传递请求到名为big_server_com 的集群</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-Server块配置"><a href="#2-Server块配置" class="headerlink" title="2. Server块配置"></a>2. Server块配置</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> server &#123;</span><br><span class="line"> 	#配置server块，通过server_name和listen绑定tcp sockets</span><br><span class="line">   listen       80;#nginx服务监听的端口</span><br><span class="line">   server_name  localhost ;#nginx服务器所在主机ip,ip绑定的域名</span><br><span class="line"></span><br><span class="line">#静态资源处理</span><br><span class="line">	location ~ ^&#x2F;(images|javascript|js|css|flash|media|static)&#x2F;  &#123;</span><br><span class="line">#server的文件根目录，所有请求将以根目录起始</span><br><span class="line">     root   &#x2F;app;</span><br><span class="line">#配置网站默认主页</span><br><span class="line">     index  index.html;</span><br><span class="line">#当接受到一个请求时如bingyang.xyz&#x2F;aa</span><br><span class="line">#先去找aa文件是否存在，不存在就找aa目录，依旧不存在就定向到index.html，也可以是其它重定向如index.php?$args</span><br><span class="line">#$uri指的是bingyang.xyz&#x2F;后的资源，$arg指的是url问号后面的参数</span><br><span class="line">     try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">     expires 30d;#对静态文件进行缓存 单位有s,m,h,d 秒，分，时，天</span><br><span class="line">	&#125;</span><br><span class="line">   location &#x2F; &#123;</span><br><span class="line">      proxy_pass      http:&#x2F;&#x2F;127.0.0.1:8080;#后端请求</span><br><span class="line">   #  proxy_redirect     off;</span><br><span class="line">   #  proxy_set_header   Host             $host;</span><br><span class="line">   #  proxy_set_header   X-Real-IP        $remote_addr;</span><br><span class="line">   #  proxy_set_header   Forwarded        $proxy_add_forwarded;</span><br><span class="line">   #  proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</span><br><span class="line">   &#125;</span><br><span class="line">   error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">   location &#x3D; &#x2F;50x.html &#123;#&#x3D;精确匹配，发现精确匹配后立即停止匹配</span><br><span class="line">     root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-location匹配"><a href="#2-location匹配" class="headerlink" title="2. location匹配"></a>2. location匹配</h5><ul>
+<li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
+</li>
+<li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
+</li>
+<li><p>对于普通字符串的匹配规律。首先将所有普通字符串按字典序进行排序。请求uri逐一扫描，当当前字符串大于请求uri时停止，并选取最后一个匹配。<em>（精确匹配除外，且所有普通字符串不能重复。）</em></p>
+</li>
+<li><p>匹配顺序</p>
+<ol start="0">
+<li>首先进行精确匹配，如果匹配到=修饰的location，停止匹配。</li>
+<li>然后检查普通字符串定义的其余location，记录最长匹配的location字符串。如果记录的最长匹配字符串用^~修饰,则停止匹配。</li>
+<li>接着按配置文件定义的顺序，进行正则location匹配.使用第一个匹配结果。</li>
+<li>如果没有正则匹配,使用前面记录的最长前缀字符串的location. </li>
+</ol>
+</li>
+<li><p>location @name 主要用于内部重定向.<strong>注意命名location中不能再嵌套其它的命名location</strong>。</p>
+</li>
+<li><p>location中的字符有没有<code>/</code>都没有影响。也就是说<code>/user/</code>和<code>/user</code>是一样的.可以使用精确匹配测试.</p>
+</li>
+<li><p>如果请求URL结构是<a href="https://domain.com/%E7%9A%84%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B0%BE%E9%83%A8%E6%9C%89%E6%B2%A1%E6%9C%89/%E9%83%BD%E4%B8%8D%E4%BC%9A%E9%80%A0%E6%88%90%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%9C%A8%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E9%BB%98%E8%AE%A4%E5%8A%A0%E4%B8%8A%E4%BA%86/">https://domain.com/的形式，尾部有没有/都不会造成重定向。因为浏览器在发起请求的时候，默认加上了/</a>.</p>
+</li>
+<li><p>如果请求URL的结构是<a href="https://domain.com/some-dir/%E3%80%82%E5%B0%BE%E9%83%A8%E5%A6%82%E6%9E%9C%E7%BC%BA%E5%B0%91/%E5%B0%86%E5%AF%BC%E8%87%B4%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%A0%B9%E6%8D%AE%E7%BA%A6%E5%AE%9A%EF%BC%8CURL%E5%B0%BE%E9%83%A8%E7%9A%84/%E8%A1%A8%E7%A4%BA%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%B2%A1%E6%9C%89/%E8%A1%A8%E7%A4%BA%E6%96%87%E4%BB%B6%E3%80%82%E6%89%80%E4%BB%A5%E8%AE%BF%E9%97%AE/some-dir/%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE/some-dir%E7%9A%84%E8%AF%9D%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E5%85%88%E5%8E%BB%E6%89%BEsome-dir%E6%96%87%E4%BB%B6%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E7%9A%84%E8%AF%9D%E4%BC%9A%E5%B0%86some-dir%E5%BD%93%E6%88%90%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0/some-dir/%EF%BC%8C%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82">https://domain.com/some-dir/。尾部如果缺少/将导致重定向。因为根据约定，URL尾部的/表示目录，没有/表示文件。所以访问/some-dir/时，服务器会自动去该目录下找对应的默认文件。如果访问/some-dir的话，服务器会先去找some-dir文件，找不到的话会将some-dir当成目录，重定向到/some-dir/，去该目录下找默认文件。</a></p>
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>含义</th>
+<th>其它</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>~</td>
+<td>波浪线表示执行一个正则匹配，区分大小写</td>
+<td></td>
+</tr>
+<tr>
+<td>~*</td>
+<td>表示执行一个正则匹配，不区分大小写</td>
+<td>正则匹配顺序很重要,按顺序匹配，匹配到则停止</td>
+</tr>
+<tr>
+<td>^~</td>
+<td>^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</td>
+<td></td>
+</tr>
+<tr>
+<td>=</td>
+<td>进行普通字符精确匹配</td>
+<td>使用<code>=</code>精准匹配可以加快查找的顺序，如果根域名经常被访问的话建议使用<code>=</code>。</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -381,6 +655,110 @@
       </tags>
   </entry>
   <entry>
+    <title>JavaScript中this指向总结</title>
+    <url>/2020/09/14/this%E7%9A%84%E6%8C%87%E5%90%91/</url>
+    <content><![CDATA[<h4 id="1-为什么用this"><a href="#1-为什么用this" class="headerlink" title="1.为什么用this"></a>1.为什么用this</h4><p>this 提供了一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计,得更加简洁并且易于复用。它被自动定义在所有函数的作用域中。</p>
+<h4 id="2-this是什么"><a href="#2-this是什么" class="headerlink" title="2. this是什么"></a>2. this是什么</h4><p><strong>× this并非指向函数自身</strong></p>
+<a id="more"></a>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"><span class="keyword">var</span> a=<span class="number">4</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">this</span>.a++)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo() <span class="comment">// NaN，非严格模式下 ; 严格模式下报错</span></span><br></pre></td></tr></table></figure>
+
+<p>从这里看并非指向函数本身</p>
+<blockquote>
+<p>实际上this是指向全局对象，<code>this.a++</code>相当于<code>this.a=this.a+1</code></p>
+<p>非严格模式下，lHS 查找a失败，在全局对象创建a,默认值为undefined, undefined+1=NaN</p>
+<p>严格模式下将报错，lHS查找不到报错，同时this指向undefined 而非全局对象</p>
+</blockquote>
+<p><strong>× this也不可能指向它的作用域</strong></p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line"> <span class="built_in">this</span>.bar();  <span class="comment">//this并非指向当前作用域，而是全局对象</span></span><br><span class="line">&#125; </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); <span class="comment">// ReferenceError: a is not defined</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>this 在任何情况下都不指向函数的词法作用域。在 JavaScript 内部，作用域确实和对象类似，可见的标识符都是它的属性。但是作用域“对象”无法通过 JavaScript代码访问，它存在于 JavaScript 引擎内部。</p>
+</blockquote>
+<p><strong>√ this 是在运行时进行绑定的</strong>，并不是在编写时绑定，它的上下文取决于函数调用时的各种条件。this 的绑定和函数声明的位置没有任何关系，只取决于函数的调用方式,它指向什么完全取决于函数在哪里被调用.</p>
+<h4 id="3-this调用"><a href="#3-this调用" class="headerlink" title="3. this调用"></a>3. this调用</h4><p><strong>调用位置</strong>：调用位置就是函数在代码中被调用的位置（而不是声明的位置）。最重要的是要分析调用栈(就是为了到达当前执行位置所调用的所有函数)。我们关心的调用位置就在当前正在<strong>执行的函数的前一个调用</strong>中。</p>
+<h4 id="4-this绑定规则"><a href="#4-this绑定规则" class="headerlink" title="4. this绑定规则"></a>4. this绑定规则</h4><ul>
+<li><strong>默认绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line">foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>严格模式下的默认绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"><span class="meta"> &quot;use strict&quot;</span></span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line">foo(); <span class="comment">//  TypeError: Cannot read property &#x27;a&#x27; of undefined</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 声明在全局作用域中的变量（比如 var a = 2）就是全局对象的一个同名属性, 函数也是。</p>
+<p> 严格模式下调用foo函数不受影响，但如果foo书写在严格模式下，this指向为undefined。</p>
+</blockquote>
+<ul>
+<li><strong>隐式绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a: <span class="number">2</span>, </span><br><span class="line"> foo: foo </span><br><span class="line">&#125;; </span><br><span class="line">obj.foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>当函数引用有上下文对象时，隐式绑定规则会把函数调用中的 this 绑定到这个上下文对象。</li>
+<li>对象属性引用链中只有上一层或者说最后一层在调用位置中起作用。</li>
+</ol>
+</blockquote>
+<ul>
+<li><strong>显示绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a:<span class="number">2</span> </span><br><span class="line">&#125;; </span><br><span class="line">foo.call( obj ); <span class="comment">// 2</span></span><br><span class="line">foo.apply(obj)</span><br><span class="line">foo.bind(obj)()</span><br><span class="line"><span class="comment">//foo.softBind(obj)()</span></span><br></pre></td></tr></table></figure>
+
+<p><code>Function.prototype</code>原型上有call, apply,bind 方法，可以直接或间接绑定this对象</p>
+<blockquote>
+<p>如果你传入了一个原始值（字符串类型、布尔类型或者数字类型）来当作 this 的绑定对象，这个原始值会被转换成它的对象形式（也就是 new String(..)、new Boolean(..) 或者new Number(..)）。这通常被称为“装箱”</p>
+</blockquote>
+<ul>
+<li><strong>new绑定</strong></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">a</span>) </span>&#123; </span><br><span class="line"> <span class="built_in">this</span>.a = a; </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> foo(<span class="number">2</span>); </span><br><span class="line"><span class="built_in">console</span>.log( bar.a ); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
+
+<p>​    使用new操作符用来调用函数，会进行特殊的步骤。在第三步会执行this的绑定</p>
+<blockquote>
+<p>使用 new 来调用函数，或者说发生构造函数调用时，会自动执行下面的操作。</p>
+<ol>
+<li>创建（或者说构造）一个全新的对象。</li>
+<li>这个新对象会被执行 [[Prototype]] 连接。</li>
+<li>这个新对象会绑定到函数调用的 this。</li>
+<li>如果函数没有返回其他对象，那么 new 表达式中的函数调用会自动返回这个新对象。</li>
+</ol>
+</blockquote>
+<h4 id="6-判断this顺序"><a href="#6-判断this顺序" class="headerlink" title="6. 判断this顺序"></a>6. 判断this顺序</h4><p>​    首先要清楚this绑定优先级: new绑定 &gt; 显示绑定 &gt; 隐式绑定 &gt; 默认绑定<br>接着按以下次序进行判定。</p>
+<ol>
+<li><p>函数是否在 new 中调用（new 绑定）？如果是的话 this 绑定的是新创建的对象。</p>
+<p><code>var bar = new foo()</code></p>
+</li>
+<li><p>函数是否通过 call、apply（显式绑定）或者硬绑定调用？如果是的话，this 绑定的是指定的对象。</p>
+<p><code>var bar = foo.call(obj2)</code></p>
+</li>
+<li><p>函数是否在某个上下文对象中调用（隐式绑定）？如果是的话，this 绑定的是那个上下文对象。</p>
+<p><code>var bar = obj1.foo()</code></p>
+</li>
+<li><p>如果都不是的话，使用默认绑定。如果在严格模式下，就绑定到 undefined，否则绑定到全局对象。</p>
+<p><code>var bar = foo()</code></p>
+</li>
+</ol>
+<h4 id="7-忽略this"><a href="#7-忽略this" class="headerlink" title="7. 忽略this"></a>7. 忽略this</h4><p>​    如果函数并不关心 this 的话，你仍然需要传入一个占位值，这时 null 可能是一个不错的选择，就像代码所示的那样。</p>
+<p>​    当你把 null 或者 undefined 作为 this 的绑定对象传入 call、apply 或者 bind，这些值在调用时会被忽略，实际应用的是默认绑定规则：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">foo.call( <span class="literal">null</span> );</span><br><span class="line">foo.apply( <span class="literal">null</span>, [<span class="number">2</span>, <span class="number">3</span>] );</span><br><span class="line"><span class="keyword">var</span> bar = foo.bind( <span class="literal">null</span>, <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
+
+<p>​    此时 foo函数中的this有可能会被绑定到全局对象，这样可能会照成意外。所以可以传入一个空对象</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> ø = <span class="built_in">Object</span>.create( <span class="literal">null</span> ); </span><br><span class="line"><span class="comment">// 把数组展开成参数</span></span><br><span class="line">foo.apply( ø, [<span class="number">2</span>, <span class="number">3</span>] ); <span class="comment">// a:2, b:3 </span></span><br><span class="line"><span class="comment">// 使用 bind(..) 进行柯里化</span></span><br><span class="line"><span class="keyword">var</span> bar = foo.bind( ø, <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>Object.create( null )</code>没有绑定的原型对象，比｛｝更空</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>js中使用的字符集</title>
     <url>/2020/09/12/unicode%E4%B8%8Ejs/</url>
     <content><![CDATA[<p>本篇文章是从阮一峰老师文章<a href="https://www.ruanyifeng.com/blog/2014/12/unicode.html">&lt;&lt;Unicode与JavaScript详解&gt;&gt;</a>学习总结得到的。</p>
@@ -548,6 +926,89 @@
       </categories>
       <tags>
         <tag>浏览器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据规模与时间复杂度</title>
+    <url>/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/</url>
+    <content><![CDATA[<p>有时做习题时要根据数据规模的大小估算采用的算法，下面是我搜集的一些资料总结。</p>
+<p>1GHz = 10^9 cycles/s 纯计算的话每个操作在10个cycle以内，一些容器的方法可能需要几十个cycle，如果cache miss需要访问内存的就需要上百个cycle，hashtable of string什么的就更复杂了可能需要上千个cycle。所以对于主频2G HZ（2*10^9 cycles/second 每秒产生多少个脉冲周期) 单核单线程CPU一秒内接受的数据规模 10^6~10^7 。</p>
+<a id="more"></a>
+<table>
+<thead>
+<tr>
+<th>数据规模</th>
+<th>要求算法时间复杂度</th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>13</td>
+<td>n!</td>
+<td>排列</td>
+</tr>
+<tr>
+<td>23</td>
+<td>2^n</td>
+<td>组合</td>
+</tr>
+<tr>
+<td>50</td>
+<td>n^4</td>
+<td>暴力循环</td>
+</tr>
+<tr>
+<td>10^2</td>
+<td>n^3</td>
+<td>暴力循环</td>
+</tr>
+<tr>
+<td>10^3</td>
+<td>n^2</td>
+<td>DP、循环</td>
+</tr>
+<tr>
+<td>10^4</td>
+<td>n*sqrt(n)</td>
+<td>双层循环</td>
+</tr>
+<tr>
+<td>10^6</td>
+<td>n*log(n)</td>
+<td>排序、堆、分治</td>
+</tr>
+<tr>
+<td>10^7</td>
+<td>n</td>
+<td>DP 树、图遍历</td>
+</tr>
+<tr>
+<td>10^12</td>
+<td>sqrt(n)</td>
+<td>素数、平方和</td>
+</tr>
+<tr>
+<td>10^18</td>
+<td>log(n)</td>
+<td>二分查找</td>
+</tr>
+<tr>
+<td>10^21</td>
+<td>O(1)</td>
+<td>数学方法，一些规律</td>
+</tr>
+</tbody></table>
+<ul>
+<li>常见数据规模与时间复杂度<br><img src="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/al1.png"></li>
+<li>常见非记忆化递归函数时间复杂度（倒数第三行equation缺少O(n))<br><img src="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/al2.png"></li>
+<li>对于记忆化递归 时间复杂度=子问题规模<em>解决每个子问题的时间；空间复杂度=最大调用深度</em>每个子问题额外使用空间</li>
+</ul>
+]]></content>
+      <categories>
+        <category>算法与数据结构</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
       </tags>
   </entry>
   <entry>
@@ -2194,617 +2655,6 @@ parseInt(&quot;10 years&quot;);   // returns 10
       </categories>
       <tags>
         <tag>js</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>nginx如何配置</title>
-    <url>/2020/09/13/nginx.conf%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6/</url>
-    <content><![CDATA[<p>nginx.conf配置文件总体分三个部分，全局配置块、events配置块、http块，入门时更多配置操作是在http块，尤其是对http块下的server块和location的配置, 需要多多实践才行，下面是我对其配置项的粗略总结。</p>
-<a id="more"></a>
-<h3 id="全局配置"><a href="#全局配置" class="headerlink" title="全局配置"></a>全局配置</h3><table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-<th>默认值</th>
-<th>可选项</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>user</td>
-<td>配置用户和用户组,指定使用对象</td>
-<td>nobody nobody</td>
-<td></td>
-</tr>
-<tr>
-<td>worker_processes</td>
-<td>最大进程数</td>
-<td>1</td>
-<td>auto(nginx自动调节)</td>
-</tr>
-<tr>
-<td>error_log</td>
-<td>指定错误文件 路径+级别</td>
-<td>/var/log/nginx/error.log warn</td>
-<td>( debug, info , notice, warn, error, crit )6个错误级别，级别越高，输出错误日志越少</td>
-</tr>
-<tr>
-<td>pid</td>
-<td>nginx进程id存放的文件</td>
-<td>/var/run/nginx.pid</td>
-<td></td>
-</tr>
-</tbody></table>
-<h3 id="events配置"><a href="#events配置" class="headerlink" title="events配置"></a>events配置</h3><p><em>events配置nginx服务器和用户的连接网络，每个进程最大连接数，选取哪种事件驱动处理<br>请求，是否允许同时接受多个网络连接，开启多个网络连接序列化。</em></p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-<th>默认值</th>
-<th>可选项</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>accept_mutex</td>
-<td>设置网络连接序列化，防止惊群效应发生</td>
-<td>on</td>
-<td>off</td>
-</tr>
-<tr>
-<td>multi_accept</td>
-<td>设置一个进程是否同时接受多个网络连接</td>
-<td>off</td>
-<td>on</td>
-</tr>
-<tr>
-<td>worker_connections</td>
-<td>配置每个进程最大连接数</td>
-<td>1024</td>
-<td></td>
-</tr>
-<tr>
-<td>use</td>
-<td>配置nginx事件驱动模型</td>
-<td>epoll</td>
-<td>[ kqueue | rtsig | epoll | /dev/poll | select | poll ]</td>
-</tr>
-</tbody></table>
-<h3 id="http块配置"><a href="#http块配置" class="headerlink" title="http块配置"></a>http块配置</h3><p><em>http块可以嵌套多个server,配置代理，缓存，日志定义等大多数功能和第三方模块配置<br>如文件引入mimetype日志自定义，是否使用sendfile传输文件，连接超时，单连接请求数量。</em></p>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>作用</th>
-<th>默认值</th>
-<th>可选项</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>include</td>
-<td>配置nginx支持那些文件扩展名和文件类型映射表</td>
-<td>/etc/nginx/mime.types</td>
-<td></td>
-</tr>
-<tr>
-<td>default_type</td>
-<td>配置默认文件(流)类型</td>
-<td>application/octet-stream</td>
-<td></td>
-</tr>
-<tr>
-<td>log_format</td>
-<td>自定义日志格式: 引用id 格式</td>
-<td>main  ‘$remote_addr - $remote_user [$time_local] “$request” ‘’$status $body_bytes_sent “$http_referer” ‘’”$http_user_agent” “$http_x_forwarded_for”‘;</td>
-<td>可配置多个</td>
-</tr>
-<tr>
-<td>access_log</td>
-<td>指定access_log 位置及应用的格式</td>
-<td>/var/log/nginx/access.log  main</td>
-<td></td>
-</tr>
-<tr>
-<td>sendfile</td>
-<td>允许sendfile方式传输文件，开启高效传输模式</td>
-<td>on</td>
-<td></td>
-</tr>
-<tr>
-<td>gzip</td>
-<td>开启gzip压缩，在客户端解压，增加响应速度</td>
-<td>on</td>
-<td></td>
-</tr>
-<tr>
-<td>tcp_nopush</td>
-<td>防止网络阻塞，自动刷新</td>
-<td>on</td>
-<td></td>
-</tr>
-<tr>
-<td>keepalive_timeout</td>
-<td>tcp连接最长时间65秒</td>
-<td>65</td>
-<td></td>
-</tr>
-<tr>
-<td>upstream</td>
-<td>配置格式:引用id upstream对象</td>
-<td></td>
-<td>见负载均衡示例</td>
-</tr>
-<tr>
-<td>server</td>
-<td></td>
-<td></td>
-<td>见server块配置</td>
-</tr>
-</tbody></table>
-<h5 id="1-upstream负载均衡配置"><a href="#1-upstream负载均衡配置" class="headerlink" title="1. upstream负载均衡配置"></a>1. upstream负载均衡配置</h5><p><em>负载均衡，默认轮询，weight为1，可以手动分配服务器weight。但单纯的轮询方式对于session不能实现共享，另一种ip_hash提供了粘性session的解决方案，但可能会丢失负载均衡对于session的处理；最佳方式通过redis实现seesion共享。</em></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">简单的负载均衡配置</span><br><span class="line">http &#123;  </span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">upstream big_server_com &#123;</span><br><span class="line">   #ip_hash;#默认轮询方式,可以修改为iphash方式.</span><br><span class="line">   server 127.0.0.3:8000 weight&#x3D;5;</span><br><span class="line">   server 127.0.0.3:8001 weight&#x3D;5;</span><br><span class="line">   server 192.168.0.1:8000;</span><br><span class="line">   server 192.168.0.1:8001;&#125;</span><br><span class="line"></span><br><span class="line">location &#x2F; &#123;</span><br><span class="line">		#proxy_pass http:&#x2F;&#x2F;big_server_com 	#后端数据传递请求到名为big_server_com 的集群</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
-<h5 id="2-Server块配置"><a href="#2-Server块配置" class="headerlink" title="2. Server块配置"></a>2. Server块配置</h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"> server &#123;</span><br><span class="line"> 	#配置server块，通过server_name和listen绑定tcp sockets</span><br><span class="line">   listen       80;#nginx服务监听的端口</span><br><span class="line">   server_name  localhost ;#nginx服务器所在主机ip,ip绑定的域名</span><br><span class="line"></span><br><span class="line">#静态资源处理</span><br><span class="line">	location ~ ^&#x2F;(images|javascript|js|css|flash|media|static)&#x2F;  &#123;</span><br><span class="line">#server的文件根目录，所有请求将以根目录起始</span><br><span class="line">     root   &#x2F;app;</span><br><span class="line">#配置网站默认主页</span><br><span class="line">     index  index.html;</span><br><span class="line">#当接受到一个请求时如bingyang.xyz&#x2F;aa</span><br><span class="line">#先去找aa文件是否存在，不存在就找aa目录，依旧不存在就定向到index.html，也可以是其它重定向如index.php?$args</span><br><span class="line">#$uri指的是bingyang.xyz&#x2F;后的资源，$arg指的是url问号后面的参数</span><br><span class="line">     try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">     expires 30d;#对静态文件进行缓存 单位有s,m,h,d 秒，分，时，天</span><br><span class="line">	&#125;</span><br><span class="line">   location &#x2F; &#123;</span><br><span class="line">      proxy_pass      http:&#x2F;&#x2F;127.0.0.1:8080;#后端请求</span><br><span class="line">   #  proxy_redirect     off;</span><br><span class="line">   #  proxy_set_header   Host             $host;</span><br><span class="line">   #  proxy_set_header   X-Real-IP        $remote_addr;</span><br><span class="line">   #  proxy_set_header   Forwarded        $proxy_add_forwarded;</span><br><span class="line">   #  proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;</span><br><span class="line">   &#125;</span><br><span class="line">   error_page   500 502 503 504  &#x2F;50x.html;</span><br><span class="line">   location &#x3D; &#x2F;50x.html &#123;#&#x3D;精确匹配，发现精确匹配后立即停止匹配</span><br><span class="line">     root   &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<h5 id="2-location匹配"><a href="#2-location匹配" class="headerlink" title="2. location匹配"></a>2. location匹配</h5><ul>
-<li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
-</li>
-<li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
-</li>
-<li><p>对于普通字符串的匹配规律。首先将所有普通字符串按字典序进行排序。请求uri逐一扫描，当当前字符串大于请求uri时停止，并选取最后一个匹配。<em>（精确匹配除外，且所有普通字符串不能重复。）</em></p>
-</li>
-<li><p>匹配顺序</p>
-<ol start="0">
-<li>首先进行精确匹配，如果匹配到=修饰的location，停止匹配。</li>
-<li>然后检查普通字符串定义的其余location，记录最长匹配的location字符串。如果记录的最长匹配字符串用^~修饰,则停止匹配。</li>
-<li>接着按配置文件定义的顺序，进行正则location匹配.使用第一个匹配结果。</li>
-<li>如果没有正则匹配,使用前面记录的最长前缀字符串的location. </li>
-</ol>
-</li>
-<li><p>location @name 主要用于内部重定向.<strong>注意命名location中不能再嵌套其它的命名location</strong>。</p>
-</li>
-<li><p>location中的字符有没有<code>/</code>都没有影响。也就是说<code>/user/</code>和<code>/user</code>是一样的.可以使用精确匹配测试.</p>
-</li>
-<li><p>如果请求URL结构是<a href="https://domain.com/%E7%9A%84%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B0%BE%E9%83%A8%E6%9C%89%E6%B2%A1%E6%9C%89/%E9%83%BD%E4%B8%8D%E4%BC%9A%E9%80%A0%E6%88%90%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%9C%A8%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E9%BB%98%E8%AE%A4%E5%8A%A0%E4%B8%8A%E4%BA%86/">https://domain.com/的形式，尾部有没有/都不会造成重定向。因为浏览器在发起请求的时候，默认加上了/</a>.</p>
-</li>
-<li><p>如果请求URL的结构是<a href="https://domain.com/some-dir/%E3%80%82%E5%B0%BE%E9%83%A8%E5%A6%82%E6%9E%9C%E7%BC%BA%E5%B0%91/%E5%B0%86%E5%AF%BC%E8%87%B4%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%A0%B9%E6%8D%AE%E7%BA%A6%E5%AE%9A%EF%BC%8CURL%E5%B0%BE%E9%83%A8%E7%9A%84/%E8%A1%A8%E7%A4%BA%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%B2%A1%E6%9C%89/%E8%A1%A8%E7%A4%BA%E6%96%87%E4%BB%B6%E3%80%82%E6%89%80%E4%BB%A5%E8%AE%BF%E9%97%AE/some-dir/%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE/some-dir%E7%9A%84%E8%AF%9D%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E5%85%88%E5%8E%BB%E6%89%BEsome-dir%E6%96%87%E4%BB%B6%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E7%9A%84%E8%AF%9D%E4%BC%9A%E5%B0%86some-dir%E5%BD%93%E6%88%90%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0/some-dir/%EF%BC%8C%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82">https://domain.com/some-dir/。尾部如果缺少/将导致重定向。因为根据约定，URL尾部的/表示目录，没有/表示文件。所以访问/some-dir/时，服务器会自动去该目录下找对应的默认文件。如果访问/some-dir的话，服务器会先去找some-dir文件，找不到的话会将some-dir当成目录，重定向到/some-dir/，去该目录下找默认文件。</a></p>
-<table>
-<thead>
-<tr>
-<th>修饰符</th>
-<th>含义</th>
-<th>其它</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>~</td>
-<td>波浪线表示执行一个正则匹配，区分大小写</td>
-<td></td>
-</tr>
-<tr>
-<td>~*</td>
-<td>表示执行一个正则匹配，不区分大小写</td>
-<td>正则匹配顺序很重要,按顺序匹配，匹配到则停止</td>
-</tr>
-<tr>
-<td>^~</td>
-<td>^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</td>
-<td></td>
-</tr>
-<tr>
-<td>=</td>
-<td>进行普通字符精确匹配</td>
-<td>使用<code>=</code>精准匹配可以加快查找的顺序，如果根域名经常被访问的话建议使用<code>=</code>。</td>
-</tr>
-</tbody></table>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>运维</category>
-      </categories>
-      <tags>
-        <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>nginx工作得几个重要阶段</title>
-    <url>/2020/09/13/nginx%E9%98%B6%E6%AE%B5%E6%A8%A1%E5%9D%97/</url>
-    <content><![CDATA[<h3 id="nginx常见变量"><a href="#nginx常见变量" class="headerlink" title="nginx常见变量"></a>nginx常见变量</h3><table>
-<thead>
-<tr>
-<th>名称</th>
-<th>作用</th>
-<th>限制</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>$proxy_add_x_forwarded_for</td>
-<td>如果$http_x_forwarded_for不为空,等同于’$http_x_forwarded_for,$remote_addr’，否则等于$remote_addr</td>
-<td></td>
-</tr>
-<tr>
-<td>$remote_addr</td>
-<td>上一个http请求的ip</td>
-<td>有可能被realip模块修改</td>
-</tr>
-<tr>
-<td>$realip_remote_addr</td>
-<td>上一个http请求的ip</td>
-<td>realip模块提供的变量</td>
-</tr>
-<tr>
-<td>$http_x_forwarded_for</td>
-<td>http request header中的X-Forwarded-For的值</td>
-<td></td>
-</tr>
-</tbody></table>
-<p>&lt;–! more –&gt;</p>
-<h3 id="postread阶段"><a href="#postread阶段" class="headerlink" title="postread阶段"></a>postread阶段</h3><p>对应  http-real-ip模块<br>|指令或变量| 格式|说明|<br>|—-|—-|—-|<br>|set_real_ip_from|address;CIDR;unix|定义受信地址。如CDN,内网..事先已知的反向代理。通过受信渠道的地址才会被处理，替换|<br>|real_ip_header|field;X-Real-IP;X-Forwarded-For;proxy_protocol|默认值X-Real-IP,指定用于替换$remote_addr的内容,常使用X-Forwarded-For|<br>|real_ip_recursive |可选 on;off|默认为off;off:$remote_addr将替换为real_ip_header的最后一个地址；on:$remote_addr将替换为real_ip_header最后一个非置信的ip|<br>|$realip_remote_addr||原始客户端地址|<br>|$realip_remote_port||原始客户端端口|</p>
-<h3 id="rewrite阶段"><a href="#rewrite阶段" class="headerlink" title="rewrite阶段"></a>rewrite阶段</h3><table>
-<thead>
-<tr>
-<th>指令</th>
-<th>格式</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>return</td>
-<td>返回值格式如 code text，或者code url 或者单独的url</td>
-<td>code 200,301等；url或text中可以包含变量</td>
-</tr>
-<tr>
-<td>rewrite</td>
-<td>regex replacement flag</td>
-<td></td>
-</tr>
-</tbody></table>
-<ul>
-<li><h4 id="return"><a href="#return" class="headerlink" title="return"></a>return</h4><ul>
-<li>返回值为单独的url时，相当于返回 302 url.</li>
-<li>As a special case, a redirect URL can be specified as a URI local to this server, in which case the full redirect URL is formed according to the request scheme ($scheme) and the server_name_in_redirect and port_in_redirect directives.</li>
-</ul>
-</li>
-<li><h4 id="rewrite"><a href="#rewrite" class="headerlink" title="rewrite"></a>rewrite</h4><ul>
-<li>rewrite flag值可取last,break,redirect,permanent.</li>
-<li>last 新的uri再次进行location匹配，</li>
-<li>break ,完成当前在location中剩余操作</li>
-<li>redirect 返回302暂时重定向；如果replacement以http(s)开头也会触发</li>
-<li>permanent 永久重定向 返回301<br>  <strong>两个重定向区别</strong>：永久重定向，相当于告诉客户端下次请求直接转发到重定向；暂时重定向每次都重复这个过程。</li>
-</ul>
-</li>
-</ul>
-<h3 id="findconfig阶段"><a href="#findconfig阶段" class="headerlink" title="findconfig阶段"></a>findconfig阶段</h3><p><em>此阶段主要是对location的匹配。</em></p>
-<ul>
-<li><p>对请求的url序列化。例如，对<code>%xx</code>等字符进行解码，去除url中多个相连的<code>/</code>，解析url中的<code>.</code>，<code>..</code>等。这一步是匹配的前置工作。</p>
-</li>
-<li><p>location uri有两种表示形式,一种是使用普通字符串,一种使用正则. </p>
-</li>
-<li><p>对于普通字符串的匹配规律。首先将所有普通字符串按字典序进行排序。请求uri逐一扫描，当当前字符串大于请求uri时停止，并选取最后一个匹配。<em>（精确匹配除外，且所有普通字符串不能重复。）</em></p>
-</li>
-<li><p>匹配顺序</p>
-<ol>
-<li>首先进行精确匹配，如果匹配到=修饰的location，停止匹配。</li>
-<li>然后检查普通字符串定义的其余location，记录最长匹配的location字符串。如果记录的最长匹配字符串用^~修饰,则停止匹配。</li>
-<li>接着按配置文件定义的顺序，进行正则location匹配.使用第一个匹配结果。</li>
-<li>如果没有正则匹配,使用前面记录的最长前缀字符串的location. </li>
-</ol>
-</li>
-<li><p>location @name 主要用于内部重定向.<strong>注意命名location中不能再嵌套其它的命名location</strong>。</p>
-</li>
-<li><p>location中的字符有没有<code>/</code>都没有影响。也就是说<code>/user/</code>和<code>/user</code>是一样的.可以使用精确匹配测试.</p>
-</li>
-<li><p>如果请求URL结构是<a href="https://domain.com/%E7%9A%84%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B0%BE%E9%83%A8%E6%9C%89%E6%B2%A1%E6%9C%89/%E9%83%BD%E4%B8%8D%E4%BC%9A%E9%80%A0%E6%88%90%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%B5%8F%E8%A7%88%E5%99%A8%E5%9C%A8%E5%8F%91%E8%B5%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E9%BB%98%E8%AE%A4%E5%8A%A0%E4%B8%8A%E4%BA%86/">https://domain.com/的形式，尾部有没有/都不会造成重定向。因为浏览器在发起请求的时候，默认加上了/</a>.</p>
-</li>
-<li><p>如果请求URL的结构是<a href="https://domain.com/some-dir/%E3%80%82%E5%B0%BE%E9%83%A8%E5%A6%82%E6%9E%9C%E7%BC%BA%E5%B0%91/%E5%B0%86%E5%AF%BC%E8%87%B4%E9%87%8D%E5%AE%9A%E5%90%91%E3%80%82%E5%9B%A0%E4%B8%BA%E6%A0%B9%E6%8D%AE%E7%BA%A6%E5%AE%9A%EF%BC%8CURL%E5%B0%BE%E9%83%A8%E7%9A%84/%E8%A1%A8%E7%A4%BA%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%B2%A1%E6%9C%89/%E8%A1%A8%E7%A4%BA%E6%96%87%E4%BB%B6%E3%80%82%E6%89%80%E4%BB%A5%E8%AE%BF%E9%97%AE/some-dir/%E6%97%B6%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E8%87%AA%E5%8A%A8%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E5%AF%B9%E5%BA%94%E7%9A%84%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82%E5%A6%82%E6%9E%9C%E8%AE%BF%E9%97%AE/some-dir%E7%9A%84%E8%AF%9D%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BC%9A%E5%85%88%E5%8E%BB%E6%89%BEsome-dir%E6%96%87%E4%BB%B6%EF%BC%8C%E6%89%BE%E4%B8%8D%E5%88%B0%E7%9A%84%E8%AF%9D%E4%BC%9A%E5%B0%86some-dir%E5%BD%93%E6%88%90%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%87%8D%E5%AE%9A%E5%90%91%E5%88%B0/some-dir/%EF%BC%8C%E5%8E%BB%E8%AF%A5%E7%9B%AE%E5%BD%95%E4%B8%8B%E6%89%BE%E9%BB%98%E8%AE%A4%E6%96%87%E4%BB%B6%E3%80%82">https://domain.com/some-dir/。尾部如果缺少/将导致重定向。因为根据约定，URL尾部的/表示目录，没有/表示文件。所以访问/some-dir/时，服务器会自动去该目录下找对应的默认文件。如果访问/some-dir的话，服务器会先去找some-dir文件，找不到的话会将some-dir当成目录，重定向到/some-dir/，去该目录下找默认文件。</a></p>
-<table>
-<thead>
-<tr>
-<th>修饰符</th>
-<th>含义</th>
-<th>其它</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>~</td>
-<td>波浪线表示执行一个正则匹配，区分大小写</td>
-<td></td>
-</tr>
-<tr>
-<td>~*</td>
-<td>表示执行一个正则匹配，不区分大小写</td>
-<td>正则匹配顺序很重要,按顺序匹配，匹配到则停止</td>
-</tr>
-<tr>
-<td>^~</td>
-<td>^~表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</td>
-<td></td>
-</tr>
-<tr>
-<td>=</td>
-<td>进行普通字符精确匹配</td>
-<td>使用<code>=</code>精准匹配可以加快查找的顺序，如果根域名经常被访问的话建议使用<code>=</code>。</td>
-</tr>
-</tbody></table>
-</li>
-</ul>
-<h3 id="preaccess阶段"><a href="#preaccess阶段" class="headerlink" title="preaccess阶段"></a>preaccess阶段</h3><p><em>限制并发连接数</em><br>|指令|格式|默认值|说明|<br>|–|–|–|–|<br>|limit_conn_zone|key zone=name:size rate=rate||在http，用于定义共享内存,处理速度rate单位为r/s或者r/m|<br>|limt_conn|zone number||限制并发连接数,用于http,server,location|<br>|limit_conn_status|code|503|限制发生时向客户端返回的错误码，用于http,server,locacion|<br>|limit_conn_log_level|info;notice;warn;eror|error|限制发生时日志级别，用于http,server,locacion|<br>|limit_req_zone|key zone=name [burst=number] [nodelay]|burst=0,nodela立刻处理||<br>|limit_req_status|code|503|限制发生时向客户端返回的错误码，用于http,server,locacion|<br>|limit_req_log_level|info;notice;warn;eror|error|限制发生时日志级别，用于http,server,locacion|</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">limit_conn_zone $binary_remote_addr zone&#x3D;addr:10m;</span><br><span class="line">#限制download目录下一个ip的并发请求数量</span><br><span class="line">: server &#123;</span><br><span class="line">: location &#x2F;download&#x2F; &#123;</span><br><span class="line">: limit_conn   addr  1;</span><br><span class="line">: &#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">limit_req_zone  $binary_remote_addr  zone&#x3D;one:10m   rate&#x3D;1r&#x2F;s;</span><br><span class="line">    server &#123;</span><br><span class="line">    #允许用户平均每秒不超过1个请求，突发情况下最多有5个，5个以内响应无延迟，大于5个有延迟。</span><br><span class="line">        location &#x2F;search&#x2F; &#123;</span><br><span class="line">            limit_req   zone&#x3D;one  burst&#x3D;5 nodelay;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
-<h3 id="access阶段"><a href="#access阶段" class="headerlink" title="access阶段"></a>access阶段</h3><p>对ip进行限制的阶段，通过顺序为access-&gt;auth_basic-&gt;auth_request<br>|指令|格式|默认值|说明|<br>|–|–|–|–|<br>|allow| address;CIDR;unix|all||用于http,server,location,limit_except中|<br>|deny| address;CIDR;unix|all||同allow，多条指令按顺序执行，直到匹配成功，用于控制访问ip|<br>|auth_basic|string;off|off，取消从上级模块继承的结果；字符串指定一个域。|用于http,server,location,limit_except中|<br>|auth_basic_user_file|file||同auth_basic属于auth_basic模块的指令，指定验证用户的文件|<br>|auth_request|uri;off|off|用于http,server,location中，向上游服务转发请求，如返回2xx，则继续执行；若401或403则被拒绝并将响应返回客户端；其它码视为一个错误|<br>|auth_request_set|$variable value||同auth_request,用于设置变量，这两个变量属于auth_request模块，默认未编译进nginx|<br>|satisfy|all;any|all|对access阶段的各个模块结果取并或者或结果|</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location &#x2F;private&#x2F; &#123;</span><br><span class="line">    auth_request &#x2F;auth;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">location &#x3D; &#x2F;auth &#123;</span><br><span class="line">    proxy_pass ...</span><br><span class="line">    proxy_pass_request_body off;</span><br><span class="line">    proxy_set_header Content-Length &quot;&quot;;</span><br><span class="line">    proxy_set_header X-Original-URI $request_uri;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="precontent阶段"><a href="#precontent阶段" class="headerlink" title="precontent阶段"></a>precontent阶段</h3><ul>
-<li><p>try_files模块<br>  用于location中，根据请求uri进行逐个文件的匹配，返回第一个匹配项。末尾必须跟着一个fallback,它是一个命名location，或者存在的uri,如 =404状态码。 </p>
-  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location &#x2F; &#123;</span><br><span class="line"></span><br><span class="line">  try_files index.html index.htm @fallback;</span><br><span class="line">&#125;</span><br><span class="line">location @fallback &#123;</span><br><span class="line"> root  &#x2F;var&#x2F;www&#x2F;error;</span><br><span class="line"> index index.html;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="content阶段"><a href="#content阶段" class="headerlink" title="content阶段"></a>content阶段</h3></li>
-<li><p>root和alias</p>
-<ul>
-<li>root: 用于http, server, location, if in location块中.默认值 html.指定请求uri的前缀.root加作为前缀加到uri上.root与rewrite搭配实现alias的效果.</li>
-<li>alias:用于location中,alias将替换 location匹配内容,形成新的uri.对于正则location,应包含捕获从而在alias中可以引用   <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">location  &#x2F;i&#x2F; &#123;</span><br><span class="line"> alias   &#x2F;spool&#x2F;w3&#x2F;images&#x2F;;</span><br><span class="line">&#125;</span><br><span class="line">#The request &quot;&#x2F;i&#x2F;top.gif&quot; will return the file &quot;&#x2F;spool&#x2F;w3&#x2F;images&#x2F;top.gif&quot;.</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li><p>index<br>  指定目录时返回默认的文件，默认配置为index index.html;可以在serve,location,http中配置。** 注意**index会引起内部重定向，导致文件在不同的location中处理.</p>
-  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#a “&#x2F;” request will actually be processed in the second location as “&#x2F;index.html”.</span><br><span class="line">location &#x3D; &#x2F; &#123;</span><br><span class="line">    index index.html;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">  location &#x2F; &#123;</span><br><span class="line">  ...</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>服务器</category>
-      </categories>
-      <tags>
-        <tag>运维</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浅谈docker中数据管理</title>
-    <url>/2020/09/14/docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/</url>
-    <content><![CDATA[<p>docker进行数据交互的方式有bind mount, volume, tmpfs三种，其中bind mount常用于绑定配置文件到docker容器，volume常用于接受从容器内部产生的数据如日志等，tmpfs不太常见，适用于存储短暂的中间数据，当容器停止，数据便消失。下面对这三种方式做了粗略的总结。</p>
-<a id="more"></a>
-
-<h4 id="bind-mount"><a href="#bind-mount" class="headerlink" title="bind mount"></a>bind mount</h4><ul>
-<li><p>缺点：依赖于特定目录结构的主机文件系统</p>
-</li>
-<li><p>优点：有效从主机绑定数据到容器</p>
-</li>
-<li><p>特点：使用绝对路径、文件或目录不存在时将默认**<em>作为目录创建**</em>或者报错、主机路径文件或目录将覆盖挂载点、不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
-</li>
-<li><p>相比volume：当挂载内容不存在时，先生成空目录去覆盖挂载点，容易导致错误</p>
-</li>
-<li><p>实现方式</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">-v 只有三个参数 主机目录或文件：容器内对应目录或文件：模式(ro,rw) consistent, delegated, cached只适用于mac系统</span><br><span class="line">默认容器具有可读可写的权限rw，当主机路径不存在时将作为目录创建</span><br><span class="line">支持z或Z修改selinux labels ，小写z允许挂载内容呗多个容器共享、大写Z相反</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v &quot;$(pwd)&quot;&#x2F;target:&#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">--mount 键值对组成、当主机路径不存在时报错、不支持z或Z修改selinux labels</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,tmpfs,volume 指定类型</span><br><span class="line">source或者src&#x3D; 主机文件或目录绝对路径</span><br><span class="line">destination 或者 target&#x3D; 容器内挂载点路径</span><br><span class="line">readonly 如果存在，容器只读</span><br><span class="line">consistency&#x3D;consistent, delegated, cached只适用于mac系统</span><br><span class="line">bind-propagation&#x3D;rprivate, private, rshared, shared, rslave5, slave. 默认rprivate暂未涉及到</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount type&#x3D;bind,source&#x3D;&quot;$(pwd)&quot;&#x2F;target,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h4 id="volume"><a href="#volume" class="headerlink" title="volume"></a>volume</h4><ul>
-<li><p>缺点：使用rprivate绑定传播且不可修改、配置复杂</p>
-</li>
-<li><p>优点：</p>
-<ul>
-<li>完全有docker管理，不依赖主机目录结构。</li>
-<li>适合备份、转移</li>
-<li>安全的在多个容器共享</li>
-<li>允许存储volume在远程主机、进行加密编码或其它功能</li>
-</ul>
-</li>
-<li><p>特点：不存储数据在容器的可写层，不会增加容器大小，独立容器生命周期存在</p>
-</li>
-<li><p>与bindmount相比：挂载内容不存在时，使用容器内目录填充</p>
-</li>
-<li><p>实现方式：</p>
-  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">创建卷</span><br><span class="line">$ docker volume create my-vol</span><br><span class="line">举例卷</span><br><span class="line">$ docker volume ls</span><br><span class="line">检查卷</span><br><span class="line">$ docker volume inspect my-vol</span><br><span class="line">移除卷</span><br><span class="line">$ docker volume rm my-vol</span><br><span class="line">移除所有未使用的卷</span><br><span class="line">$ docker volume prune</span><br><span class="line"></span><br><span class="line">-v 格式 命名卷或忽略：容器挂载点,文件或目录：模式（rw,ro) 默认rw</span><br><span class="line">不能指定driver选项，不支持services</span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  -v myvol2:&#x2F;app \</span><br><span class="line">  nginx:latest  </span><br><span class="line"></span><br><span class="line">启用匿名卷 --rm 指定当容器被移除时，自动移除匿名卷 (--rm指定后 当容器被stop，会自动移除)</span><br><span class="line">$ docker run --rm -v &#x2F;app  nginx:latest  </span><br><span class="line">**********************************************************************</span><br><span class="line"></span><br><span class="line">--mount 多个键值对,指定driver选项，支持services</span><br><span class="line">(</span><br><span class="line">type&#x3D;bind,volume,tmpfs</span><br><span class="line">src、source&#x3D;卷名或被忽略</span><br><span class="line">destination,dst,target&#x3D;容器内挂载点，目录或文件</span><br><span class="line">readonly</span><br><span class="line">volume-opt&#x3D;key&#x3D;value，可以被指定多次，注意多个逗号分隔的value需要转义，如下</span><br><span class="line">)</span><br><span class="line"> 进行转义</span><br><span class="line"> --mount &#39;type&#x3D;volume,src&#x3D;&lt;VOLUME-NAME&gt;,dst&#x3D;&lt;CONTAINER-PATH&gt;,volume-driver&#x3D;local,volume-opt&#x3D;type&#x3D;nfs,volume-opt&#x3D;device&#x3D;&lt;nfs-server&gt;:&lt;nfs-path&gt;,&quot;volume-opt&#x3D;o&#x3D;addr&#x3D;&lt;nfs-address&gt;,vers&#x3D;4,soft,timeo&#x3D;180,bg,tcp,rw&quot;&#39;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">$ docker run -d \</span><br><span class="line">  --name devtest \</span><br><span class="line">  --mount source&#x3D;myvol2,target&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用volume driver实现集群读写文件存储、加密。 不太懂</p>
-</li>
-<li><p>使用nfs volume创建service</p>
-</li>
-<li><p>备份容器</p>
-</li>
-<li><p>从备份还原容器</p>
-</li>
-</ul>
-<h4 id="tmpfs"><a href="#tmpfs" class="headerlink" title="tmpfs"></a>tmpfs</h4><ul>
-<li><p>缺点：只适用linux系统；只存在于内存中，随容器停止消失</p>
-</li>
-<li><p>优点：适合敏感数据</p>
-</li>
-<li><p>实现方式</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">--tmpfs: 简单指明挂载点、不能配置参数、只用于单个容器</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --tmpfs &#x2F;app \</span><br><span class="line">  nginx:latest</span><br><span class="line"></span><br><span class="line">--mount 更加冗长、可选的配置项tmpfs-size and tmpfs-mode、可用于单个容器和集群服务</span><br><span class="line">$ docker run -d \</span><br><span class="line">  -it \</span><br><span class="line">  --name tmptest \</span><br><span class="line">  --mount type&#x3D;tmpfs,destination&#x3D;&#x2F;app \</span><br><span class="line">  nginx:latest</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<h4 id=""><a href="#" class="headerlink" title=""></a></h4>]]></content>
-      <categories>
-        <category>运维</category>
-      </categories>
-      <tags>
-        <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JavaScript中this指向总结</title>
-    <url>/2020/09/14/this%E7%9A%84%E6%8C%87%E5%90%91/</url>
-    <content><![CDATA[<h4 id="1-为什么用this"><a href="#1-为什么用this" class="headerlink" title="1.为什么用this"></a>1.为什么用this</h4><p>this 提供了一种更优雅的方式来隐式“传递”一个对象引用，因此可以将 API 设计,得更加简洁并且易于复用。它被自动定义在所有函数的作用域中。</p>
-<h4 id="2-this是什么"><a href="#2-this是什么" class="headerlink" title="2. this是什么"></a>2. this是什么</h4><p><strong>× this并非指向函数自身</strong></p>
-<a id="more"></a>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"><span class="keyword">var</span> a=<span class="number">4</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">this</span>.a++)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">foo() <span class="comment">// NaN，非严格模式下 ; 严格模式下报错</span></span><br></pre></td></tr></table></figure>
-
-<p>从这里看并非指向函数本身</p>
-<blockquote>
-<p>实际上this是指向全局对象，<code>this.a++</code>相当于<code>this.a=this.a+1</code></p>
-<p>非严格模式下，lHS 查找a失败，在全局对象创建a,默认值为undefined, undefined+1=NaN</p>
-<p>严格模式下将报错，lHS查找不到报错，同时this指向undefined 而非全局对象</p>
-</blockquote>
-<p><strong>× this也不可能指向它的作用域</strong></p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line"> <span class="built_in">this</span>.bar();  <span class="comment">//this并非指向当前作用域，而是全局对象</span></span><br><span class="line">&#125; </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line">foo(); <span class="comment">// ReferenceError: a is not defined</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>this 在任何情况下都不指向函数的词法作用域。在 JavaScript 内部，作用域确实和对象类似，可见的标识符都是它的属性。但是作用域“对象”无法通过 JavaScript代码访问，它存在于 JavaScript 引擎内部。</p>
-</blockquote>
-<p><strong>√ this 是在运行时进行绑定的</strong>，并不是在编写时绑定，它的上下文取决于函数调用时的各种条件。this 的绑定和函数声明的位置没有任何关系，只取决于函数的调用方式,它指向什么完全取决于函数在哪里被调用.</p>
-<h4 id="3-this调用"><a href="#3-this调用" class="headerlink" title="3. this调用"></a>3. this调用</h4><p><strong>调用位置</strong>：调用位置就是函数在代码中被调用的位置（而不是声明的位置）。最重要的是要分析调用栈(就是为了到达当前执行位置所调用的所有函数)。我们关心的调用位置就在当前正在<strong>执行的函数的前一个调用</strong>中。</p>
-<h4 id="4-this绑定规则"><a href="#4-this绑定规则" class="headerlink" title="4. this绑定规则"></a>4. this绑定规则</h4><ul>
-<li><strong>默认绑定</strong></li>
-</ul>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line">foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>严格模式下的默认绑定</strong></li>
-</ul>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"><span class="meta"> &quot;use strict&quot;</span></span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> a = <span class="number">2</span>; </span><br><span class="line">foo(); <span class="comment">//  TypeError: Cannot read property &#x27;a&#x27; of undefined</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p> 声明在全局作用域中的变量（比如 var a = 2）就是全局对象的一个同名属性, 函数也是。</p>
-<p> 严格模式下调用foo函数不受影响，但如果foo书写在严格模式下，this指向为undefined。</p>
-</blockquote>
-<ul>
-<li><strong>隐式绑定</strong></li>
-</ul>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a: <span class="number">2</span>, </span><br><span class="line"> foo: foo </span><br><span class="line">&#125;; </span><br><span class="line">obj.foo(); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<ol>
-<li>当函数引用有上下文对象时，隐式绑定规则会把函数调用中的 this 绑定到这个上下文对象。</li>
-<li>对象属性引用链中只有上一层或者说最后一层在调用位置中起作用。</li>
-</ol>
-</blockquote>
-<ul>
-<li><strong>显示绑定</strong></li>
-</ul>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123; </span><br><span class="line"> <span class="built_in">console</span>.log( <span class="built_in">this</span>.a ); </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> obj = &#123; </span><br><span class="line"> a:<span class="number">2</span> </span><br><span class="line">&#125;; </span><br><span class="line">foo.call( obj ); <span class="comment">// 2</span></span><br><span class="line">foo.apply(obj)</span><br><span class="line">foo.bind(obj)()</span><br><span class="line"><span class="comment">//foo.softBind(obj)()</span></span><br></pre></td></tr></table></figure>
-
-<p><code>Function.prototype</code>原型上有call, apply,bind 方法，可以直接或间接绑定this对象</p>
-<blockquote>
-<p>如果你传入了一个原始值（字符串类型、布尔类型或者数字类型）来当作 this 的绑定对象，这个原始值会被转换成它的对象形式（也就是 new String(..)、new Boolean(..) 或者new Number(..)）。这通常被称为“装箱”</p>
-</blockquote>
-<ul>
-<li><strong>new绑定</strong></li>
-</ul>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params">a</span>) </span>&#123; </span><br><span class="line"> <span class="built_in">this</span>.a = a; </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> foo(<span class="number">2</span>); </span><br><span class="line"><span class="built_in">console</span>.log( bar.a ); <span class="comment">// 2</span></span><br></pre></td></tr></table></figure>
-
-<p>​    使用new操作符用来调用函数，会进行特殊的步骤。在第三步会执行this的绑定</p>
-<blockquote>
-<p>使用 new 来调用函数，或者说发生构造函数调用时，会自动执行下面的操作。</p>
-<ol>
-<li>创建（或者说构造）一个全新的对象。</li>
-<li>这个新对象会被执行 [[Prototype]] 连接。</li>
-<li>这个新对象会绑定到函数调用的 this。</li>
-<li>如果函数没有返回其他对象，那么 new 表达式中的函数调用会自动返回这个新对象。</li>
-</ol>
-</blockquote>
-<h4 id="6-判断this顺序"><a href="#6-判断this顺序" class="headerlink" title="6. 判断this顺序"></a>6. 判断this顺序</h4><p>​    首先要清楚this绑定优先级: new绑定 &gt; 显示绑定 &gt; 隐式绑定 &gt; 默认绑定<br>接着按以下次序进行判定。</p>
-<ol>
-<li><p>函数是否在 new 中调用（new 绑定）？如果是的话 this 绑定的是新创建的对象。</p>
-<p><code>var bar = new foo()</code></p>
-</li>
-<li><p>函数是否通过 call、apply（显式绑定）或者硬绑定调用？如果是的话，this 绑定的是指定的对象。</p>
-<p><code>var bar = foo.call(obj2)</code></p>
-</li>
-<li><p>函数是否在某个上下文对象中调用（隐式绑定）？如果是的话，this 绑定的是那个上下文对象。</p>
-<p><code>var bar = obj1.foo()</code></p>
-</li>
-<li><p>如果都不是的话，使用默认绑定。如果在严格模式下，就绑定到 undefined，否则绑定到全局对象。</p>
-<p><code>var bar = foo()</code></p>
-</li>
-</ol>
-<h4 id="7-忽略this"><a href="#7-忽略this" class="headerlink" title="7. 忽略this"></a>7. 忽略this</h4><p>​    如果函数并不关心 this 的话，你仍然需要传入一个占位值，这时 null 可能是一个不错的选择，就像代码所示的那样。</p>
-<p>​    当你把 null 或者 undefined 作为 this 的绑定对象传入 call、apply 或者 bind，这些值在调用时会被忽略，实际应用的是默认绑定规则：</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">foo.call( <span class="literal">null</span> );</span><br><span class="line">foo.apply( <span class="literal">null</span>, [<span class="number">2</span>, <span class="number">3</span>] );</span><br><span class="line"><span class="keyword">var</span> bar = foo.bind( <span class="literal">null</span>, <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
-
-<p>​    此时 foo函数中的this有可能会被绑定到全局对象，这样可能会照成意外。所以可以传入一个空对象</p>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> ø = <span class="built_in">Object</span>.create( <span class="literal">null</span> ); </span><br><span class="line"><span class="comment">// 把数组展开成参数</span></span><br><span class="line">foo.apply( ø, [<span class="number">2</span>, <span class="number">3</span>] ); <span class="comment">// a:2, b:3 </span></span><br><span class="line"><span class="comment">// 使用 bind(..) 进行柯里化</span></span><br><span class="line"><span class="keyword">var</span> bar = foo.bind( ø, <span class="number">2</span> );</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><code>Object.create( null )</code>没有绑定的原型对象，比｛｝更空</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-      <tags>
-        <tag>js</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>数据规模与时间复杂度</title>
-    <url>/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/</url>
-    <content><![CDATA[<p>有时做习题时要根据数据规模的大小估算采用的算法，下面是我搜集的一些资料总结。</p>
-<p>1GHz = 10^9 cycles/s 纯计算的话每个操作在10个cycle以内，一些容器的方法可能需要几十个cycle，如果cache miss需要访问内存的就需要上百个cycle，hashtable of string什么的就更复杂了可能需要上千个cycle。所以对于主频2G HZ（2*10^9 cycles/second 每秒产生多少个脉冲周期) 单核单线程CPU一秒内接受的数据规模 10^6~10^7 。</p>
-<a id="more"></a>
-<table>
-<thead>
-<tr>
-<th>数据规模</th>
-<th>要求算法时间复杂度</th>
-<th></th>
-</tr>
-</thead>
-<tbody><tr>
-<td>13</td>
-<td>n!</td>
-<td>排列</td>
-</tr>
-<tr>
-<td>23</td>
-<td>2^n</td>
-<td>组合</td>
-</tr>
-<tr>
-<td>50</td>
-<td>n^4</td>
-<td>暴力循环</td>
-</tr>
-<tr>
-<td>10^2</td>
-<td>n^3</td>
-<td>暴力循环</td>
-</tr>
-<tr>
-<td>10^3</td>
-<td>n^2</td>
-<td>DP、循环</td>
-</tr>
-<tr>
-<td>10^4</td>
-<td>n*sqrt(n)</td>
-<td>双层循环</td>
-</tr>
-<tr>
-<td>10^6</td>
-<td>n*log(n)</td>
-<td>排序、堆、分治</td>
-</tr>
-<tr>
-<td>10^7</td>
-<td>n</td>
-<td>DP 树、图遍历</td>
-</tr>
-<tr>
-<td>10^12</td>
-<td>sqrt(n)</td>
-<td>素数、平方和</td>
-</tr>
-<tr>
-<td>10^18</td>
-<td>log(n)</td>
-<td>二分查找</td>
-</tr>
-<tr>
-<td>10^21</td>
-<td>O(1)</td>
-<td>数学方法，一些规律</td>
-</tr>
-</tbody></table>
-<ul>
-<li>常见数据规模与时间复杂度<br><img src="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/al1.png"></li>
-<li>常见非记忆化递归函数时间复杂度（倒数第三行equation缺少O(n))<br><img src="/2020/09/14/%E6%95%B0%E6%8D%AE%E8%A7%84%E6%A8%A1%E4%B8%8E%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82a%E5%BA%A6/al2.png"></li>
-<li>对于记忆化递归 时间复杂度=子问题规模<em>解决每个子问题的时间；空间复杂度=最大调用深度</em>每个子问题额外使用空间</li>
-</ul>
-]]></content>
-      <categories>
-        <category>算法与数据结构</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
       </tags>
   </entry>
 </search>
