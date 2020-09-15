@@ -27,8 +27,10 @@
     font-size: 24px;
     margin: 0 0 20px; }
     .my-resume .ab-header .sub-title {
-      font-size: 0.5em;
+      font-size: 0.6em;
       margin-left: 20px; }
+    .my-resume .ab-header .down-resume {
+      font-size: 0.6em; }
   .my-resume .award-detail li .time {
     display: inline-block; }
   .my-resume .award-detail li .award {
