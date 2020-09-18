@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"mabingyang.top","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="3. 组件属性propsprops用于封装组件时接受外来的参数，props有三种形式，一个数组、简单对象、复杂对象。可以对传入参数的类型、默认值、是否必选、自定义validator做检验。随后对非props属性与props属性进行对比讨论，以及如何处理非prop属性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vue组件props选项">
+<meta property="og:url" content="http://mabingyang.top/2020/09/18/vuec%E7%BB%84%E4%BB%B6props%E9%80%89%E9%A1%B9/index.html">
+<meta property="og:site_name" content="马冰阳的个人博客">
+<meta property="og:description" content="3. 组件属性propsprops用于封装组件时接受外来的参数，props有三种形式，一个数组、简单对象、复杂对象。可以对传入参数的类型、默认值、是否必选、自定义validator做检验。随后对非props属性与props属性进行对比讨论，以及如何处理非prop属性。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-18T09:19:36.000Z">
+<meta property="article:modified_time" content="2020-09-18T09:21:37.889Z">
+<meta property="article:author" content="马冰阳">
+<meta property="article:tag" content="vue">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://mabingyang.top/2020/09/18/vuec%E7%BB%84%E4%BB%B6props%E9%80%89%E9%A1%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>vue组件props选项 | 马冰阳的个人博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+
+      <h1 class="site-title">Wanna fly higher</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+
+      <p class="site-subtitle" itemprop="description">如果没有光 就努力成为自己的光</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>我的信息</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>成长历程</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>全站搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://mabingyang.top/2020/09/18/vuec%E7%BB%84%E4%BB%B6props%E9%80%89%E9%A1%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="马冰阳">
+      <meta itemprop="description" content="记录成长的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="马冰阳的个人博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          vue组件props选项
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-18 17:19:36 / 修改时间：17:21:37" itemprop="dateCreated datePublished" datetime="2020-09-18T17:19:36+08:00">2020-09-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/vue/" itemprop="url" rel="index"><span itemprop="name">vue</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="3-组件属性props"><a href="#3-组件属性props" class="headerlink" title="3. 组件属性props"></a>3. 组件属性props</h2><p>props用于封装组件时接受外来的参数，props有三种形式，一个数组、简单对象、复杂对象。可以对传入参数的类型、默认值、是否必选、自定义validator做检验。随后对非props属性与props属性进行对比讨论，以及如何处理非prop属性。</p>
+<a id="more"></a>
+
+<h3 id="简单形式，属性无任何约束"><a href="#简单形式，属性无任何约束" class="headerlink" title="简单形式，属性无任何约束"></a>简单形式，属性无任何约束</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">props:[str,num,obj]</span><br></pre></td></tr></table></figure>
+
+<h3 id="指定属性的类型"><a href="#指定属性的类型" class="headerlink" title="指定属性的类型"></a>指定属性的类型</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">props:&#123;</span><br><span class="line">	str:String,</span><br><span class="line">	num:[Number,String],</span><br><span class="line">	obj:Object</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>null和undefined会通过任何验证</li>
+<li>类型检验在控制台会对应报错，但并不是强制性的<ol start="3">
+<li>实际上此中类型判读通过 instanceof方法判读。</li>
+</ol>
+</li>
+</ol>
+<h3 id="指定属性是否必选、默认值"><a href="#指定属性是否必选、默认值" class="headerlink" title="指定属性是否必选、默认值"></a>指定属性是否必选、默认值</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">props:&#123;</span><br><span class="line">	str:&#123;</span><br><span class="line">        type:String</span><br><span class="line">        required:true,</span><br><span class="line">        default:&#39;iloveyou&#39;</span><br><span class="line">    &#125;</span><br><span class="line">	num:&#123;</span><br><span class="line">        type:[Number,String],</span><br><span class="line">            required:true</span><br><span class="line">    &#125;</span><br><span class="line">	obj:&#123;type:Object,</span><br><span class="line">        default:function()&#123;return &#123;&#125;&#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>required要求必穿，不传则控制台报错</li>
+<li>default 传递一个默认值，引用类型数据需要工厂函数返回；基本数据类型直接设置。</li>
+</ol>
+<blockquote>
+<p>required和default混合使用，逻辑上不符合常理。<strong>default逻辑上失效，但实际上有效</strong>。</p>
+</blockquote>
+<h3 id="自定义检验器"><a href="#自定义检验器" class="headerlink" title="自定义检验器"></a>自定义检验器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">props:&#123;</span><br><span class="line">	str:&#123;</span><br><span class="line">        type:String</span><br><span class="line">        default:&#39;iloveyou&#39;,</span><br><span class="line">        validator: function(value)&#123;</span><br><span class="line">        	return +number &gt;50</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	num:&#123;</span><br><span class="line">        type:[Number,String],</span><br><span class="line">        required:true,</span><br><span class="line">        validator: function(value)&#123;</span><br><span class="line">        	return +number &gt;50</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	obj:&#123; type:Object,</span><br><span class="line">          validator: function(value)&#123;</span><br><span class="line">        	return Object.keys(value).length&gt;2</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>validator检验器函数传入此属性的值作为参数，自定义校验规则返回bool</li>
+<li>如果默认值并且未传参，则使用默认值判断。</li>
+</ol>
+<h3 id="非Props属性"><a href="#非Props属性" class="headerlink" title="非Props属性"></a>非Props属性</h3><p>非props属性值不是组件显示声明的属性，它会原封不动的加到组件模版根部的元素。而不是像props属性一样，被当做类似于实例data选项属性进行操作,下面以一个组件my-title示例</p>
+<p><strong>1. 全局注册my-title</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Vue.component(&#39;my-title&#39;, &#123;</span><br><span class="line">   props: &#123;</span><br><span class="line">            title: String,</span><br><span class="line">   &#125;,</span><br><span class="line">  template: &#96;&lt;div @click&#x3D;&quot;toEmit&quot; &gt;&lt;div&gt;这篇文章标题是&lt;&#x2F;div&gt;&#123;&#123;title&#125;&#125;  &lt;&#x2F;div&gt;&#96;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. 引用该组件</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.....</span><br><span class="line">&lt;div id&#x3D;&quot;app&quot;&gt;</span><br><span class="line">	&lt;my-title title&#x3D;&quot;白露&quot; style&#x3D;&quot;color:red&quot;  &#x2F;&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 渲染后的dom</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;div id&#x3D;&quot;app&quot;&gt;</span><br><span class="line">	&lt;div @click&#x3D;&quot;toEmit&quot;  style&#x3D;&quot;color:red&quot; &gt;&lt;div&gt;这篇文章标题是&lt;&#x2F;div&gt;&#123;&#123;title&#125;&#125;  &lt;&#x2F;div&gt;</span><br><span class="line">&lt;&#x2F;div&gt;</span><br></pre></td></tr></table></figure>
+
+<p>style是非prop属性，因此它被加载到my-title的根元素。并且，对于style,class会智能合并，其它属性则会直接替换。</p>
+<h4 id="禁止组件根元素继承非prop属性"><a href="#禁止组件根元素继承非prop属性" class="headerlink" title="禁止组件根元素继承非prop属性"></a>禁止组件根元素继承非prop属性</h4><p>在注册组件时，设置 属性<code> inheritAttrs: false</code></p>
+<p><strong>全局注册</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Vue.component(&#39;my-component&#39;, &#123;</span><br><span class="line">  inheritAttrs: false,</span><br><span class="line">  &#x2F;&#x2F; ...</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>局部注册时</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">var my-component &#x3D; &#123; </span><br><span class="line">inheritAttrs: false</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>inheritAttrs: false</code> 选项<strong>不会</strong>影响 <code>style</code> 和 <code>class</code> 的绑定。</p>
+</blockquote>
+<h4 id="组件获取非prop属性"><a href="#组件获取非prop属性" class="headerlink" title="组件获取非prop属性"></a><strong>组件获取非prop属性</strong></h4><p>通过this.$attr, 得到一个非props组成的对象</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/vue/" rel="tag"># vue</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/18/vue%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86/" rel="prev" title="vue事件处理">
+      <i class="fa fa-chevron-left"></i> vue事件处理
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+    <div class="toggle sidebar-toggle">
+        <span class="toggle-line toggle-line-first"></span>
+        <span class="toggle-line toggle-line-middle"></span>
+        <span class="toggle-line toggle-line-last"></span>
+    </div>
+
+    <aside class="sidebar">
+        <div class="sidebar-inner">
+
+            <ul class="sidebar-nav motion-element"  >
+                <li class="sidebar-nav-toc">
+                    文章目录
+                </li>
+                <li class="sidebar-nav-overview">
+                    站点概览
+                </li>
+            </ul>
+
+            <!--noindex-->
+            <div class="post-toc-wrap sidebar-panel">
+                    <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%BB%84%E4%BB%B6%E5%B1%9E%E6%80%A7props"><span class="nav-text">3. 组件属性props</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E5%BD%A2%E5%BC%8F%EF%BC%8C%E5%B1%9E%E6%80%A7%E6%97%A0%E4%BB%BB%E4%BD%95%E7%BA%A6%E6%9D%9F"><span class="nav-text">简单形式，属性无任何约束</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E5%AE%9A%E5%B1%9E%E6%80%A7%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="nav-text">指定属性的类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%87%E5%AE%9A%E5%B1%9E%E6%80%A7%E6%98%AF%E5%90%A6%E5%BF%85%E9%80%89%E3%80%81%E9%BB%98%E8%AE%A4%E5%80%BC"><span class="nav-text">指定属性是否必选、默认值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A3%80%E9%AA%8C%E5%99%A8"><span class="nav-text">自定义检验器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9EProps%E5%B1%9E%E6%80%A7"><span class="nav-text">非Props属性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%81%E6%AD%A2%E7%BB%84%E4%BB%B6%E6%A0%B9%E5%85%83%E7%B4%A0%E7%BB%A7%E6%89%BF%E9%9D%9Eprop%E5%B1%9E%E6%80%A7"><span class="nav-text">禁止组件根元素继承非prop属性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%84%E4%BB%B6%E8%8E%B7%E5%8F%96%E9%9D%9Eprop%E5%B1%9E%E6%80%A7"><span class="nav-text">组件获取非prop属性</span></a></li></ol></li></ol></li></ol></div>
+            </div>
+            <!--/noindex-->
+
+            <div class="site-overview-wrap sidebar-panel">
+                <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="马冰阳"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">马冰阳</p>
+  <div class="site-description" itemprop="description">记录成长的点点滴滴</div>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/likemby" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;likemby" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:mabingyangh@163.com" title="E-Mail → mailto:mabingyangh@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+            </div>
+
+
+          
+          <div class="widget-wrap">
+            <h3 class="widget-title">笔记分类</h3>
+            <div class="category-all-page">
+              <div class="category-all">
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/vue/">vue</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">算法与数据结构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">2</span></li></ul>
+              </div>
+            </div>
+          </div>
+          
+
+
+          
+            <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+            <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+            <div class="widget-wrap">
+              <h3 class="widget-title">标签云</h3>
+              <div id="myCanvasContainer" class="widget tagcloud">
+                <canvas width="250" height="100" id="resCanvas" style="width:100%">
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javaScript/" rel="tag">javaScript</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js-%E7%AC%94%E8%AE%B0/" rel="tag">js 笔记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/" rel="tag">vue</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
+                </canvas>
+              </div>
+            </div>
+          
+        </div>
+    </aside>
+
+    <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">马冰阳</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

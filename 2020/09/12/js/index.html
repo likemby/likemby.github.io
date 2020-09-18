@@ -28,7 +28,7 @@
 <meta property="og:description" content="问题   回调函数如何递归执行    递归函数传入Dom对象引用丢失问题    如何检测数组中某一元素是否为空元素  使用  index in arr ，判断下标是否为数组属性   语言 代码解释 当程序运行时，对命令的翻译是自上而下执行的。 代码编译 程序运行前事先编译 静态类型，强类型 指定变量存放指定类型的值，避免不想要的值转换 动态类型，弱类型 允许一个变量在任意时刻存放任意类型的值  基">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-09-12T10:46:21.479Z">
-<meta property="article:modified_time" content="2020-09-14T14:15:27.488Z">
+<meta property="article:modified_time" content="2020-09-16T05:58:51.686Z">
 <meta property="article:author" content="马冰阳">
 <meta property="article:tag" content="js 笔记">
 <meta name="twitter:card" content="summary">
@@ -217,7 +217,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-14 22:15:27" itemprop="dateModified" datetime="2020-09-14T22:15:27+08:00">2020-09-14</time>
+                <time title="修改时间：2020-09-16 13:58:51" itemprop="dateModified" datetime="2020-09-16T13:58:51+08:00">2020-09-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -667,7 +667,7 @@ parseInt(&quot;10 years&quot;);   // returns 10
 <h5 id="12-数组的keys-values-entries"><a href="#12-数组的keys-values-entries" class="headerlink" title="12. 数组的keys(),values(),entries()"></a>12. 数组的keys(),values(),entries()</h5><ul>
 <li><p>三个方法返回的是Iterator而非如Object.keys(arr)返回值是数组</p>
 </li>
-<li><p>打印Objext.entries(arr)返回，<code>[ [ &#39;0&#39;, 12 ], [ &#39;1&#39;, 3 ]</code> 观察到数组下标和值可以形成 key,value组</p>
+<li><p>打印Object.entries(arr)返回，<code>[ [ &#39;0&#39;, 12 ], [ &#39;1&#39;, 3 ]</code> 观察到数组下标和值可以形成 key,value组</p>
 </li>
 </ul>
 <h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>​    复杂数据类型之一，<code>typeof Function.prototype= &#39;function&#39;</code> ,是object子类型，是可调用的对象，其拥有内部属性[[call]]，使得其可以被调用。</p>
@@ -1123,7 +1123,7 @@ parseInt(&quot;10 years&quot;);   // returns 10
             <h3 class="widget-title">笔记分类</h3>
             <div class="category-all-page">
               <div class="category-all">
-                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">算法与数据结构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">2</span></li></ul>
+                <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/vue/">vue</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%89%8D%E7%AB%AF/">前端</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">算法与数据结构</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">2</span></li></ul>
               </div>
             </div>
           </div>
@@ -1137,7 +1137,7 @@ parseInt(&quot;10 years&quot;);   // returns 10
               <h3 class="widget-title">标签云</h3>
               <div id="myCanvasContainer" class="widget tagcloud">
                 <canvas width="250" height="100" id="resCanvas" style="width:100%">
-                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javaScript/" rel="tag">javaScript</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js-%E7%AC%94%E8%AE%B0/" rel="tag">js 笔记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
+                  <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/docker/" rel="tag">docker</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/javaScript/" rel="tag">javaScript</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js/" rel="tag">js</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/js-%E7%AC%94%E8%AE%B0/" rel="tag">js 笔记</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/" rel="tag">nginx</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/" rel="tag">vue</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/" rel="tag">浏览器</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
                 </canvas>
               </div>
             </div>
